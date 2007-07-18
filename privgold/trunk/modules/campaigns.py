@@ -1208,7 +1208,7 @@ def LoadMainCampaign():
 		[InSystemCondition("Gemini/Palan","Basra")], # Where fixer meets you to start the mission
 		[InSystemCondition("Gemini/Palan","Basra")], # Where the mission ends.
 		AddCredits(10000), # Script to add your credits
-		LaunchWingmen("militia","talon.wingman",2), # Script to be run to start the mission (usually None if you don't have a script. Do NOT load an ambush mission here.)
+		LaunchWingmen("privateer","talon.wingman",2), # Script to be run to start the mission (usually None if you don't have a script. Do NOT load an ambush mission here.)
 		'defend',('hunter',0,4,5000,123456.789,0,False,True,'merchant',(),priv.name+"_mission",'','demon.bronte','',1), # Mission arguments.
 		priv.name+"_mission", # Script to be set on completion. -1=Failure, 0=Not Accepted, 1=Succeed, 2=In progress
 		murphy3, # Dictionary containing what the fixer says.
