@@ -1479,7 +1479,7 @@ def LoadRFMurphyCampaign():
 						[("Murphy","Good to see you again. Here's the 20000 I promised you. Don't spend it all in one place."),("Burrows","Thanks."),("Murphy","By the way, I've heard the Confeds are also offering a bounty. You might want to go to Perry and see what's up. I'll see you around.")],
 	
 						MURPHY_SPRITE,
-						GoToSubnode(0),
+						GoToSubnode(0,AddCredits(20000)),
 						None,
 						[CampaignEndNode(rf)])]),
 		MurphyMission4)
