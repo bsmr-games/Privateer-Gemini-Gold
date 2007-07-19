@@ -1,12 +1,12 @@
+import dj_lib
+
+dj_lib.disable()
 import Base
 import VS
 import GUI
 import ShowProgress
 
 import computer_lib
-import dj_lib
-
-dj_lib.disable()
 
 def StartNewGame(self,params):
 	ShowProgress.activateProgressScreen('loading',3)
@@ -26,10 +26,12 @@ plist_credits=VS.musicAddList('maincredits.m3u')
 
 def enterMainMenu(self,params):
 	global plist_menu
+	VS.musicStop()
 	VS.musicPlayList(plist_menu)
 
 def enterCredits(self,params):
 	global plist_credits
+	VS.musicStop()
 	VS.musicPlayList(plist_credits)
 
 # Create menu room
@@ -92,5 +94,6 @@ btn = GUI.GUIButton(guiroom, 'XXXQuit Game','Quit_Game',sprite,sprite_loc,'enabl
 GUI.GUIRootSingleton.broadcastMessage('draw',None)
 
 # Base music
+VS.musicStop()
 VS.musicPlayList(plist_menu)
 
