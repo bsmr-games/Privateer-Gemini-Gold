@@ -9,24 +9,28 @@ class tripatrol(cleansweep.cleansweep):
 		self.cp=VS.getCurrentPlayer()
 	def RealSuccessMission(self):
 		cleansweep.cleansweep.RealSuccessMission(self)
+		print "REAL SUCCESS"
 		if (not self.launchedpirate):
+			print "LAUNCHING PIRATE"
 			self.launchedpirate=True
 			import launch
 			L= launch.Launch()
 			L.faction="pirates"
 			L.fg="Drake"
-			L.dynfg=""
-			L.minradius=1000.0
-			L.maxradius=1500.0
+			L.dynfg="" 
+			L.minradius=500.0
+			L.maxradius=550.0
 			L.ai="default"
 			L.num=1
 			import faction_ships
 			L.type=faction_ships.getRandomFighter("pirates")
 			pirate=L.launch(self.you)
 			import universe
+			universe.greet(self.pirategreeting,pirate,self.you)
+			print pirate.getName()
 			pirate.SetTarget(universe.getRandomJumppoint())
 			pirate.ActivateJumpDrive(0)
-			universe.greet(self.pirategreeting)
+			pirate.SetVelocity((0,0,1000))
 	def Execute(self):
 		if (VS.getPlayer()==self.you):
 			self.tricounter-=1
