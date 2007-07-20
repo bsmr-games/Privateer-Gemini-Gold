@@ -102,7 +102,7 @@ class rescue (Director.Mission):
             #check for dockal
             if (self.you.GetCargo(self.cargname).GetQuantity()==0):
                 self.Lose(1)
-            elif (self.adjsys.SignificantUnit().isDocked(self.you) or self.you.isDocked(self.adjsys.SignificantUnit())):
+            elif (self.adjsys.SignificantUnit().isDocked(self.you) or self.you.isDocked(self.adjsys.SignificantUnit()) or self.adjsys.SignificantUnit().getDistance(self.you)<10):
                 if (self.you.removeCargo(self.cargname,1,1)):
                     self.Win(self.you,1)
                 else:
