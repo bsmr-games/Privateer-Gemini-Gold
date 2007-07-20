@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
-           Privateer Gemini Gold v1.02 -- 06/20/2007 -- Changes
+           Privateer Gemini Gold v1.02 -- 07/24/2007 -- Changes
 -----------------------------------------------------------------------------
 
 This file contains information about the changes between the different
@@ -9,15 +9,22 @@ Privateer Gemini Gold versions.
                                  CHANGE HISTORY
 -----------------------------------------------------------------------------
 
+
   4. CHANGES FROM 1.02 TO 1.02a
 
-	A. Bugfixes
+	A. new paradigm model with turrets
+
+	B. Bugfixes
+
+		- "bounce back bug" which prevents you from landing
+
+		- Lynn Murphy mission: hostile militia wingmen
+
+		- Lynn Murphy mission: no mission payment
+
+		- Search for Mordichai Jones: Pirate doesn't deliver message
 
 		- cargo space calculation bug when using cargo expansion
-
-		- selling of missile launchers
-
-		- unnecessary repair needed when in sell mode
 
 		- missing linux/ubuntu dependencies
 
