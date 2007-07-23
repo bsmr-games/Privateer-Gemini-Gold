@@ -16,7 +16,7 @@
 </Appearance>
 </Bolt>
 
-<Bolt name="CapLaser" mountsize="light"> <!-- for a more challenging Kamekh -->
+<Bolt name="CapLaser" mountsize="light"> <!-- for more challenging Capital Ships -->
 <Energy rate="4" stability="4" refire=".4">
 </Energy>
 <Damage rate="3.5" longrange="1">
@@ -45,6 +45,17 @@
 </Damage>
 <Distance speed="1100" radialspeed=".6" radius=".50" pulsespeed="15" 
 range="3738" >
+</Distance>
+<Appearance file="weapons_massdriver.ani" soundwav="Mass.wav" r="1" g="1" b="1" a="1" >
+</Appearance>
+</Ball>
+
+<Ball name="CapMassDriver" mountsize="light"> <!-- for more challenging Capital Ships -->
+<Energy rate="5" refire=".36">
+</Energy>
+<Damage rate="2.8" longrange="1">
+</Damage>
+<Distance speed="1150" radialspeed=".6" radius=".60" pulsespeed="15" range="3954" >
 </Distance>
 <Appearance file="weapons_massdriver.ani" soundwav="Mass.wav" r="1" g="1" b="1" a="1" >
 </Appearance>
@@ -89,6 +100,17 @@ range="3738" >
 <Damage rate="3.7" longrange="1">
 </Damage>
 <Distance speed="1250" radialspeed=".8" radius="1.2" length="10" pulsespeed="15" range="4248" >
+</Distance>
+<Appearance file="weapons/tachyon.png" soundwav="Tachyon.wav" r="1" g="1" b=".8" a="1" >
+</Appearance>
+</Bolt>
+
+<Bolt name="CapTachyon" mountsize="heavy"> <!-- for more challenging Capital Ships -->
+<Energy rate="8" stability="6" refire=".5">
+</Energy>
+<Damage rate="4.2" longrange="1">
+</Damage>
+<Distance speed="1312" radialspeed=".8" radius="1.3" length="10" pulsespeed="15" range="4812" >
 </Distance>
 <Appearance file="weapons/tachyon.png" soundwav="Tachyon.wav" r="1" g="1" b=".8" a="1" >
 </Appearance>

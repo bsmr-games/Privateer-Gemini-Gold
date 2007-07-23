@@ -5,7 +5,7 @@
 <specular red="0" green="0" blue="0"/>
 </Light>
 
-<Planet name="New_Constantinople" file="stars/sun.png" radius="4000000" y="-14594814.000000" z="00.00" x="14594814.000000"  Red="1" Green="0.9" Blue="1" ReflectNoLight="true" light="0"/>
+<Planet name="New_Constantinople" file="stars/sun.png" radius="4000000" y="14594814.000000" z="00.00" x="14594814.000000"  Red="1" Green="0.9" Blue="1" ReflectNoLight="true" light="0"/>
 
 <Light>
 <ambient red="000.0" green="000.0" blue="000.0"/>
