@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
-           Privateer Gemini Gold v1.02 -- 07/24/2007 -- Changes
+           Privateer Gemini Gold v1.02 -- 07/26/2007 -- Changes
 -----------------------------------------------------------------------------
 
 This file contains information about the changes between the different
@@ -14,7 +14,9 @@ Privateer Gemini Gold versions.
 
 	A. new paradigm model with turrets
 
-	B. Bugfixes
+	B. new "New Constantinople Superbase" model
+
+	C. Bugfixes
 
 		- "bounce back bug" which prevents you from landing
 
@@ -27,6 +29,12 @@ Privateer Gemini Gold versions.
 		- cargo space calculation bug when using cargo expansion
 
 		- missing linux/ubuntu dependencies
+
+		- npcs are always hostile (linux)
+
+		- impossible rescue missions
+
+		- sound issues (linux)
 
 
   3. CHANGES FROM 1.01 TO 1.02
@@ -77,7 +85,7 @@ Privateer Gemini Gold versions.
 
 		- patrol mission enemies, navpoints in mission descr.
 
-		- negative distances in ship mfd
+		- negative distances in ship MFD
 
 		- graphic errors: Tarsus energy/shield bar, beer sign
 
