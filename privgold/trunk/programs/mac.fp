@@ -51,9 +51,9 @@ void main() {
 //keep everything in world space
   vec3 half0Angle=normalize(eyeDir+light0Dir);
   vec3 half1Angle=normalize(eyeDir+light1Dir);
-  vec3 normal;//=normalize(expand(texture2D(normalMap,tc0.xy).xyz));
+  vec3 normal;//=normalize(expand(texture2D(normalMap,tc0.xy).wyz));
 //transform normal from normalMap to world space
-  normal=normalize(imatmul(iTangent,iBinormal,iNormal,normalize(expand(texture2D(normalMap,tc0.xy).xyz))));
+  normal=normalize(imatmul(iTangent,iBinormal,iNormal,normalize(expand(texture2D(normalMap,tc0.xy).wyz))));
   //begin shading
 //compute half angle dot with light (not used)
   float nDotH0=dot(normal,half0Angle);
