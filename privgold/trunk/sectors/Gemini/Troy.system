@@ -1,8 +1,8 @@
 <system name="Troy" background="backgrounds/plasma_galaxy" nearstars="0" stars="0" starspread="0"  y="0" z="0" x="0">
 <Light>
 <ambient red=".25" green=".25" blue=".25"/>
-<diffuse red="0.774596669241483" green="0.774596669241483" blue="0.774596669241483"/>
-<specular red="0.6" green="0.6" blue="0.6"/>
+<diffuse red="1" green="1" blue="1"/>
+<specular red="1" green="1" blue="1"/>
 </Light>
 
 <Planet name="Troy" file="stars/sun.png" radius="4000000" y="-14594814.000000" z="00.00" x="14594814.000000"  Red="0.6" Green="0.6" Blue="1" ReflectNoLight="true" light="0"/>
