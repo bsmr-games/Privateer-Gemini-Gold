@@ -33,7 +33,7 @@ void main() {
     pc+=gl_FrontLightProduct[1].ambient;
   vec4 sc=vec4(0);
   if (max_light_enabled>=2) {
-    for (int li=2;li<gl_MaxLights;++li) {//computed in engine
+    for (int li=2;li<6;++li) {//computed in engine
       //if (li>max_light_enabled) break;
       if (light_enabled[li]!=0) {//only compute for enabled lights
       //do per vertex lighting for lights 1,2,3,4,5,6,7+
