@@ -219,7 +219,11 @@ def tohex(r,g,b):
 	return '#'+bytehex(int(r*255))+bytehex(int(g*255))+bytehex(int(b*255))
 
 def getcolor(strs):
-	h=(hash(strs)/2147483647.+1)/2
+	h=((hash(strs)%2147483647)/2147483647.+1)/2
+	if h>1.0:
+		h=1.0
+	if h<0.0:
+		h=0.0
 	if h<.1666666:
 		return tohex(0,h/.1666666,1)
 	elif h<.3333333:
