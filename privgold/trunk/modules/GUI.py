@@ -26,10 +26,7 @@ class GUIRoot:
 			marginY = 0.00
 		self.setScreenMargins(marginX,marginY)
 		self.needRedraw = {}
-		self.keyTarget = None
-		self.modalElement = None
-		Base.GlobalKeyPython('#\nfrom GUI import GUIRoot\nGUIRootSingleton.keyEvent()\n')
-		
+
 	def setScreenDimensions(self,screenX,screenY):
 		self.screenX=screenX
 		self.screenY=screenY
@@ -90,20 +87,6 @@ class GUIRoot:
 		
 	def getRoomById(self,id):
 		return self.rooms.get(id,None)
-
-	def keyEvent(self):
-		eventdata = Base.GetEventData();
-		if self.keyTarget is not None:
-			if eventdata['type'] == 'keyup' and 'keyUp' in dir(self.keyTarget):
-				self.keyTarget.keyUp(eventdata['key'])
-			if eventdata['type'] == 'keydown' and 'keyDown' in dir(self.keyTarget):
-				self.keyTarget.keyDown(eventdata['key'])
-				
-	def setKeyTarget(self,target):
-		self.keyTarget = target
-	
-	def getKeyTarget(self):
-		return self.keyTarget;
 
 
 def GUIInit(screenX,screenY,marginX=None,marginY=None):
@@ -408,18 +391,6 @@ class GUIElement:
 		r = r + ">"
 		return r
 		
-	def focus(self,modal=False):
-		""" grabs the global keyboard focus for this ui element """
-		GUIRootSingleton.setKeyTarget(self)
-		if modal:
-			GUIRootSingleton.modalElement = self
-	
-	def unfocus(self):
-		""" grabs the global keyboard focus for this ui element """
-		if GUIRootSingleton.getKeyTarget() == self:
-			GUIRootSingleton.setKeyTarget(None)
-			GUIRootSingleton.modalElement = None
-	
 	def show(self):
 		self.visible=1
 		self.notifyNeedRedraw()
@@ -444,20 +415,10 @@ class GUIElement:
 		self.undraw()
 		self.draw()
 
-	def isInteractive(self):
-		""" support for modal behaviour: """
-		""" if something is modal returns false if it is not this """
-		""" element or its enclosing group """
-		return (GUIRootSingleton.modalElement is None 
-			or GUIRootSingleton.modalElement is self
-			or (GUIRootSingleton.modalElement.__class__ is type("GUIGroup") 
-			    and self in GUIRootSingleton.modalElement.children))
-
 	def onMessage(self,message,params):
 		"""Standard message dispatch"""
 		if (message=='click'):
-			if self.isInteractive():
-				self.onClick(params)
+			self.onClick(params)
 		elif (message=='show'):
 			self.onShow(params)
 		elif (message=='hide'):
@@ -553,7 +514,7 @@ class GUIStaticImage(GUIElement):
 		self.index=index
 		self.spritestate=0
 		self.redrawPreservesZ=1
-	
+		
 	def spriteIsValid(self):
 		return ( self.sprite 
 			and type(self.sprite) is tuple 
@@ -656,57 +617,6 @@ class GUIStaticText(GUIElement):
 
 """----------------------------------------------------------------"""
 """                                                                """
-""" GUILineEdit - an interactive text box                          """
-"""                                                                """
-"""----------------------------------------------------------------"""
-
-class GUILineEdit(GUIStaticText):
-
-	def __init__(self,action,room,index,text,location,color,fontsize=1.0,bgcolor=None,**kwarg):
-		GUIStaticText.__init__(self,room,index,text,location,color,fontsize,bgcolor,**kwarg)
-		self.action=action
-		self.draw()
-		self.setText(self.getText())
-		self.canceled = False
-
-	def setText(self,newtext):
-		self.text = newtext
-		if self.textstate==1:
-			Base.SetTextBoxText(self.room.getIndex(),str(self.index),str(self.text) + '_|')
-
-	def keyDown(self,key):
-		print "got key: %i" % key 
-		if key == 13:
-			self.action(self)
-		elif key == 27:
-			self.canceled = True
-			self.action(self)		
-		elif key == 127:
-			print "backspace"
-			self.setText(self.getText()[:-1])
-		else:
-			self.setText(self.getText() + ('%c' % key));
-		#self.notifyNeedRedraw()
-
-"""------------------------------------------------------------------"""
-"""                                                                  """
-""" GUITextInputDialog - a little dialog in which you can enter text """
-"""                                                                  """
-"""------------------------------------------------------------------"""
-
-
-class GUITextInputDialog(GUIGroup):
-	def __init__(self,room,index,location,text,action,color,**kwargs):
-		GUIGroup.__init__(self,room,kwargs)
-		self.children.append(GUILineEdit(self.editcallback,room,index,text,location,color))
-		
-
-
-
-
-
-"""----------------------------------------------------------------"""
-"""                                                                """
 """ GUIButton - a button you can click on.                         """
 """                                                                """
 """----------------------------------------------------------------"""
@@ -750,7 +660,6 @@ class GUIButton(GUIStaticImage):
                   "# <-- this disables precompiled python objects\n" \
                  +"from GUI import GUIRootSingleton\n" \
 		     +"evData = Base.GetEventData()\n" \
-		     +"print evData\n" \
 		     +"typeToMessage = {'click':'click','up':'up','down':'down','move':'move','enter':'enter','leave':'leave'}\n" \
 		     +"if ('type' in evData) and (evData['type'] in typeToMessage):\n" \
                  +"\tGUIRootSingleton.dispatchMessage("+str(self.id)+",typeToMessage[evData['type']],evData)\n" \
@@ -907,29 +816,27 @@ class GUIButton(GUIStaticImage):
 		self.group = group
 
 	def onMessage(self,message,params):
+		# Button-specific mouse events
+		if (message=='move'):
+			self.onMouseMove(params)
+		elif (message=='up'):
+			self.onMouseUp(params)
+		elif (message=='down'):
+			self.onMouseDown(params)
+		elif (message=='enter'):
+			self.onMouseEnter(params)
+		elif (message=='leave'):
+			self.onMouseLeave(params)
 		# Button-specific actions
-		if (message=='enable'):
+		elif (message=='enable'):
 			if (not ('group' in params) or (self.getGroup() == params['group'])) and (not ('exclude' in params) or (self.id != params['exclude'])):
 				self.enable()
 		elif (message=='disable'):
 			if (not ('group' in params) or (self.getGroup() == params['group'])) and (not ('exclude' in params) or (self.id != params['exclude'])):
 				self.disable()
-		# Button-specific mouse events
-		elif self.isInteractive():
-			print GUIRootSingleton.modalElement
-			if (message=='move'):
-				self.onMouseMove(params)
-			elif (message=='up'):
-				self.onMouseUp(params)
-			elif (message=='down'):
-				self.onMouseDown(params)
-			elif (message=='enter'):
-				self.onMouseEnter(params)
-			elif (message=='leave'):
-				self.onMouseLeave(params)		
-			# Fallback
-			else:
-				GUIStaticImage.onMessage(self,message,params)
+		# Fallback
+		else:
+			GUIStaticImage.onMessage(self,message,params)
 
 
 """----------------------------------------------------------------"""
