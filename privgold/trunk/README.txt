@@ -1,2 +1,7 @@
 Greetings from california
-we both changed the second line!!! oh no!
+
+
+
+
+Greetings from Sydney Australia :^)
+
