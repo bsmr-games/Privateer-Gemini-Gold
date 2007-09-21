@@ -7,6 +7,7 @@ import VS
 import ShowProgress
 import methodtype
 import mission_lib
+import os
 
 pirate_bases = {
 	'Gemini/Capella': 'Drake',
@@ -148,6 +149,7 @@ class QuineComputer:
 		# add background sprite; no need to keep a variable around for this, as it doesn't change
 		GUI.GUIStaticImage(guiroom, 'background', ( 'interfaces/quine/main.spr' , GUI.GUIRect(0, 0, 1, 1, "normalized") )).draw()
 	
+
 		# add buttons
 		self.buttons = {}
 		self.mode = ''
@@ -209,9 +211,14 @@ class QuineComputer:
 		self.str_start = get_location_text(current_base)
 		
 		screen_loc = GUI.GUIRect(80,90,350,380,"pixel",(800,600))
-		screen_color = GUI.GUIColor(20/255.0, 22/255.0 ,10/255.0)		# first I tried rgb(56 60 24) and rgb(40 44 20); both were too light
+		screen_color = GUI.GUIColor(20/255.0, 22/255.0 ,10/255.0)
+		self.screen_color = screen_color;
+		self.screen_loc = screen_loc;
+
+		# first I tried rgb(56 60 24) and rgb(40 44 20); both were too light
 		screen_bgcolor = GUI.GUIColor.clear()
 		screen_bgcolor_nc = GUI.GUIColor(0.44,0.47,0.17)
+		self.screen_bgcolor = screen_bgcolor;
 	
 		# text screen
 		self.txt_screen = GUI.GUIStaticText(guiroom, 'txt_screen', self.str_start, screen_loc, 
@@ -254,17 +261,27 @@ class QuineComputer:
 	
 	
 		# Exit button, returns us to concourse
-		rect = GUI.GUIRect(224, 167, 35, 14)
-		x, y, w, h = rect.getHotRect()
-#		Base.Link (room_start, 'exit', x, y, w, h, 'Exit', room_exit_to)
-		Base.LinkPython (room_start, 'exit', "#\nimport GUI\nGUI.GUIRootSingleton.getRoomById(%s).owner.reset()\n" %(guiroom.getIndex()), x, y, w, h, 'XXXExit', room_exit_to)
+		self.room_id = room_start
+		self.exit_room_id = room_exit_to
+		self.setExitLinkState(True)
+
+	def setExitLinkState(self,state):
+		if state:
+			rect = GUI.GUIRect(224, 167, 35, 14)
+			x, y, w, h = rect.getHotRect()
+			#		Base.Link (room_start, 'exit', x, y, w, h, 'Exit', room_exit_to)
+			Base.LinkPython (self.room_id, 'exit', "#\nimport GUI\nGUI.GUIRootSingleton.getRoomById(%s).owner.reset()\n" 
+					 % (self.guiroom.getIndex()), x, y, w, h, 'XXXExit', self.exit_room_id)
+		else:
+			Base.EraseLink (self.room_id, 'exit')
+		
 
 	def reset(self):
 		trace(TRACE_DEBUG,"::: QuineComputer.reset()")
 		self.txt_screen.setText( self.str_start )
 
 	def change_text(self, button_index):
-		text_screens = {
+ 		text_screens = {
 			'btn_finances' : lambda:get_relations_text(VS.getPlayer()),
 			'btn_manifest' : lambda:get_manifest_text(VS.getPlayer()),
 			'btn_missions' : lambda:get_missions_text()
@@ -295,19 +312,49 @@ class QuineComputer:
 					+"\n"*3
 					+"Press SAVE again to do it." )
 				self.txt_screen.show()
-			elif self.picker_screen.selection is not None:
+			elif self.picker_screen.selection is not None:		
+				savename = ''
 				if self.picker_screen.items[self.picker_screen.selection].data is NewSaveGame:
-					VS.saveGame(makeNewSaveName())
+					savename = makeNewSaveName()
 				else:
-					VS.saveGame(self.picker_screen.items[self.picker_screen.selection].data)
-				self.picker_screen.items = [GUI.GUISimpleListPicker.listitem("New Game",NewSaveGame)]+savelist()
-				self.picker_screen.show()
-				self.txt_screen.hide()
+					savename = self.picker_screen.items[self.picker_screen.selection].data
+
+				#enter a modal line editor
+				boxloc = GUI.GUIRect(120,130,200,20,"pixel",(800,600))
+				self.saveGameNameEntryBox = GUI.GUILineEdit(self.saveNameEntryEntered,
+									    self.guiroom,"box_save",
+									    savename, boxloc, 
+									    self.screen_color,
+									    bgcolor=self.screen_bgcolor)
+				self.saveGameNameEntryBox.focus(True)
+				self.setExitLinkState(False)
+				self.txt_screen.setText( 'Save Game:' )
+				self.txt_screen.show()
+				self.saveGameNameEntryBox.show()
+				self.picker_screen.hide()
+				self.oldSaveName = savename
+				
 		else:
 			self.picker_screen.hide()
 			self.txt_screen.hide()
 		self.mode = button_index
 	
+	#line editor callback
+	def saveNameEntryEntered(self,textbox):
+		if textbox.getText() is not '' and textbox.canceled is False:
+			savename = textbox.getText()
+			VS.saveGame(savename)
+			if savename is not self.oldSaveName:
+				os.remove(VS.getSaveDir() + os.sep + self.oldSaveName)
+			self.picker_screen.items = [GUI.GUISimpleListPicker.listitem("New Game",NewSaveGame)]+savelist()
+		self.txt_screen.hide()
+		textbox.hide()
+		textbox.unfocus()
+		self.saveGameNameEntryBox = None
+		self.picker_screen.show()
+		self.setExitLinkState(True)
+		self.guiroom.redraw()
+
 	def scroll(self,direction):
 		list_screens = set(['btn_load','btn_save'])
 		if self.mode in list_screens:
@@ -398,10 +445,10 @@ def get_ship_text(unit = None):
 		player = VS.getPlayer()
 	
 	name = player.getName()
-	if name.find('.') < 0:
+	if name.index('.') is None:
 		return name.capitalize()
 	else:
-		return name[:name.find('.')].capitalize()
+		return name[:name.index('.')].capitalize()
 
 def get_missions_text():
 	missionlist = mission_lib.GetMissionList()
@@ -452,10 +499,9 @@ def get_manifest_text(player):
 
 	# get the hold volume
 	int_hold_volume = int( VS.LookupUnitStat( player.getName(), player.getFactionName(), "Hold_Volume" ) )
-	numaddcargo=player.hasCargo("add_cargo_volume")
-	if (numaddcargo):
+	if (player.hasCargo("add_cargo_volume")):
 		# capacity increases by 50% if they have the cargo expansion
-		int_hold_volume = int( int_hold_volume + 25*numaddcargo )
+		int_hold_volume = int( int_hold_volume * 1.5 )
 
 	int_total_quantity = 0
 	for i in range(player.numCargo()):
