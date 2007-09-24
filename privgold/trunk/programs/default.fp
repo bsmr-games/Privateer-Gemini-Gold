@@ -130,7 +130,7 @@ void main()
 
   vec4 result;
   result.rgb  = lightingClose(diffuse, specular, ambient, diffusemap, specmap)
-              + glowcolor.rgb*0.25
+              + glowcolor.rgb
               + envMapping(reflection,gl_FrontMaterial.shininess,specmap);
   result.a = diffusemap.a;
   result *= cloaking.rrrg;
