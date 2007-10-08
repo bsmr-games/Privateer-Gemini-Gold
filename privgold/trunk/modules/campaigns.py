@@ -2309,7 +2309,7 @@ def LoadRFCampaign():
 		['They stole my gun, my beautiful Steltek gun...'],
 		None,
 		GoToSubnode(0,Cutscene('Security','RighteousFireCutscene.spr',(0.582,-0.3),(3.104,1.2416),'They stole my gun',[
-				("Jolson Pleasure Base...                                   "),
+				("Location","Jolson Pleasure Base...                                   ","barspeech/campaign/rfintro.ogg"),
 #				("One year later..."),
 				("                                                                                                            "),
 				("Robot","Attention please.                                                      "),
