@@ -2198,27 +2198,27 @@ def LoadRFCampaign():
 	masterson1 = {
 		'failure': mastersonfailure, 
 		'intro': [
-			('Burrows', "Hello, Masterson. I've come looking for a little help."), 
+			('Burrows', "Hello, Masterson. I've come looking for a little help.", "barspeech/campaign/rf/masterson1.ogg"), 
 			('Masterson', 'Great, we can use all the help we can get these days.'), 
 			('Burrows', "You misunderstood. I'm looking for information that'll help me find my gun."), 
 			('Masterson', "I heard news. I thought that gun was dangerous in your hands, but... Perhaps we can trade services. I have a friend who considers himself an expert on every fringe organisation in Gemini. He has his ear open to all underground activity, but, he's leery of meeting new people. Somewhat paranoid. I can't blame him. He's pretty unpopular from exposing certain groups. But, if you could help me out I would consider introducing you."), 
 			('Burrows', "Meeting your friend doesn't sound too exciting, but I can check my own leads with your money. I hope you're not expecting charity work."), 
 			('Masterson', "Well we are an academic institution, and rather needy at the moment. The constant threat from the Retros has us worried. We are disassembling the Oxford library. With the Retros on the rise, having all our knowledge in one place has become dangerous. We've become too big of a target. And with the Confederation occupied with the Kilrathi, we're virtually unprotected. I need you to deliver part of our rare books collection to a safer place, Base Edom in New Constantinople. The job pays 10000. Return here afterwards. How about it?")], 
 		'reconsider': [
-			('Masterson', "I had a hunch you'd return."), 
+			('Masterson', "I had a hunch you'd return.", "barspeech/campaign/rf/masterson1reconsider.ogg"), 
 			('Burrows', 'Swell. Tell me about the mission again.'), 
 			('Masterson', "You're to deliver a load of rare books to Base Edom in New Constantinople. Your reward will be 10000 credits.")], 
-		'reject1': [('Masterson', "I know it's not many credits, but I'm offering extended employment, and the chance to meet an invaluable contact. We're desperate, but you would be crazy to pass up this opportunity. You'll be back.")], 
-		'reject2': [('Masterson', "If you want to meet my contact, you'll have to fly my missions.")], 
+		'reject1': [('Masterson', "I know it's not many credits, but I'm offering extended employment, and the chance to meet an invaluable contact. We're desperate, but you would be crazy to pass up this opportunity. You'll be back.", "barspeech/campaign/rf/masterson1reject1.ogg")], 
+		'reject2': [('Masterson', "If you want to meet my contact, you'll have to fly my missions.", "barspeech/campaign/rf/masterson1reject2.ogg")], 
 		'reminder': [
-			('Masterson', "I see you still haven't delivered my rare books. Why is that?"), 
+			('Masterson', "I see you still haven't delivered my rare books. Why is that?", "barspeech/campaign/rf/masterson1reminder.ogg"), 
 			('Burrows', "Not your concern, Masterson. Let's hear the details again."), 
 			('Masterson', "All right, then. You're to deliver a load of rare books to Base Edom in New Constantinople. It's that simple. Your reward will be 10000 credits.")], 
-		'accept': [('Masterson', "Hurry back for more work, and I'll see about locating my friend.")]}
+		'accept': [('Masterson', "Hurry back for more work, and I'll see about locating my friend.", "barspeech/campaign/rf/masterson1accept1.ogg")]}
 	masterson2 = {
 		'failure': mastersonfailure, 
 		'intro': [
-			('Masterson', "Good to see you back. We've been needing your help."), 
+			('Masterson', "Good to see you back. We've been needing your help.", "barspeech/campaign/rf/masterson2.ogg"), 
 			('Burrows', "Yeah, well, I didn't realise how dangerous research had become."), 
 			('Masterson', 'The Retros are always at our throats trying to stop it, and the pirates trying to get to it. Which, of course, could mean money for you. We need someone to patrol Oxford.'), 
 			('Burrows', "Well, I suppose I could take easy money from you. Don't you have less skilled help for your simple chores?"), 
@@ -2226,69 +2226,69 @@ def LoadRFCampaign():
 			('Burrows', 'I could use the target practice, but not for free, of course.'), 
 			('Masterson', 'I can offer the usual 10000.')], 
 		'reconsider': [
-			('Burrows', "Okay, Masterson, I've reconsidered. Tell me the details again."), 
+			('Burrows', "Okay, Masterson, I've reconsidered. Tell me the details again.", "barspeech/campaign/rf/masterson2reconsider.ogg"), 
 			('Masterson', 'Patrol the nav points in Oxford. Destroy all Retro and pirate threats, and return for your 10000.')], 
-		'reject1': [('Burrows', 'Sorry. Not my style.')], 
-		'reject2': [('Masterson', "You must not value my opinion of your dependability. I'm sure my friend would not approve.")], 
+		'reject1': [('Burrows', "Sorry. Not my style.", "barspeech/campaign/rf/masterson2reject1.ogg")], 
+		'reject2': [('Masterson', "You must not value my opinion of your dependability. I'm sure my friend would not approve.", "barspeech/campaign/rf/masterson2reject2.ogg")], 
 		'reminder': [
 			('Masterson', "Oxford Security reports increased activity in the system. Obviously, you've not held up your end of the deal."), 
 			('Burrows', 'Could be temporary amnesia. What was I supposed to do?'), 
 			('Masterson', 'Simply Patrol all nav points of Oxford system, and return for 10000. Deal?')], 
-		'accept': [('Masterson', 'Good luck. See you soon')]}
+		'accept': [('Masterson', "Good luck. See you soon", "barspeech/campaign/rf/masterson2accept1.ogg")]}
 	masterson3 = {
 		'failure': mastersonfailure, 
 		'intro': [
-			('Burrows', "Hello, Masterson. I'm back."), 
+			('Burrows', "Hello, Masterson. I'm back.", "barspeech/campaign/rf/masterson3.ogg"), 
 			('Masterson', 'Great.'), 
 			('Burrows', "What's next?"), 
 			('Masterson', 'I need you to deliver part of our rare books collection to Burton in Junction. The job pays 10000. Return here afterwards. How about it?')], 
 		'reconsider': [
-			('Masterson', "I knew you'd come back."), 
+			('Masterson', "I knew you'd come back.", "barspeech/campaign/rf/masterson3reconsider.ogg"), 
 			('Burrows', "Let's hear the specs again."), 
 			('Masterson', 'Here it is. You deliver some books for me to Burton in Junction. You get 10000, and return here.')], 
-		'reject1': [('Masterson', "I know you. You'll change your tune.")], 
-		'reject2': [('Masterson', 'Whatever you say.')], 
+		'reject1': [('Masterson', "I know you. You'll change your tune.", "barspeech/campaign/rf/masterson3reject1.ogg")], 
+		'reject2': [('Masterson', "Whatever you say.", "barspeech/campaign/rf/masterson3reject2.ogg")], 
 		'reminder': [
-			('Masterson', "I see you still haven't delivered books to Burton."), 
+			('Masterson', "I see you still haven't delivered books to Burton.", "barspeech/campaign/rf/masterson3reminder.ogg"), 
 			('Burrows', 'I had a memory lapse. What was the plan again?'), 
 			('Masterson', "Let me refresh your memory. Deliver rare books to Burton in Junction. The pay is 10000. I'll see you back here. Once and for all, are you going to do it or not?")], 
-		'accept': [('Masterson', "Hurry back for more work and I'll see about locating my friend.")]}
+		'accept': [('Masterson', "Hurry back for more work and I'll see about locating my friend.", "barspeech/campaign/rf/masterson3accept1.ogg")]}
 	masterson4 = {
 		'failure': mastersonfailure, 
 		'intro': [
-			('Masterson', "I don't have time to swap pleasantries. We have a freighter making the jump to Saxtogue from Nav 1, Oxford system. We're making a series of transports of library support machinery. We believe they could be in some danger from Retro attacks. Escort the freighter and make sure it jumps out safely and return here for your payment, along with more work."), 
+			('Masterson', "I don't have time to swap pleasantries. We have a freighter making the jump to Saxtogue from Nav 1, Oxford system. We're making a series of transports of library support machinery. We believe they could be in some danger from Retro attacks. Escort the freighter and make sure it jumps out safely and return here for your payment, along with more work.", "barspeech/campaign/rf/masterson4.ogg"), 
 			('Burrows', 'How long before they strike?'), 
 			('Masterson', 'They could arrive at any moment. Please help. Surely, 10000 credits still interests you.')], 
-		'reconsider': [('Masterson', 'Look, we need a freighter escort. Our freighters are sitting ducks without protection. The freighter is making the jump to Saxtogue at Nav 1, Oxford. I told you, if you want 10000 credits and an introduction to my friend, you need to defend it! Will you help us, or not?')], 
+		'reconsider': [('Masterson', "Look, we need a freighter escort. Our freighters are sitting ducks without protection. The freighter is making the jump to Saxtogue at Nav 1, Oxford. I told you, if you want 10000 credits and an introduction to my friend, you need to defend it! Will you help us, or not?", "barspeech/campaign/rf/masterson4reconsider.ogg")], 
 		'reject1': [
-			('Burrows', "Shove off, pal. Consider this payback for all the flak you've given me."), 
+			('Burrows', "Shove off, pal. Consider this payback for all the crap you've given me.", "barspeech/campaign/rf/masterson4reject1.ogg"), 
 			('Masterson', 'Unless you take this mission, consider our agreement terminated.')], 
-		'reject2': [('Burrows', "Forget it, Masterson. This mission looks like a suicide run. I need the information, but it's only useful to me if I'm around to enjoy it.")], 
+		'reject2': [('Burrows', "Forget it, Masterson. This mission looks like a suicide run. I need the information, but it's only useful to me if I'm around to enjoy it.", "barspeech/campaign/rf/masterson4reject2.ogg")], 
 		'reminder': [
-			('Masterson', "Of all the, what are you doing here... Our freighters are being attacked even now! Unless you hurry up, we won't get sufficient equipment for the reconstruction."), 
+			('Masterson', "Of all the, what are you doing here... Our freighters are being attacked even now! Unless you hurry up, we won't get sufficient equipment for the reconstruction.", "barspeech/campaign/rf/masterson4reminder.ogg"), 
 			('Burrows', 'Well, I...'), 
 			('Masterson', 'What are you standing there for... Launch and escort our freighter to the jump point at Nav 1, or kiss your precious information good-bye. Please decide. Are you going to do it or not?')], 
 		'accept': [
-			('Burrows', "Okay, I'll save your equipment. But I'd better get a full letter of recommendation to your friend."), 
+			('Burrows', "Okay, I'll save your equipment. But I'd better get a full letter of recommendation to your friend.", "barspeech/campaign/rf/masterson4accept1.ogg"), 
 			('Masterson', "We'll see about that.")]}
 	masterson5 = {
 		'failure': mastersonfailure, 
 		'intro': [
-			('Burrows', "Hello, Masterson. I'm back."), 
+			('Burrows', "Hello, Masterson. I'm back.", "barspeech/campaign/rf/masterson5.ogg"), 
 			('Masterson', 'Great.'), 
 			('Burrows', "What's next?"), 
 			('Masterson', 'I need you to deliver our Twentieth Century Artwork collection to Perry Naval Base in Perry. The job pays 10000. Return here afterwards. How about it?')], 
 		'reconsider': [
-			('Masterson', "I knew you'd come back."), 
+			('Masterson', "I knew you'd come back.", "barspeech/campaign/rf/masterson5reconsider.ogg"), 
 			('Burrows', "Let's hear the specs again."), 
 			('Masterson', 'Here it is. You deliver artwork to Perry Naval Base in Perry. You get 10000, and return here.')], 
-		'reject1': [('Masterson', "I know you. You'll change your tune.")], 
-		'reject2': [('Masterson', 'Whatever you say.')], 
+		'reject1': [('Masterson', "Dealing with you can be very frustrating.", "barspeech/campaign/rf/masterson5reject1.ogg")], 
+		'reject2': [('Masterson', "Why do I bother with you?", "barspeech/campaign/rf/masterson5reject2.ogg")], 
 		'reminder': [
-			('Masterson', "I see you still haven't delivered the artwork to Perry Naval Base."), 
+			('Masterson', "I see you still haven't delivered the artwork to Perry Naval Base.", "barspeech/campaign/rf/masterson5reminder.ogg"), 
 			('Burrows', 'I had a memory lapse. What was the plan again?'), 
 			('Masterson', "Let me refresh your memory. Deliver artwork to Perry Naval Base in Perry. The pay is 10000. I'll be see you back here. Once and for all, are you going to do it or not?")], 
-		'accept': [('Masterson', "Great, I'll see about locating my friend.")]}
+		'accept': [('Masterson', "Great, I'll see about locating my friend.", "barspeech/campaign/rf/masterson5accept.ogg")]}
 
 
 	informant1={
@@ -2405,7 +2405,7 @@ def LoadRFCampaign():
 			MastersonMission5)
 	MastersonIntro.Init(rf,
 			[InSystemCondition("Gemini/Oxford")],
-			[("Masterson","Well, with your help Oxford base has transferred most of its valuables offworld, and until the Retro threat abates, we will remain an empty shell. Now the business about my contact? I'm afraid my friend is a little wary about meeting you. However, if you were able to provide reliable services to a few other employers around Gemini, then I could pass on more than just my own recommendation. Perhaps then we could talk further."),
+			[("Masterson","Well, with your help Oxford base has transferred most of its valuables offworld, and until the Retro threat abates, we will remain an empty shell. Now the business about my contact? I'm afraid my friend is a little wary about meeting you. However, if you were able to provide reliable services to a few other employers around Gemini, then I could pass on more than just my own recommendation. Perhaps then we could talk further.", "barspeech/campaign/rf/mastersonfinal.ogg"),
 			 ("Burrows","Sounds like you're changing the terms of our agreement. I didn't intend to do this much work."),
 			 ("Masterson","Hold on. I'm not setting the conditions anymore. I'm just making a suggestion on how to alleviate his paranoia. You had best take my advice and find a few employers around Gemini. Then we can continue our business."),
 			 ("Burrows","You drive a hard bargain, Masterson.")],
