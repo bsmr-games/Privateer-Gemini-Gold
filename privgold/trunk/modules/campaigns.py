@@ -1469,7 +1469,7 @@ def LoadRFMurphyCampaign():
 		CampaignEndNode(rf),
 		CampaignClickNode().Init(rf,
 					[InSystemCondition("Gemini/New_Constantinople","Edom")],
-					[('Murphy', "That's all the work I have for you right now. I do have a standing offer, though. There's this guy named Menesch. You may hear about him in your travels. I've heard the Confederation is offering a big bounty on him. If you ever get around to collecting it, come back here and I'll supplement the bounty by 20000. That guy's been a thorn in my side for a long time. Anyway, thanks again. See you.", "barspeech/campaign/rf/murphybountyoffer.ogg"),("Burrows","Menesch, huh? I'll remember that.")],
+					[("Murphy","That's all the work I have for you right now. I do have a standing offer, though. There's this guy named Menesch. You may hear about him in your travels. I've heard the Confederation is offering a big bounty on him. If you ever get around to collecting it, come back here and I'll supplement the bounty by 20000. That guy's been a thorn in my side for a long time. Anyway, thanks again. See you.", "barspeech/campaign/rf/murphybountyoffer.ogg"),("Burrows","Menesch, huh? I'll remember that.")],
 
 					MURPHY_SPRITE,
 					GoToSubnode(0,IncSaveVariable('rf_recs',AddCredits(50000))),
@@ -1677,7 +1677,7 @@ def LoadRFGoodinCampaign():
 	goodin1 = {
 		'failure': goodinfailure, 
 		'intro': [
-			('Goodin', "Wow. It's been quite a while."), 
+			('Goodin', "Wow. It's been quite a while.", "barspeech/campaign/rf/goodin1.ogg"), 
 			('Burrows', 'Yes it has. How are you, Captain Goodin?'), 
 			('Goodin', "The navy's been treating me pretty good. In fact, I think I stand a good chance at promotion next month. How's the privateer business?"), 
 			('Burrows', 'I was taking an extended break, but it got cut short. Someone ripped off my Steltek gun.'), 
@@ -1687,19 +1687,19 @@ def LoadRFGoodinCampaign():
 			('Burrows', "I know. I'm actually looking for work. I understand you guys have been giving a lot of contracts to privateers lately."), 
 			('Goodin', "That's certainly true. With our forces spread so thin, we need all the help we can get. As a matter of fact, I do have a mission for you. Kilrathi activity has increased steadily in the last year. Many of our border bases are having a tough time of it. Nitir, an agriculture base in the Nitir system, is currently being harassed by the Kilrathi. Fly there and defend it from a Kilrathi attack. Then return here for 10000. Not much, but it should be pretty smooth sailing.") ], 
 		'reconsider': [
-			('Goodin', "You're back. Want the mission?"), 
+			('Goodin', "You're back. Want the mission?", "barspeech/campaign/rf/goodin1reconsider.ogg"), 
 			('Burrows', 'What is it again?'), 
 			('Goodin', 'Fly to Nitir, an agriculture base in the Nitir system. Defend it from a Kilrathi attack. Then return here for 10000.') ], 
 		'reject1': [
-			('Burrows', 'No dice.'), 
+			('Burrows', "No dice.", "barspeech/campaign/rf/goodin1reject1.ogg"), 
 			('Goodin', 'Whatever you say. We sure could use you, though.') ], 
-		'reject2': [('Burrows', 'No dice.')], 
-		'reminder': [('Goodin', "You haven't finished the mission."), ('Burrows', 'What is it again?'), ('Goodin', 'Fly to Nitir, an agriculture base in the Nitir system. Defend it from a Kilrathi attack. Then return here for 10000.')], 
-		'accept': [('Burrows', 'Okay.'), ('Goodin', 'See you soon.')]}
+		'reject2': [('Burrows', "No dice.", "barspeech/campaign/rf/goodin1reject2.ogg")], 
+		'reminder': [('Goodin', "You haven't finished the mission.", "barspeech/campaign/rf/goodin1reminder.ogg"), ('Burrows', 'What is it again?'), ('Goodin', 'Fly to Nitir, an agriculture base in the Nitir system. Defend it from a Kilrathi attack. Then return here for 10000.')], 
+		'accept': [('Burrows', "Okay.", "barspeech/campaign/rf/goodin1accept1.ogg"), ('Goodin', 'See you soon.')]}
 	goodin2 = {
 	'failure': goodinfailure, 
 	'intro': [
-		('Burrows', "Well, that's that. The furballs didn't stand much chance."), 
+		('Burrows', "Well, that's that. The furballs didn't stand much chance.", "barspeech/campaign/rf/goodin2.ogg"), 
 		('Goodin', 'Good work. You interested in further missions?'), 
 		('Burrows', 'Possibly.'), 
 		('Goodin', 'I need you to fly to Charon in the Hyades system. Defend it from a Kilrathi attack. Then return here for 10000.'), ('Burrows', 'How can you afford to be so cheap with such a shortage of ships?'), 
@@ -1707,57 +1707,57 @@ def LoadRFGoodinCampaign():
 		('Burrows', "But they're not as good as me."), 
 		('Goodin', 'Take it or leave it.') ], 
 	'reconsider': [
-		('Goodin', "You're back. Want the mission?"), 
+		('Goodin', "You're back. Want the mission?", "barspeech/campaign/rf/goodin2reconsider.ogg"), 
 		('Burrows', 'What is it again?'), 
 		('Goodin', 'Fly to Charon in the Hyades system. Defend it from a Kilrathi attack. Then return here for 10000.') ], 
-	'reject1': [('Burrows', "I'll leave it.")], 
-	'reject2': [('Burrows', 'No dice.')], 
+	'reject1': [('Burrows', "I'll leave it.", "barspeech/campaign/rf/goodin2reject1.ogg")], 
+	'reject2': [('Burrows', "No dice.", "barspeech/campaign/rf/goodin2reject2.ogg")], 
 	'reminder': [
-		('Goodin', "You haven't finished the mission."), 
+		('Goodin', "You haven't finished the mission.", "barspeech/campaign/rf/goodin2reminder.ogg"), 
 		('Burrows', 'What is it again?'), 
 		('Goodin', 'Fly to Charon in the Hyades system. Defend it from a Kilrathi attack. Then return here for 10000.') ], 
-	'accept': [('Burrows', "I'll take it.")] }
+	'accept': [('Burrows', "I'll take it.", "barspeech/campaign/rf/goodin2accept1.ogg")] }
 	goodin3 = {
 		'failure': goodinfailure, 
 		'intro': [
-			('Goodin', 'Once again, good work.'), 
+			('Goodin', "Once again, good work.", "barspeech/campaign/rf/goodin3.ogg"), 
 			('Burrows', 'Naturally. I presume you have some more missions?'), 
 			('Goodin', "Certainly. We've managed to take the heat off a couple of bases, so now we can concentrate on reducing the Kilrathi presence in Confed space. Patrol the New Caledonia system. Patrol all nav points and destroy all Kilrathi vessels you encounter. Return here afterwards. The pay is 10000 again.") ], 
 		'reconsider': [
-			('Goodin', "You're back. Want the mission?"), 
+			('Goodin', "You're back. Want the mission?", "barspeech/campaign/rf/goodin3reconsider.ogg"), 
 			('Burrows', 'What is it again?'), 
 			('Goodin', 'Patrol the New Caledonia system. Destroy all Kilrathi vessels. Then return here for 10000.') ], 
-		'reject1': [('Burrows', 'Nope.')], 
-		'reject2': [('Burrows', 'No dice.')], 
+		'reject1': [('Burrows', "Nope.", "barspeech/campaign/rf/goodin3reject1.ogg")], 
+		'reject2': [('Burrows', "No dice.", "barspeech/campaign/rf/goodin3reject2.ogg")], 
 		'reminder': [
-			('Goodin', "You haven't finished the mission."), 
+			('Goodin', "You haven't finished the mission.", "barspeech/campaign/rf/goodin3reminder.ogg"), 
 			('Burrows', 'What is it again?'), 
 			('Goodin', 'Patrol the New Caledonia system. Destroy all Kilrathi vessels. Then return here for 10000.') ], 
-		'accept': [('Burrows', 'Okay.')]}
+		'accept': [('Burrows', "Okay.", "barspeech/campaign/rf/goodin3accept1.ogg")]}
 	goodin4 = {
 		'failure': goodinfailure, 
 		'intro': [
-			('Goodin', "Excellent. You really stuck it to them. You've been doing the Confederation a great service."), 
+			('Goodin', "Excellent. You really stuck it to them. You've been doing the Confederation a great service.", "barspeech/campaign/rf/goodin4.ogg"), 
 			('Burrows', "You know me. I'm all heart."), 
 			('Goodin', "I've got one more mission for you. It's the toughest one we've got right now. We need to continue fighting the Kilrathi presence in Confed space. Fly to the Regallis system. Patrol all nav points. Destroy all Kilrathi vessels. Then return here for 10000.") ], 
 		'reconsider': [
-			('Goodin', "You're back. Want the mission?"), 
+			('Goodin', "You're back. Want the mission?", "barspeech/campaign/rf/goodin4reconsider.ogg"), 
 			('Burrows', 'What is it again?'), 
 			('Goodin', 'Patrol the Regallis system. Destroy all Kilrathi vessels. Then return here for 10000.') ], 
 		'reject1': [
-			('Burrows', 'No thanks.'), 
+			('Burrows', "No thanks.", "barspeech/campaign/rf/goodin4reject1.ogg"), 
 			('Goodin', 'Chickening out, huh... Too bad.') ], 
-		'reject2': [('Burrows', 'No dice.')], 
+		'reject2': [('Burrows', "No dice.", "barspeech/campaign/rf/goodin4reject2.ogg")], 
 		'reminder': [
-			('Goodin', "You haven't finished the mission."), 
+			('Goodin', "You haven't finished the mission.", "barspeech/campaign/rf/goodin4reminder.ogg"), 
 			('Burrows', 'What is it again?'), 
 			('Goodin', 'Patrol the Regallis system. Destroy all Kilrathi vessels. Then return here for 10000.') ], 
-		'accept': [('Burrows', 'Sounds straightforward. See you soon.')] }
+		'accept': [('Burrows', "Sounds straightforward. See you soon.", "barspeech/campaign/rf/goodin4accept1.ogg")] }
 
 	goodin5={
 		'failure': goodinfailure, 
 		'intro': [
-			('Goodin', 'Good day. I hope you remember me.'), 
+			('Goodin', "Good day. I hope you remember me.", "barspeech/campaign/rf/goodin5.ogg"), 
 			('Burrows', 'Of course, Captain Goodin.'), 
 			('Goodin', "I'm very glad to see that Menesch is dead. You beat out a lot of other top-notch bounty hunters. I'm transferring the Confederation's 40000 bounty to your account."), 
 			('Burrows', 'Good deal.'), 
@@ -1767,13 +1767,13 @@ def LoadRFGoodinCampaign():
 			('Burrows', "I'll keep that in mind."), 
 			('Goodin', "We are currently trying to secure the Blockade systems, and drive back Kilrathi intrusions there. We want your help at Blockade Point Alpha. I'm offering you 20000 to fly to Nav 1 there, and rendezvous with our Commodore Uhler. He will give you further instructions.") ], 
 		'reconsider': [
-			('Goodin', 'Ah. Have you reconsidered?'), 
+			('Goodin', "Ah. Have you reconsidered?", "barspeech/campaign/rf/goodin5reconsider.ogg"), 
 			('Burrows', "Maybe. Let's hear the story again."), 
 			('Goodin', "We're trying to secure Blockade Point Alpha against further Kilrathi aggression. We want your help at Blockade Point Alpha. Fly to Nav 1 there and meet with Commodore Uhler. Follow his instructions, then return here for 20000.") ], 
-		'reject1': [('Goodin', 'I see. Remember, the instability in Gemini threatens everyone, including you.')], 
-		'reject2': [('Goodin', 'I wish there was something I could say to change your mind.')], 
-		'reminder': [('Goodin', "The Commodore's orders have not been carried out. The Kilrathi threat at Blockade Point Alpha remains. Let me remind you of your duties. Fly to Nav 1 at Blockade Point Alpha and meet with Commodore Uhler. Follow his instructions, then return here for 20000.")], 
-		'accept': [('Goodin', 'Good. Embark as soon as you can.')] }
+		'reject1': [('Goodin', "I see. Remember, the instability in Gemini threatens everyone, including you.", "barspeech/campaign/rf/goodin5reject1.ogg")], 
+		'reject2': [('Goodin', "I wish there was something I could say to change your mind.", "barspeech/campaign/rf/goodin5reject2.ogg")], 
+		'reminder': [('Goodin', "The Commodore's orders have not been carried out. The Kilrathi threat at Blockade Point Alpha remains. Let me remind you of your duties. Fly to Nav 1 at Blockade Point Alpha and meet with Commodore Uhler. Follow his instructions, then return here for 20000.", "barspeech/campaign/rf/goodin5reminder.ogg")], 
+		'accept': [('Goodin', "Good. Embark as soon as you can.", "barspeech/campaign/rf/goodin5accept1.ogg")] }
 	terrell = {
 		'failure': terrellfailure, 
 		'intro': [
@@ -1885,7 +1885,7 @@ def LoadRFGoodinCampaign():
 		CampaignEndNode(rf),
 		CampaignClickNode().Init(rf,
 					[InSystemCondition("Gemini/Perry","Perry")],
-					[("Goodin","Good work. I'm frankly surprised you obeyed orders so well."),
+					[("Goodin","Good work. I'm frankly surprised you obeyed orders so well.", "barspeech/campaign/rf/goodinfinal.ogg"),
 					 ("Burrows","Cash helps put me in my place."),
 					 ("Goodin","Admiral Terrell is impressed as well. In fact, he wants to see you right away. He's waiting for you in his office across the main concourse.","Burrows","I wonder what he wants this time."),
 					 ("Goodin","I have no idea, so it must be pretty confidential. Good luck.")],
