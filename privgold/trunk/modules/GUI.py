@@ -617,6 +617,79 @@ class GUIStaticText(GUIElement):
 
 """----------------------------------------------------------------"""
 """                                                                """
+""" GUILineEdit - an interactive text box                          """
+"""                                                                """
+"""----------------------------------------------------------------"""
+
+#todo: add optional frame
+
+class GUILineEdit(GUIGroup):
+
+	def __init__(self,action,room,index,text,location,color,fontsize=1.0,bgcolor=None,**kwarg):
+		GUIGroup.__init__(self,room,**kwarg)
+		self.text = GUIStaticText(room,index,text+'-',location,color,fontsize,bgcolor,**kwarg)
+		self.children += [self.text]
+		(x,y,w,h) = location.getNormalXYWH()
+		(uw,uh) = GUIRect(0,0,10,10).getNormalWH()
+		self.index=index
+		Base.TextBox(room.getIndex(), str(self.index)+'line1', '---', x, y, (x+w, y+uh, 1), 
+			     color.getRGB(), color.getAlpha(), color.getRGB())
+		Base.TextBox(room.getIndex(), str(self.index)+'line2', '!', x, y, (x-uw, y+h, 1), 
+			     color.getRGB(), color.getAlpha(), color.getRGB())
+		Base.TextBox(room.getIndex(), str(self.index)+'line3', '---', x, y-h, (x+w, y+uh, 1), 
+			     color.getRGB(), color.getAlpha(), color.getRGB())
+		Base.TextBox(room.getIndex(), str(self.index)+'line4', '!', x+w, y, (x+uw, y+h, 1),
+			     color.getRGB(), color.getAlpha(), color.getRGB())
+		if _doWhiteHack != 0:
+			""" ugly hack, needed to counter a stupid bug """
+			Base.TextBox(self.room.getIndex(),str(self.index)+"_white_hack","", -100.0, -100.0, (0.01, 0.01, 1), (0,0,0), 0, GUIColor.white().getRGB())
+		self.action=action
+		self.draw()
+		self.canceled = False
+
+	def getText(self):
+		return self.text.getText()[:-1]
+
+	def undraw(self):
+		Base.EraseObj(self.room.getIndex(),str(self.index)+"line1")
+		Base.EraseObj(self.room.getIndex(),str(self.index)+"line2")
+		Base.EraseObj(self.room.getIndex(),str(self.index)+"line3")
+		Base.EraseObj(self.room.getIndex(),str(self.index)+"line4")
+		if _doWhiteHack != 0:
+			Base.EraseObj(self.room.getIndex(),self.index+"_white_hack")
+
+	def keyDown(self,key):
+		print "got key: %i" % key 
+		if key == 13 or key == 10: #should be some kind of return
+			self.action(self)
+		elif key == 27: #escape is always 27, isn't it?
+			self.canceled = True
+			self.action(self)		
+		elif key == 127 or key == 8: #avoid specifying the platform by treating del and backspace alike
+			self.text.setText(self.getText()[:-1] + '-')
+		else:
+			self.text.setText(self.getText() + ('%c' % key) + '-');
+		#self.notifyNeedRedraw()
+
+"""------------------------------------------------------------------"""
+"""                                                                  """
+""" GUITextInputDialog - a little dialog in which you can enter text """
+"""                                                                  """
+"""------------------------------------------------------------------"""
+
+
+class GUITextInputDialog(GUIGroup):
+	def __init__(self,room,index,location,text,action,color,**kwargs):
+		GUIGroup.__init__(self,room,kwargs)
+		self.children.append(GUILineEdit(self.editcallback,room,index,text,location,color))
+		
+
+
+
+
+
+"""----------------------------------------------------------------"""
+"""                                                                """
 """ GUIButton - a button you can click on.                         """
 """                                                                """
 """----------------------------------------------------------------"""
@@ -816,27 +889,57 @@ class GUIButton(GUIStaticImage):
 		self.group = group
 
 	def onMessage(self,message,params):
-		# Button-specific mouse events
-		if (message=='move'):
-			self.onMouseMove(params)
-		elif (message=='up'):
-			self.onMouseUp(params)
-		elif (message=='down'):
-			self.onMouseDown(params)
-		elif (message=='enter'):
-			self.onMouseEnter(params)
-		elif (message=='leave'):
-			self.onMouseLeave(params)
 		# Button-specific actions
-		elif (message=='enable'):
+		if (message=='enable'):
 			if (not ('group' in params) or (self.getGroup() == params['group'])) and (not ('exclude' in params) or (self.id != params['exclude'])):
 				self.enable()
 		elif (message=='disable'):
 			if (not ('group' in params) or (self.getGroup() == params['group'])) and (not ('exclude' in params) or (self.id != params['exclude'])):
 				self.disable()
-		# Fallback
-		else:
-			GUIStaticImage.onMessage(self,message,params)
+		# Button-specific mouse events
+		elif self.isInteractive():
+			if (message=='move'):
+				self.onMouseMove(params)
+			elif (message=='up'):
+				self.onMouseUp(params)
+			elif (message=='down'):
+				self.onMouseDown(params)
+			elif (message=='enter'):
+				self.onMouseEnter(params)
+			elif (message=='leave'):
+				self.onMouseLeave(params)		
+			# Fallback
+			else:
+				GUIStaticImage.onMessage(self,message,params)
+
+
+"""----------------------------------------------------------------"""
+"""                                                                """
+""" GUICompButton - a button you can click on that takes you       """
+"""                 to the original computer interface             """
+"""                                                                """
+"""----------------------------------------------------------------"""
+
+class GUICompButton(GUIButton):
+	def __init__(self,room,modes,*parg,**kwarg):
+		self.compmodes = modes
+
+		""" Init base class """
+		GUIButton.__init__(self,room,*parg,**kwarg)
+
+	def draw(self):
+		""" Creates the button """
+		if (self.linkstate==0) and (self.visible==1) and self.enabled:
+			# getHotRect returns the BOTTOM-left x,y needed by Base.Python 
+			(x,y,w,h) = self.hotspot.getHotRect()
+			# possible bug: not set to frontmost.
+			Base.CompPython(self.room.getIndex(),self.index,self.pythonstr,x,y,w,h,self.linkdesc,self.compmodes)
+			Base.SetLinkEventMask(self.room.getIndex(),self.index,'cduel')
+			self.linkstate=1
+		self.setState(self.state)
+		GUIStaticImage.draw(self)
+		if self.textOverlay.visible:
+			self.textOverlay.draw()
 
 
 """----------------------------------------------------------------"""
