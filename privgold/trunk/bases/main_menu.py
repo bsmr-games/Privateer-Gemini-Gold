@@ -74,7 +74,8 @@ sprite_loc = GUI.GUIRect(513,697,241,47,"pixel",(1024,768))
 sprite = {
 	'*':None,
 	'down' : ( 'interfaces/main_menu/credits_button_pressed.spr', sprite_loc ) }
-GUI.GUIRoomButton(guiroom, credits_guiroom, 'XXXShow Credits','Show_Credits',sprite,sprite_loc,clickHandler=enterCredits)
+GUI.GUICompButton(guiroom,'Network','XXXPlay Network','Network_Game',sprite,sprite_loc)
+#GUI.GUIRoomButton(guiroom, credits_guiroom, 'XXXShow Credits','Show_Credits',sprite,sprite_loc,clickHandler=enterCredits)
 
 # New game
 sprite_loc = GUI.GUIRect(31,697,241,47,"pixel",(1024,768))
