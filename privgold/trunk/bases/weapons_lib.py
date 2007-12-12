@@ -129,7 +129,7 @@ GUI.GUIRootSingleton.rooms[%s].owner.reset()
 	# add clickable areas to the repair bay
 #	temporary - these two Base.Comp calls will be removed once the repair bay computer is fully functional
 #	Base.Comp (room_repair_bay, 'my_comp_id', -0.855, -0.81, 0.6325, 0.663333, 'Upgrade/Repair', 'Upgrade Info ')
-#	Base.Comp (room_repair_bay, 'my_comp_id', 0.9, -1, 0.1, 2, 'Old Upgrade/Repair Computer', 'Upgrade Info ')
+	Base.Comp (room_repair_bay, 'my_comp_id', 0.9, -1, 0.1, 2, 'Old Upgrade/Repair Computer', 'Upgrade Info Cargo Missions ')
 	(x, y, w, h) = GUI.GUIRect(0, 50, 70, 30).getHotRect()
 	Base.Link (room_repair_bay, 'my_link_id', x, y, w, h, 'Ship_Dealer', room_ship_dealer)
 	(x, y, w, h) = GUI.GUIRect(132, 35, 53, 43).getHotRect()
