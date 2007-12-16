@@ -7,6 +7,7 @@ import VS
 import ShowProgress
 import methodtype
 import mission_lib
+import os
 
 pirate_bases = {
 	'Gemini/Capella': 'Drake',
@@ -148,40 +149,52 @@ class QuineComputer:
 		# add background sprite; no need to keep a variable around for this, as it doesn't change
 		GUI.GUIStaticImage(guiroom, 'background', ( 'interfaces/quine/main.spr' , GUI.GUIRect(0, 0, 1, 1, "normalized") )).draw()
 	
+
 		# add buttons
 		self.buttons = {}
 		self.mode = ''
+		self.saveGameNameEntryBox = None
 
 		if enable_finances:
 			hot_loc = GUI.GUIRect(545, 287, 105, 60, "pixel", (800,600))
 			spr_loc = hot_loc
 			spr = ("interfaces/quine/fin_pressed.spr",spr_loc)
-			sprites = { 'enabled':None, 'disabled':None, 'down':spr }
-			self.add_button( GUI.GUIButton(guiroom,'XXXFinances','btn_finances', sprites, hot_loc), change_text_click )
+			spr_disabled = ("interfaces/quine/fin_disabled.spr",spr_loc)
+			sprites = { 'enabled':None, 'disabled':spr_disabled, 'down':spr }
+			self.add_button( GUI.GUIButton(guiroom,'XXXFinances','btn_finances',
+						       sprites, hot_loc), change_text_click )
 		if enable_manifest:
 			hot_loc = GUI.GUIRect(644, 285, 96, 64, "pixel", (800,600))
 			spr_loc = hot_loc
 			spr = ("interfaces/quine/man_pressed.spr",spr_loc)
-			sprites = { 'enabled':None, 'disabled':None, 'down':spr }
-			self.add_button( GUI.GUIButton(guiroom,'XXXManifest','btn_manifest', sprites, hot_loc), change_text_click )
+			spr_disabled = ("interfaces/quine/man_disabled.spr",spr_loc)
+			sprites = { 'enabled':None, 'disabled':spr_disabled, 'down':spr }
+			self.add_button( GUI.GUIButton(guiroom,'XXXManifest','btn_manifest', 
+						       sprites, hot_loc), change_text_click )
 		if enable_load:
 			hot_loc = GUI.GUIRect(635, 173, 97, 55, "pixel", (800,600))
 			spr_loc = hot_loc
 			spr = ("interfaces/quine/load_pressed.spr",spr_loc)
-			sprites = { 'enabled':None, 'disabled':None, 'down':spr }
-			self.add_button( GUI.GUIButton(guiroom,'XXXLoad'    ,'btn_load'    , sprites, hot_loc), change_text_click )
+			spr_disabled = ("interfaces/quine/load_disabled.spr",spr_loc)
+			sprites = { 'enabled':None, 'disabled':spr_disabled, 'down':spr }
+			self.add_button( GUI.GUIButton(guiroom,'XXXLoad'    ,'btn_load'    , 
+						       sprites, hot_loc), change_text_click )
 		if enable_save:
 			hot_loc = GUI.GUIRect(541, 173, 97, 55, "pixel", (800,600))
 			spr_loc = hot_loc
 			spr = ("interfaces/quine/save_pressed.spr",spr_loc)
-			sprites = { 'enabled':None, 'disabled':None, 'down':spr }
-			self.add_button( GUI.GUIButton(guiroom,'XXXSave'    ,'btn_save'    , sprites, hot_loc), change_text_click )
+			spr_disabled = ("interfaces/quine/save_disabled.spr",spr_loc)
+			sprites = { 'enabled':None, 'disabled':spr_disabled, 'down':spr }
+			self.add_button( GUI.GUIButton(guiroom,'XXXSave'    ,'btn_save'    , 
+						       sprites, hot_loc), change_text_click )
 		if enable_missions:
 			hot_loc = GUI.GUIRect(540, 227, 200, 60,"pixel", (800,600))
 			spr_loc = hot_loc
 			spr = ("interfaces/quine/missions_pressed.spr",spr_loc)
-			sprites = { 'enabled':None, 'disabled':None, 'down':spr }
-			self.add_button( GUI.GUIButton(guiroom,'XXXMissions','btn_missions', sprites, hot_loc), change_text_click )
+			spr_disabled = ("interfaces/quine/missions_disabled.spr",spr_loc)
+			sprites = { 'enabled':None, 'disabled':spr_disabled, 'down':spr }
+			self.add_button( GUI.GUIButton(guiroom,'XXXMissions','btn_missions', 
+						       sprites, hot_loc), change_text_click )
 		
 		if enable_load or enable_save:
 			hot_loc = [ GUI.GUIRect(621, 349, 55, 69, "pixel", (800,600)),
@@ -193,14 +206,22 @@ class QuineComputer:
 					("interfaces/quine/down_pressed.spr" ,spr_loc[1]),
 					("interfaces/quine/left_pressed.spr" ,spr_loc[2]),
 					("interfaces/quine/right_pressed.spr",spr_loc[3]) ]
-			sprites = [ { 'enabled':None, 'disabled':None, 'down':spr[0] },
-						{ 'enabled':None, 'disabled':None, 'down':spr[1] },
-						{ 'enabled':None, 'disabled':None, 'down':spr[2] },
-						{ 'enabled':None, 'disabled':None, 'down':spr[3] } ]
-			self.add_button( GUI.GUIButton(guiroom,'XXXUp'   ,'btn_up'   , sprites[0], hot_loc[0]), scroll_click )
-			self.add_button( GUI.GUIButton(guiroom,'XXXDown' ,'btn_down' , sprites[1], hot_loc[1]), scroll_click )
-			self.add_button( GUI.GUIButton(guiroom,'XXXLeft' ,'btn_left' , sprites[2], hot_loc[2]), scroll_click )
-			self.add_button( GUI.GUIButton(guiroom,'XXXRight','btn_right', sprites[3], hot_loc[3]), scroll_click )
+			spr_disabled = [ ("interfaces/quine/up_disabled.spr"   ,spr_loc[0]),
+					("interfaces/quine/down_disabled.spr" ,spr_loc[1]),
+					("interfaces/quine/left_disabled.spr" ,spr_loc[2]),
+					("interfaces/quine/right_disabled.spr",spr_loc[3]) ]
+			sprites = [ { 'enabled':None, 'disabled':spr_disabled[0], 'down':spr[0] },
+						{ 'enabled':None, 'disabled':spr_disabled[1], 'down':spr[1] },
+						{ 'enabled':None, 'disabled':spr_disabled[2], 'down':spr[2] },
+						{ 'enabled':None, 'disabled':spr_disabled[3], 'down':spr[3] } ]
+			self.add_button( GUI.GUIButton(guiroom,'XXXUp'   ,'btn_up'   , 
+						       sprites[0], hot_loc[0]), scroll_click )
+			self.add_button( GUI.GUIButton(guiroom,'XXXDown' ,'btn_down' , 
+						       sprites[1], hot_loc[1]), scroll_click )
+			self.add_button( GUI.GUIButton(guiroom,'XXXLeft' ,'btn_left' , 
+						       sprites[2], hot_loc[2]), scroll_click )
+			self.add_button( GUI.GUIButton(guiroom,'XXXRight','btn_right', 
+						       sprites[3], hot_loc[3]), scroll_click )
 	
 		current_base = universe.getDockedBase()
 		player = VS.getPlayer()
@@ -209,9 +230,14 @@ class QuineComputer:
 		self.str_start = get_location_text(current_base)
 		
 		screen_loc = GUI.GUIRect(80,90,350,380,"pixel",(800,600))
-		screen_color = GUI.GUIColor(20/255.0, 22/255.0 ,10/255.0)		# first I tried rgb(56 60 24) and rgb(40 44 20); both were too light
+		screen_color = GUI.GUIColor(20/255.0, 22/255.0 ,10/255.0)
+		self.screen_color = screen_color;
+		self.screen_loc = screen_loc;
+
+		# first I tried rgb(56 60 24) and rgb(40 44 20); both were too light
 		screen_bgcolor = GUI.GUIColor.clear()
 		screen_bgcolor_nc = GUI.GUIColor(0.44,0.47,0.17)
+		self.screen_bgcolor = screen_bgcolor;
 	
 		# text screen
 		self.txt_screen = GUI.GUIStaticText(guiroom, 'txt_screen', self.str_start, screen_loc, 
@@ -254,17 +280,37 @@ class QuineComputer:
 	
 	
 		# Exit button, returns us to concourse
-		rect = GUI.GUIRect(224, 167, 35, 14)
-		x, y, w, h = rect.getHotRect()
-#		Base.Link (room_start, 'exit', x, y, w, h, 'Exit', room_exit_to)
-		Base.LinkPython (room_start, 'exit', "#\nimport GUI\nGUI.GUIRootSingleton.getRoomById(%s).owner.reset()\n" %(guiroom.getIndex()), x, y, w, h, 'XXXExit', room_exit_to)
+		self.room_id = room_start
+		self.exit_room_id = room_exit_to
+		self.setExitLinkState(True)
+
+	def setExitLinkState(self,state):
+		'''this is here to enable modal behaviour, i.e. hinder exit out of a dialog'''
+		if state:
+			rect = GUI.GUIRect(224, 167, 35, 14)
+			x, y, w, h = rect.getHotRect()
+			#		Base.Link (room_start, 'exit', x, y, w, h, 'Exit', room_exit_to)
+			Base.LinkPython (self.room_id, 'exit', 
+					 "#\nimport GUI\nGUI.GUIRootSingleton.getRoomById(%s).owner.reset()\n" 
+					 % (self.guiroom.getIndex()), x, y, w, h, 'XXXExit', self.exit_room_id)
+		else:
+			Base.EraseLink (self.room_id, 'exit')
+		
 
 	def reset(self):
 		trace(TRACE_DEBUG,"::: QuineComputer.reset()")
+		if self.saveGameNameEntryBox is not None:
+			self.saveGameNameEntryBox.hide()
+			self.saveGameNameEntryBox.focus(False)
+			self.saveGameNameEntryBox = None
+			for id in self.buttons.keys():
+				button = self.buttons[id]
+				button.enable()
+				button.redraw()
 		self.txt_screen.setText( self.str_start )
 
 	def change_text(self, button_index):
-		text_screens = {
+ 		text_screens = {
 			'btn_finances' : lambda:get_relations_text(VS.getPlayer()),
 			'btn_manifest' : lambda:get_manifest_text(VS.getPlayer()),
 			'btn_missions' : lambda:get_missions_text()
@@ -283,7 +329,9 @@ class QuineComputer:
 				VS.loadGame(self.picker_screen.items[self.picker_screen.selection].data)
 		elif button_index == "btn_save":
 			if self.mode != button_index:
-				self.picker_screen.items = [GUI.GUISimpleListPicker.listitem("New Game",NewSaveGame)]+savelist()
+				self.picker_screen.items = [
+					GUI.GUISimpleListPicker.listitem("New Game",NewSaveGame)
+					]+savelist()
 				self.picker_screen.show()
 				self.txt_screen.hide()
 			elif self.picker_screen.visible and self.picker_screen.items[self.picker_screen.selection].data is not NewSaveGame:
@@ -295,19 +343,74 @@ class QuineComputer:
 					+"\n"*3
 					+"Press SAVE again to do it." )
 				self.txt_screen.show()
-			elif self.picker_screen.selection is not None:
+			elif self.picker_screen.selection is not None:		
+				savename = ''
 				if self.picker_screen.items[self.picker_screen.selection].data is NewSaveGame:
-					VS.saveGame(makeNewSaveName())
+					savename = makeNewSaveName()
+					self.oldSaveName = None
 				else:
-					VS.saveGame(self.picker_screen.items[self.picker_screen.selection].data)
-				self.picker_screen.items = [GUI.GUISimpleListPicker.listitem("New Game",NewSaveGame)]+savelist()
-				self.picker_screen.show()
-				self.txt_screen.hide()
+					savename = self.picker_screen.items[self.picker_screen.selection].data
+					self.oldSaveName = savename
+
+				#enter a modal line editor
+				boxloc = GUI.GUIRect(120,130,200,20,"pixel",(800,600))
+				self.saveGameNameEntryBox = GUI.GUILineEdit(self.saveNameEntryEntered,
+									    self.guiroom,"box_save",
+									    savename, boxloc, 
+									    self.screen_color,
+									    bgcolor=self.screen_bgcolor)
+				for id in self.buttons.keys():
+					button = self.buttons[id]
+					button.disable()
+					button.redraw()
+				self.saveGameNameEntryBox.focus(True)
+#				self.setExitLinkState(False)
+				self.txt_screen.setText( 'Save Game:' )
+				self.txt_screen.show()
+				self.saveGameNameEntryBox.show()
+				self.picker_screen.hide()
+				self.lastEnteredSavegameName = None
+				self.guiroom.redraw()
+				
 		else:
 			self.picker_screen.hide()
 			self.txt_screen.hide()
 		self.mode = button_index
 	
+	#line editor callback
+	def saveNameEntryEntered(self,textbox):
+		# this is a bit awkward, mostly since we have to emulate modal behaviour through state machines...
+		if textbox.getText() is not '' and textbox.canceled is False:
+			savename = textbox.getText()
+			if savename in savelist() and savename is not self.oldSaveName:
+				if savename is not self.lastEnteredSavegameName:
+					self.txt_screen.setText( 'warning: overwriting another game with the same name\n' + 
+						  'press Enter again to really do it')
+					return
+				else:
+					self.lastEnteredSavegameName = savename
+			VS.saveGame(savename)
+			if self.oldSaveName is not None and savename is not self.oldSaveName:
+				try:
+					os.remove(VS.getSaveDir() + os.sep + self.oldSaveName)
+				except:
+					trace(TRACE_DEBUG,"could not remove old savegame at " 
+					      + VS.getSaveDir() + os.sep + self.oldSaveName)
+			self.picker_screen.items = [
+				GUI.GUISimpleListPicker.listitem("New Game",NewSaveGame)
+				]+savelist()
+		self.txt_screen.hide()
+		textbox.hide()
+		textbox.focus(False)
+		for id in self.buttons.keys():
+			button = self.buttons[id]
+			button.enable()
+			button.redraw()
+		self.saveGameNameEntryBox = None
+		self.picker_screen.show()
+#		self.setExitLinkState(True)
+		self.guiroom.redraw()
+
 	def scroll(self,direction):
 		list_screens = set(['btn_load','btn_save'])
 		if self.mode in list_screens:
@@ -398,10 +501,10 @@ def get_ship_text(unit = None):
 		player = VS.getPlayer()
 	
 	name = player.getName()
-	if name.find('.') < 0:
+	if name.index('.') is None:
 		return name.capitalize()
 	else:
-		return name[:name.find('.')].capitalize()
+		return name[:name.index('.')].capitalize()
 
 def get_missions_text():
 	missionlist = mission_lib.GetMissionList()
@@ -452,10 +555,9 @@ def get_manifest_text(player):
 
 	# get the hold volume
 	int_hold_volume = int( VS.LookupUnitStat( player.getName(), player.getFactionName(), "Hold_Volume" ) )
-	numaddcargo=player.hasCargo("add_cargo_volume")
-	if (numaddcargo):
+	if (player.hasCargo("add_cargo_volume")):
 		# capacity increases by 50% if they have the cargo expansion
-		int_hold_volume = int( int_hold_volume + 25*numaddcargo )
+		int_hold_volume = int( int_hold_volume * 1.5 )
 
 	int_total_quantity = 0
 	for i in range(player.numCargo()):

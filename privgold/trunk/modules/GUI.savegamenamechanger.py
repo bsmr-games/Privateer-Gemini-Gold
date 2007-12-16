@@ -14,9 +14,6 @@ _GUITraceLevel = TRACE_VERBOSE
 """                                                                """
 """----------------------------------------------------------------"""
 
-"""lost key handling, so find out where the message goes through and dispatch to keyTarget"""
-"""also somehow make buttons shade when noninteractive"""
-
 class GUIRoot:
 	"""global GUI setup"""
 	def __init__(self,screenX,screenY,marginX=None,marginY=None):
@@ -29,9 +26,6 @@ class GUIRoot:
 			marginY = 0.00
 		self.setScreenMargins(marginX,marginY)
 		self.needRedraw = {}
-		self.modalElement = None
-		self.keyTarget = None
-		Base.GlobalKeyPython('#\nfrom GUI import GUIRoot\nGUIRootSingleton.keyEvent()\n')
 
 	def setScreenDimensions(self,screenX,screenY):
 		self.screenX=screenX
@@ -72,14 +66,6 @@ class GUIRoot:
 		self.objects[id] = (room,object)
 		self.nextId = self.nextId + 1
 		return id
-
-	def keyEvent(self):
-		eventdata = Base.GetEventData();
-		if self.keyTarget is not None:
-			if eventdata['type'] == 'keyup' and 'keyUp' in dir(self.keyTarget):
-				self.keyTarget.keyUp(eventdata['key'])
-			if eventdata['type'] == 'keydown' and 'keyDown' in dir(self.keyTarget):
-				self.keyTarget.keyDown(eventdata['key'])
 
 	def registerRoom(self,room):
 		self.rooms[room.getIndex()] = room
@@ -443,10 +429,6 @@ class GUIElement:
 			self.onUndraw(params)
 		elif (message=='redraw'):
 			self.onRedraw(params)
-		else:
-			return False
-		return True
-
 
 	def onClick(self,params):
 		""" Intentionally blank """
@@ -470,26 +452,6 @@ class GUIElement:
 		if self.visible:
 			self.redraw()
 
-	def focus(self,dofocus):
-		if dofocus:
-			GUIRootSingleton.keyTarget=self
-		elif GUIRootSingleton.keyTarget==self:
-			GUIRootSingleton.keyTarget=None
-
-	def setModal(self,modal):
-		if modal:
-			GUIRootSingleton.modalElement=self
-			GUIRootSingleton.broadcastMessage('disable',{})
-			if 'enable' in dir(self):
-				self.enable()
-			GUIRootSingleton.broadcastRoomMessage('redraw',{})
-		elif GUIRootSingleton.modalElement == self:
-			GUIRootSingleton.modalElement=None
-			GUIRootSingleton.broadcastMessage('enable',{})
-
-	def isInteractive(self):
-		return GUIRootSingleton.modalElement==self or GUIRootSingleton.modalElement==None
-		
 
 """----------------------------------------------------------------"""
 """                                                                """
@@ -526,7 +488,7 @@ class GUIGroup(GUIElement):
 
 	def onMessage(self,message,params):
 		for i in self.children:
-			i.onMessage(message,params)
+			i.onMessage(self,message,params)
 
 
 
@@ -705,11 +667,8 @@ class GUILineEdit(GUIGroup):
 			self.action(self)		
 		elif key == 127 or key == 8: #avoid specifying the platform by treating del and backspace alike
 			self.text.setText(self.getText()[:-1] + '-')
-		elif key<127 and key>0:
-			try:
-				self.text.setText(self.getText() + ('%c' % key) + '-');
-			except:
-				print "Character value too high "+str(key)
+		else:
+			self.text.setText(self.getText() + ('%c' % key) + '-');
 		#self.notifyNeedRedraw()
 
 """------------------------------------------------------------------"""
@@ -954,7 +913,6 @@ class GUIButton(GUIStaticImage):
 				GUIStaticImage.onMessage(self,message,params)
 
 
-
 """----------------------------------------------------------------"""
 """                                                                """
 """ GUICompButton - a button you can click on that takes you       """
@@ -982,6 +940,7 @@ class GUICompButton(GUIButton):
 		GUIStaticImage.draw(self)
 		if self.textOverlay.visible:
 			self.textOverlay.draw()
+
 
 """----------------------------------------------------------------"""
 """                                                                """
