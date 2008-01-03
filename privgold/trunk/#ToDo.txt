@@ -1,15 +1,12 @@
-*** Privateer Gemini Gold 1.02 ***
+*** Privateer Gemini Gold 1.02a ***
 
 If you want to play the game, please download a stable release from http://priv.solsector.net/files.htm
  
-If you want to help with the development you need svn access, therefore read http://wcuniverse.sourceforge.net/privgold/comlink/index.php?action=vthread&forum=1&topic=8
+If you want to help with the development you need svn access, therefore read http://privateer.sourceforge.net/comlink/index.php?action=vthread&forum=1&topic=319&page=0#1
 
 For every new release we have a list of features the new version should include.
 You find the list in our Privateer Gemini Gold Development Forum where we discuss the progress and see who is working on which tasks.
-The Development Forum is restricted to developers, you need a forum account first (http://wcuniverse.sourceforge.net/privgold/comlink/) then write a mail to priv@solsector.net to get access to the development section of the forum.
-
-This online development version does only have low resolution images, they will be replaced with the upcoming release, so don't worry about it :)
-
+The Development Forum is restricted to developers, you need a forum account first (http://privateer.sourceforge.net/comlink/) then write a mail to priv@solsector.net to get access to the development section of the forum.
 
 Important Notes:
 ================
