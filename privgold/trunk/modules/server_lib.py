@@ -87,7 +87,7 @@ def getCommandInfo(command, auth=True):
 		cmdinfo = commandinfo[command]
 	return cmdinfo
 
-def processMessage(player, auth, command, args):
+def processMessage(player, auth, command, args, id=''):
 	if command in aliasinfo:
 		command = aliasinfo[command]
 	#cmdinfo = getCommandInfo(command, auth)

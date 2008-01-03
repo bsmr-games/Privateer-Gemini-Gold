@@ -6,6 +6,8 @@ import methodtype
 import string
 import quest
 
+import custom
+
 #
 # This first section contains the two functions used by individual bases
 #	CanRepair
@@ -105,6 +107,7 @@ def MakeRepairBay(room_ship_dealer, upgradename, use_ship_320_240_upgrade):
 
 	# create the repair bay animation screen
 	room_animation = Base.Room ('XXXRepair/Upgrade_Loading')	# create an interstitial screen
+	RepairBayComputer.singleton = None
 	animation = RepairBayComputerAnimation(room_animation, room_repair_bay, upgradename, use_ship_320_240_upgrade)
 
 	# create link from ship dealer to animation screen
@@ -1270,7 +1273,7 @@ def sort_missiles(a,b):
 # 
 # create lists showing what can be bought, sold, or repaired
 #
-def get_upgrade_repair_list(upgrades):
+def get_upgrade_repair_list(upgrades, basic_repair_cost):
 	repair = []
 	for i in range(len(upgrades)):
 		# temporarily make the item damaged
@@ -1279,7 +1282,6 @@ def get_upgrade_repair_list(upgrades):
 			# only store the index to item in the sell list
 			repair.append( i )
 
-	global basic_repair_cost
 	if basic_repair_cost > 0:
 		repair.append( -1 )
 
@@ -1461,14 +1463,410 @@ import GUI
 GUI.GUIRootSingleton.rooms[%s].owner.computer.undraw()
 """ %(room_next, room_start, room_start), 2.0)
 
-class RepairBayComputer:
+class RepairBayComputerGeneric:
+	def __init__(self):
+		self.buy    = []
+		self.sell   = []
+		self.repair = []
+		self.disallowed = {}
+
+		# set up buy, sell and repair prices
+		self.buy_prices    = {}
+		self.sell_prices   = {}
+		self.repair_prices = {}
+		# get list of ship upgrade units
+		global master_part_list
+		upgrade_list = master_part_list.getUpgradeList()
+		for cargo in upgrade_list:
+			name = cargo.GetContent()
+			try:
+				buy_price    = int( cargo.GetPrice() )
+				sell_price   = int( buy_price * 0.5 )
+				repair_price = int( buy_price * 0.5 )
+				self.buy_prices[name]    = buy_price
+				self.sell_prices[name]   = sell_price
+				self.repair_prices[name] = repair_price
+			except:
+				pass
+		
+		if VS.isserver():
+			self.basic_repair_cost = VS.getPlayer().RepairCost()
+		else:
+			global basic_repair_cost
+			self.basic_repair_cost = basic_repair_cost
+		self.reset()
+	def draw(self, text):
+		self.status = text
+	def reset(self):
+		# also, rebuild the buy/sell/repair lists, in case user sold ship
+		self.disallowed = lookup_disallowed_upgrades()
+		self.buy    = get_upgrade_buy_list(self.buy_prices, self.disallowed)
+		self.sell   = get_upgrade_sell_list()
+		self.repair = get_upgrade_repair_list(self.sell, self.basic_repair_cost)
+		
+		self.upgrade_classes = {}
+		for i in range(len(self.sell)):
+			item_name, undamaged, type, mount_num, quantity = self.sell[i]
+			if type == "weapon":
+				pass
+			elif type == "missile":
+				pass
+			else:
+				upgrade_class = lookup_upgrade_class(item_name)
+				self.upgrade_classes[upgrade_class] = item_name
+
+		#   enum MOUNT_SIZE {NOWEAP=0x0,LIGHT=0x1,MEDIUM=0x2,HEAVY=0x4,CAPSHIPLIGHT=0x8,CAPSHIPHEAVY=0x10,SPECIAL=0x20, LIGHTMISSILE=0x40,MEDIUMMISSILE=0x80,HEAVYMISSILE=0x100,CAPSHIPLIGHTMISSILE=0x200, CAPSHIPHEAVYMISSILE=0x400,SPECIALMISSILE=0x800, AUTOTRACKING=0x1000} size;
+		self.mounts = {
+			'missile': [],
+			'torpedo': [],
+			'gun':     [],
+			'special': [],
+			'empty':   {}
+			}
+		player = VS.getPlayer()
+		for i in range(player.GetNumMounts()):
+			mount = player.GetMountInfo(i)
+			# check whether mount is used or not
+			self.mounts['empty'][i] = mount['empty']
+			
+			# check what type of mount this is
+			if (mount['size'] & 1) or (mount['size'] & 2) or (mount['size'] & 4):
+				self.mounts['gun'].append(i)
+			if (mount['size'] & 32):
+				self.mounts['special'].append(i)
+			if (mount['size'] & 64) or (mount['size'] & 128):
+				self.mounts['missile'].append(i)
+				# missile mounts aren't empty
+
+				self.mounts['empty'][i] = False
+			if (mount['size'] & 256):
+				self.mounts['torpedo'].append(i)
+				# torpedo mounts aren't empty
+				self.mounts['empty'][i] = False
+			if mount['empty']==False:
+				print mount['weapon_info']
+		
+	def setstatus(self,success,message):
+		self.status = [success and "success" or "failure", message]
+	#def draw(self,message=None):
+	#	pass
+	#def drawBlank(self,message=None):
+	#	pass
+	def resetstatus(self):
+		self.status = ["failure", "Unknown error"]
+
+	def handle_server_cmd(self, args):
+		cmd = args[0]
+		if cmd == "buy":
+			return self.buy_server(args[1])
+		elif cmd == "sell":
+			return self.sell_server(args[1], args[2])
+		elif cmd == "repair":
+			self.repair = get_upgrade_repair_list(self.sell, self.basic_repair_cost)
+			return self.repair_server(args[1])
+		elif cmd == "mount_select_buy":
+			return self.mount_select_buy_server(args[1], args[2])
+		elif cmd == "reload":
+			self.reset()
+			return ["success", "Reloaded"]
+		else:
+			return ["failure", "Error: subcommand %s not valid" % args[0]]
+
+	def weapon_bought(self, item_name, type, mount_num):
+		self.sell.append( [item_name, 1.0, type, mount_num, None])
+		self.mounts['empty'][mount_num] = False
+	def launcher_bought(self, item_name, type, mount_num):
+		self.sell.append( [item_name, 1.0, type, mount_num, None])
+		self.mounts['empty'][mount_num] = False
+		if item_name == "missile_launcher":
+			self.mounts['missile'].append(mount_num)
+		elif item_name == "torpedo_launcher":
+			self.mounts['torpedo'].append(mount_num)
+	def missile_bought(self, item_name, type, mount_num):
+		self.sell = get_upgrade_sell_list()
+	def cargo_bought(self, item_name, type, upgrade_class):
+		self.sell.append( [item_name, 1.0, type, None, None])
+		self.upgrade_classes[upgrade_class] = item_name
+
+	def mount_select_buy_server(self, item_name, mount_num):
+		self.resetstatus()
+		if item_name not in self.buy:
+			print "ERROR: "+item_name+" mount not in self.buy which is: "+repr(self.buy)
+			#return
+		try:
+			mount_num = int(mount_num)
+		except:
+			pass
+		type      = lookup_upgrade_type(item_name)
+		try:
+			price = int( self.buy_prices[item_name] )
+		except:
+			price = 0
+		player = VS.getPlayer()
+		if (player.getCredits() < price):
+			self.setstatus(False, "INSUFFICIENT CREDIT")
+		elif type == "weapon":
+			success = add_upgrade(player, item_name, mount_num, 0, 0, 0)
+			if success:
+				player.addCredits(-1 * price)
+				self.weapon_bought(item_name,type,mount_num)
+				self.setstatus(True, "Thank You")
+			else:
+				self.setstatus(False, "ERROR: Can't add %s to %s" %(item_name, mount_num) )
+		elif type == "launcher" or type == "tractor":
+			success = add_upgrade(player, item_name, mount_num, 0, 0, 0)
+			if success:
+				player.addCredits(-1 * price)
+				self.launcher_bought(item_name,type,mount_num)
+				self.setstatus(True, "Thank You")
+			else:
+				self.setstatus(False, "ERROR: Can't add %s to %s" %(item_name, mount_num) )
+		elif type == "missile" or type == "torpedo":
+			#self.mounts['empty'][mount_num] = False
+			# add_upgrade returns false for missiles, so we just have to ignore the result
+			success = add_upgrade(player, item_name, mount_num, 0, 0, 0)
+			player.addCredits(-1 * price)
+			# just reload the whole list, rather than try to add a single missile to the lista
+			self.missile_bought(item_name,type,mount_num)
+			self.setstatus(True, "Thank You")
+		return self.status
+	
+	def buy_server(self, item_name):
+		self.resetstatus()
+		if item_name not in self.buy:
+			print "ERROR: "+item_name+" mount not in self.buy which is: "+repr(self.buy)
+			#return
+		type      = lookup_upgrade_type(item_name)
+		try:
+			price = int( self.buy_prices[item_name] )
+		except:
+			price = 0
+		player = VS.getPlayer()
+		if (player.getCredits() < price):
+			self.setstatus(False, "INSUFFICIENT CREDIT")
+		elif type == "cargo":
+			upgrade_class = lookup_upgrade_class(item_name)
+			has_item = self.upgrade_classes.get(upgrade_class, '')
+			if has_item == '':
+				# deduct cost
+				player.addCredits(-1 * price)
+				# add item to ship
+				if add_item(player, item_name, price, 1):
+				# add item to buy/sell computer datastructures
+					self.cargo_bought( item_name, type, upgrade_class)
+					# draw the screen
+					self.setstatus(True, "Thank You")
+				else:
+					self.setstatus(False, "ERROR: Can't add %s" %(item_name) )
+			else:
+				self.setstatus(False, "NO ROOM ON SHIP")
+		elif type == "subunit":
+			upgrade_class = lookup_upgrade_class(item_name)
+			try:
+				has_item = self.upgrade_classes[upgrade_class]
+			except:
+				has_item = ''
+			if has_item == '':
+				success = add_turret(player, item_name)
+				if success:
+					player.addCredits(-1 * price)
+					self.cargo_bought(item_name, type, upgrade_class)
+					self.setstatus(True, "Thank You")
+				else:
+					self.setstatus(False, "ERROR: Can't add %s to %s" %(item_name, mount_num) )
+			else:
+				self.setstatus(False, "NO ROOM ON SHIP")
+		else:
+			# error - unknown type
+			self.setstatus(False, "ERROR: Unknown server upgrade type %s" %(type.upper()) )
+		return self.status
+
+	def cargo_sold(self, item_name, current_item):
+		self.sell.pop(current_item)
+		upgrade_class = lookup_upgrade_class(item_name)
+		self.upgrade_classes[upgrade_class] = ''
+	def weapon_sold(self, item_name, current_item, mount_num):
+		self.sell.pop(current_item)
+		if mount_num in self.mounts['missile'] or mount_num in self.mounts['torpedo']:
+			self.mounts['empty'][mount_num] = False
+		else:
+			self.mounts['empty'][mount_num] = True
+
+	def sell_server(self, item_name_sent, mount_num_sent):
+		self.resetstatus()
+		if (len(self.repair) > 0) and (len(self.sell) > 0):
+			# this first if statement is needed due to the way the sell code works
+			# if we ever get a VS.downgrade to remove a single item, then this
+			# can be removed
+			self.setstatus(False, "YOU MUST REPAIR DAMAGED ITEMS" )
+			return self.status
+		# if there is stuff to sell
+		item_name = ''
+		current_item = 0
+		mount_num = 0
+		for sellitem in self.sell:
+			if sellitem[0]==item_name_sent and str(sellitem[3])==mount_num_sent:
+				item_name, undamaged, type, mount_num, quantity = sellitem
+				break
+			current_item += 1
+		if item_name:
+			try:
+				price = int( self.sell_prices[item_name] * undamaged )
+			except:
+				price = 0
+			player = VS.getPlayer()
+			if type == "cargo":
+				# selling a cargo-type upgrade (afterburner, repair droid, ecm, jump drive, etc)
+				if remove_item(player, item_name, 1):
+					player.addCredits(price)
+					self.cargo_sold(item_name, current_item)
+					# remove item from upgrade_class list
+					self.setstatus(True, "Thank You")
+				else:
+					self.setstatus(False, "ERROR: Cannot remove %s" %(item_name.upper()))
+			elif type == "weapon" or type == "tractor":
+				# selling a gun or tractor beam
+				try:
+					if remove_upgrade(player,item_name,mount_num):
+						player.addCredits(price)
+						self.weapon_sold(item_name, current_item, mount_num)
+						self.setstatus(True, "Thank You")
+					else:
+						self.setstatus(False, "ERROR: Cannot remove %s" %(item_name.upper()))
+				except:
+					self.setstatus(False, "ERROR: Cannot remove %s" %(item_name.upper()))
+			elif type == "missile" or type == "torpedo":
+				# selling a missile/torpedo
+				try:
+					# there is no way to give a quantity to removeWeapon, so just
+					# treat it like select_all is always true
+					select_all = True
+					if remove_upgrade(player, item_name, mount_num):
+						#self.mounts['empty'][mount_num] = True
+						if select_all:
+							price = price * quantity
+							quantity = 0
+						else:
+							quantity = quantity - 1
+						player.addCredits(price)
+						# remove one from current quantity
+						if quantity > 0:
+							self.sell[current_item][4] = quantity
+						else:
+							self.sell.pop(current_item)
+						self.setstatus(True, "Thank You")
+					else:
+						self.setstatus(False, "ERROR: Cannot remove %s" %(item_name.upper()))
+				except:
+					self.setstatus(False, "ERROR: Cannot remove %s" %(item_name.upper()))
+			elif type == "subunit":
+				# selling a turret
+				if remove_turret(player, item_name):
+					player.addCredits(price)
+					self.sell.pop(current_item)
+					self.setstatus(True, "Thank You")
+				else:
+					self.setstatus(False, "ERROR: Cannot remove TURRET")
+			else:
+				self.setstatus(False, "ERROR: Unknown upgrade type %s" %(type.upper()) )
+		else:
+			self.setstatus(False, "ERROR: Can't find upgrade "+item_name_sent)
+		return self.status
+	
+	def repair_server(self, repair_index):
+		self.resetstatus()
+		try:
+			repair_index = int(repair_index)
+		except:
+			pass
+		player = VS.getPlayer()
+		#self.repair = get_upgrade_repair_list(self.sell)
+		if repair_index < 0 and repair_index not in self.repair:
+			self.repair.append(-1)
+		if repair_index in self.repair:
+		#if len(self.repair) > 0:
+		#	repair_index = self.repair[self.current_item]
+			if repair_index >= 0:
+				item_name, undamaged, type, mount_num, quantity = self.sell[repair_index]
+				# repair cost is the fraction of functionality * the repair_price
+				price = int( self.repair_prices[item_name] * (1.0 - undamaged) )
+			else:
+				# "Basic Repair"
+				item_name = "basic_inspection"
+				global basic_repair_price
+				price = basic_repair_price * self.basic_repair_cost
+
+			if player.getCredits() < price:
+				self.setstatus(False, "INSUFFICIENT CREDIT")
+			else:
+				if repair_index < 0:
+					# do a "basic repair"
+					rc = player.RepairUpgrade()
+					self.repair.remove(repair_index) # Not pop -- this removes element whose value is arg
+					if (rc):
+						# deduct cost, repair item, and set basic_repair_cost to 0
+						player.addCredits(-1 * price)
+						self.setstatus(True, "Thank You")
+					else:
+						self.setstatus(True, "NO DAMAGE FOUND: NO CHARGE")
+					# don't show "basic repair" again while player is on this base
+					self.basic_repair_cost = 0
+
+				elif type == "cargo":
+					if repair_item(player,item_name):
+						# deduct cost, repair item, and update repair list
+						player.addCredits(-1 * price)
+						self.repair.remove(repair_index)
+						self.sell[repair_index][1] = 1.0
+						self.setstatus(True, "ITEM REPAIRED")
+					else:
+						self.setstatus(False, "ERROR: Cannot repair %s" %(item_name.upper()))
+				elif type == "weapon" or type == "tractor" or type == "launcher":
+					if repair_upgrade(player,item_name,mount_num):
+						# deduct cost, repair item, and update repair list
+						player.addCredits(-1 * price)
+						self.repair.remove(repair_index)
+						self.sell[repair_index][1] = 1.0
+						self.setstatus(True, "ITEM REPAIRED")
+					else:
+						self.setstatus(False, "ERROR: Cannot repair %s" %(item_name.upper()))
+				elif type == "missile" or type == "torpedo":
+					# deduct repair price
+					player.addCredits(-1 * price)
+					# remove damaged missiles
+					remove_upgrade(player, item_name, mount_num)
+					# add <quantity> number of missiles
+					for count in range(quantity):
+						add_upgrade(player, item_name, mount_num, 0, 0, 0)
+					# update repair and sell lists
+					self.repair.remove(repair_index)
+					self.sell[repair_index][1] = 1.0
+					# tell player item is repaired
+					self.setstatus(True, "ITEM REPAIRED")
+				elif type == "subunit":
+					if repair_turret(player,item_name):
+						# deduct cost, repair item, and update repair list
+						player.addCredits(-1 * price)
+						self.repair.remove(repair_index)
+						self.sell[repair_index][1] = 1.0
+						self.setstatus(True, "ITEM REPAIRED")
+					else:
+						self.setstatus(False, "ERROR: Cannot repair %s" %(item_name.upper()))
+		else:
+			self.setstatus(False, "ERROR: Invalid repair index %d in %s" % (repair_index, repr(self.repair)))
+		return self.status
+
+
+
+class RepairBayComputer(RepairBayComputerGeneric):
 	def __init__(self,room_id):
 		self.room_id  = room_id
+
+		RepairBayComputer.singleton = self
 
 		# initial state is "buy"
 		self.state = "buy"
 		self.enabled = 1
-		self.current_item = 0
 		guiroom = GUI.GUIRoom(room_id)
 		self.guiroom = guiroom
 
@@ -1528,34 +1926,9 @@ class RepairBayComputer:
 		self.add_mount_selector("Cancel",  "btn_mount_c", GUI.GUIRect(270, 76, 30.3125, 7.1875), 'bases/repair_upgrade/buttons/mount_c.spr', 'bases/repair_upgrade/buttons/mount_c_on.spr', -1 )
 
 
-		self.buy    = []
-		self.sell   = []
-		self.repair = []
-		self.disallowed = {}
-
-		# set up buy, sell and repair prices
-		self.buy_prices    = {}
-		self.sell_prices   = {}
-		self.repair_prices = {}
-		# get list of ship upgrade units
-		global master_part_list
-		upgrade_list = master_part_list.getUpgradeList()
-		for cargo in upgrade_list:
-			name = cargo.GetContent()
-			try:
-				buy_price    = int( cargo.GetPrice() )
-				sell_price   = int( buy_price * 0.5 )
-				repair_price = int( buy_price * 0.5 )
-				self.buy_prices[name]    = buy_price
-				self.sell_prices[name]   = sell_price
-				self.repair_prices[name] = repair_price
-			except:
-				pass
-
 		# draw all widgets on the screen
 		GUI.GUIRootSingleton.broadcastRoomMessage(self.guiroom.index, 'draw', None)
-
-		self.reset()
+		RepairBayComputerGeneric.__init__(self)
 
 	def add_button(self, guibutton, onclick_handler):
 		# add the button to the "buttons" dictionary, draw it, and add onclick handler
@@ -1602,6 +1975,11 @@ class RepairBayComputer:
 
 	def reset(self):
 		# reset computer to initial state
+		
+		print "reset computer"
+		if VS.networked():
+			custom.run("RepairBayComputer", ["reload"], None)
+		
 		self.state = "buy"
 		self.current_item = 0
 		GUI.GUIRootSingleton.broadcastRoomMessage(self.guiroom.index,'check',{'index':'btn_buy'})
@@ -1646,54 +2024,7 @@ class RepairBayComputer:
 
 		self.hide_mount_selectors()
 
-		# also, rebuild the buy/sell/repair lists, in case user sold ship
-		self.disallowed = lookup_disallowed_upgrades()
-		self.buy    = get_upgrade_buy_list(self.buy_prices, self.disallowed)
-		self.sell   = get_upgrade_sell_list()
-		self.repair = get_upgrade_repair_list(self.sell)
-		
-		self.upgrade_classes = {}
-		for i in range(len(self.sell)):
-			item_name, undamaged, type, mount_num, quantity = self.sell[i]
-			if type == "weapon":
-				pass
-			elif type == "missile":
-				pass
-			else:
-				upgrade_class = lookup_upgrade_class(item_name)
-				self.upgrade_classes[upgrade_class] = item_name
-
-		#   enum MOUNT_SIZE {NOWEAP=0x0,LIGHT=0x1,MEDIUM=0x2,HEAVY=0x4,CAPSHIPLIGHT=0x8,CAPSHIPHEAVY=0x10,SPECIAL=0x20, LIGHTMISSILE=0x40,MEDIUMMISSILE=0x80,HEAVYMISSILE=0x100,CAPSHIPLIGHTMISSILE=0x200, CAPSHIPHEAVYMISSILE=0x400,SPECIALMISSILE=0x800, AUTOTRACKING=0x1000} size;
-		self.mounts = {
-			'missile': [],
-			'torpedo': [],
-			'gun':     [],
-			'special': [],
-			'empty':   {}
-			}
-		player = VS.getPlayer()
-		for i in range(player.GetNumMounts()):
-			mount = player.GetMountInfo(i)
-			# check whether mount is used or not
-			self.mounts['empty'][i] = mount['empty']
-			
-			# check what type of mount this is
-			if (mount['size'] & 1) or (mount['size'] & 2) or (mount['size'] & 4):
-				self.mounts['gun'].append(i)
-			if (mount['size'] & 32):
-				self.mounts['special'].append(i)
-			if (mount['size'] & 64) or (mount['size'] & 128):
-				self.mounts['missile'].append(i)
-				# missile mounts aren't empty
-
-				self.mounts['empty'][i] = False
-			if (mount['size'] & 256):
-				self.mounts['torpedo'].append(i)
-				# torpedo mounts aren't empty
-				self.mounts['empty'][i] = False
-			if mount['empty']==False:
-				print mount['weapon_info']
-		
+		RepairBayComputerGeneric.reset(self)
 		print "MOUNT UP"
 		print self.mounts
 
@@ -1750,52 +2081,31 @@ class RepairBayComputer:
 		self.hide_mount_selectors()
 		selector = self.mount_selectors[button_index]
 		mount_num = selector["mount_num"]
+		if self.state == "buy" and len(self.buy) > 0:
+			# get the current_item from the list of things to buy
+			item_name = self.buy[self.current_item]
+			type      = lookup_upgrade_type(item_name)
+			self.buy_selected_mount(item_name, type, mount_num)
+	def buy_selected_mount(self, item_name, type, mount_num):
 		if mount_num < 0:
 			# cancel
 			self.draw()
 		else:
-			if self.state == "buy":
-				if len(self.buy) > 0:
-					# get the current_item from the list of things to buy
-					item_name = self.buy[self.current_item]
-					type      = lookup_upgrade_type(item_name)
-					try:
-						price = int( self.buy_prices[item_name] )
-					except:
-						price = 0
-					player = VS.getPlayer()
-					# we already checked that player has enough credits, so just add the item
+			def handleBuyResponse(args):
+				if args[0]!='success':
+					self.draw(args[1])
+					return
+				if VS.networked():
 					if type == "weapon":
-						success = add_upgrade(player, item_name, mount_num, 0, 0, 0)
-						if success:
-							player.addCredits(-1 * price)
-							self.sell.append( [item_name, 1.0, type, mount_num, None])
-							self.mounts['empty'][mount_num] = False
-							self.draw("Thank You")
-						else:
-							self.draw( "ERROR: Can't add %s to %s" %(item_name, mount_num) )
+						self.weapon_bought(item_name, type, mount_num)
 					elif type == "launcher" or type == "tractor":
-						success = add_upgrade(player, item_name, mount_num, 0, 0, 0)
-						if success:
-							player.addCredits(-1 * price)
-							self.sell.append( [item_name, 1.0, type, mount_num, None])
-							self.mounts['empty'][mount_num] = False
-							if item_name == "missile_launcher":
-								self.mounts['missile'].append(mount_num)
-							elif item_name == "torpedo_launcher":
-								self.mounts['torpedo'].append(mount_num)
-							self.draw("Thank You")
-						else:
-							self.draw( "ERROR: Can't add %s to %s" %(item_name, mount_num) )
+						self.launcher_bought(item_name, type, mount_num)
 					elif type == "missile" or type == "torpedo":
-						#self.mounts['empty'][mount_num] = False
-						# add_upgrade returns false for missiles, so we just have to ignore the result
-						success = add_upgrade(player, item_name, mount_num, 0, 0, 0)
-						player.addCredits(-1 * price)
-						# just reload the whole list, rather than try to add a single missile to the list
-						self.sell = get_upgrade_sell_list()
-						self.draw("Thank You")
-
+						self.missile_bought(item_name, type, mount_num)
+				self.draw(args[1])
+			# custom.run should be the last thing that happens...
+			# it might either be synchronous or asynchronous (sort-of a bug)
+			custom.run("RepairBayComputer", ["mount_select_buy",item_name,mount_num], handleBuyResponse)
 
 	def select(self,select_all=False): 
 		# disable button if mount_selectors are shown
@@ -1814,76 +2124,35 @@ class RepairBayComputer:
 					global basic_repair_price
 					global basic_repair_cost
 					price = basic_repair_price * basic_repair_cost
+				
+				def handleRepairResponse(args):
+					if args[0]!='success':
+						self.draw(args[1])
+						return
+					if repair_index < 0:
+						# Quirking around the fact that server-side can't use globals.
+						global basic_repair_cost
+						basic_repair_cost = 0
+					if VS.networked():
+						# The class isn't shared in this case...
+						if repair_index < 0:
+							self.repair.pop(self.current_item)
+						elif type == "cargo":
+							self.repair.pop(self.current_item)
+							self.sell[repair_index][1] = 1.0
+						elif type == "weapon":
+							self.weapon_sold(item_name, self.current_item, mount_num)
+						elif type == "subunit" or type == "missile" or type == "torpedo":
+							self.repair.pop(self.current_item)
+					if self.current_item > 0:
+						self.current_item = self.current_item - 1
+					self.drawBlank(args[1])
 
 				if player.getCredits() < price:
 					self.draw("INSUFFICIENT CREDIT")
 				else:
-					if repair_index < 0:
-						# do a "basic repair"
-						rc = player.RepairUpgrade()
-						self.repair.pop(self.current_item)
-						if self.current_item > 0:
-							self.current_item = self.current_item - 1
-						if (rc):
-							# deduct cost, repair item, and set basic_repair_cost to 0
-							player.addCredits(-1 * price)
-							self.drawBlank("Thank You")
-						else:
-							self.drawBlank("NO DAMAGE FOUND: NO CHARGE")
-						# don't show "basic repair" again while player is on this base
-						global basic_repair_cost
-						basic_repair_cost = 0
-
-					elif type == "cargo":
-						if repair_item(player,item_name):
-							# deduct cost, repair item, and update repair list
-							player.addCredits(-1 * price)
-							self.repair.pop(self.current_item)
-							self.sell[repair_index][1] = 1.0
-							if self.current_item > 0:
-								self.current_item = self.current_item - 1
-							self.drawBlank("ITEM REPAIRED")
-						else:
-							self.draw( "ERROR: Cannot repair %s" %(item_name.upper()))
-					elif type == "weapon" or type == "tractor" or type == "launcher":
-						if repair_upgrade(player,item_name,mount_num):
-							# deduct cost, repair item, and update repair list
-							player.addCredits(-1 * price)
-							self.repair.pop(self.current_item)
-							self.sell[repair_index][1] = 1.0
-							if self.current_item > 0:
-								self.current_item = self.current_item - 1
-							self.drawBlank("ITEM REPAIRED")
-						else:
-							self.draw( "ERROR: Cannot repair %s" %(item_name.upper()))
-					elif type == "missile" or type == "torpedo":
-						# deduct repair price
-						player.addCredits(-1 * price)
-						# remove damaged missiles
-						remove_upgrade(player, item_name, mount_num)
-						# add <quantity> number of missiles
-						for count in range(quantity):
-							add_upgrade(player, item_name, mount_num, 0, 0, 0)
-						# update repair and sell lists
-						self.repair.pop(self.current_item)
-						self.sell[repair_index][1] = 1.0
-						if self.current_item > 0:
-							self.current_item = self.current_item - 1
-						# tell player item is repaired
-						self.drawBlank("ITEM REPAIRED")
-					elif type == "subunit":
-						if repair_turret(player,item_name):
-							# deduct cost, repair item, and update repair list
-							player.addCredits(-1 * price)
-							self.repair.pop(self.current_item)
-							self.sell[repair_index][1] = 1.0
-							if self.current_item > 0:
-								self.current_item = self.current_item - 1
-							self.drawBlank("ITEM REPAIRED")
-						else:
-							self.draw( "ERROR: Cannot repair %s" %(item_name.upper()))
-
-
+					custom.run("RepairBayComputer", ["repair",repair_index], handleRepairResponse)
+		
 		elif self.state == "sell":
 			if (len(self.repair) > 0) and (len(self.sell) > 0):
 				# this first if statement is needed due to the way the sell code works
@@ -1893,69 +2162,22 @@ class RepairBayComputer:
 			elif len(self.sell) > 0:
 				# if there is stuff to sell
 				item_name, undamaged, type, mount_num, quantity = self.sell[self.current_item]
-				try:
-					price = int( self.sell_prices[item_name] * undamaged )
-				except:
-					price = 0
-				player = VS.getPlayer()
-				if type == "cargo":
-					# selling a cargo-type upgrade (afterburner, repair droid, ecm, jump drive, etc)
-					if remove_item(player, item_name, 1):
-						player.addCredits(price)
-						self.sell.pop(self.current_item)
-						if self.current_item > 0:
-							self.current_item = self.current_item - 1
-						# remove item from upgrade_class list
-						upgrade_class = lookup_upgrade_class(item_name)
-						self.upgrade_classes[upgrade_class] = ''
-						self.draw("Thank You")
-					else:
-						self.draw( "ERROR: Cannot remove %s" %(item_name.upper()))
-				elif type == "weapon" or type == "tractor":
-					# selling a gun or tractor beam
-					try:
-						if remove_upgrade(player,item_name,mount_num):
-							player.addCredits(price)
+				def handleSellResponse(args):
+					if args[0]!='success':
+						self.draw(args[1])
+						return
+					if VS.networked():
+						# The class isn't shared in this case...
+						if type == "cargo":
+							self.cargo_sold(item_name, self.current_item)
+						elif type == "weapon":
+							self.weapon_sold(item_name, self.current_item, mount_num)
+						elif type == "subunit" or type == "missile" or type == "torpedo":
 							self.sell.pop(self.current_item)
-							if self.current_item > 0:
-								self.current_item = self.current_item - 1
-
-							if mount_num in self.mounts['missile'] or mount_num in self.mounts['torpedo']:
-								self.mounts['empty'][mount_num] = False
-							else:
-								self.mounts['empty'][mount_num] = True
-							self.draw("Thank You")
-						else:
-							self.draw( "ERROR: Cannot remove %s" %(item_name.upper()))
-					except:
-						self.draw( "ERROR: Cannot remove %s" %(item_name.upper()))
-				elif type == "missile" or type == "torpedo":
-					# selling a missile/torpedo
-					try:
-						# there is no way to give a quantity to removeWeapon, so just
-						# treat it like select_all is always true
-						select_all = True
-						if remove_upgrade(player, item_name, mount_num):
-							#self.mounts['empty'][mount_num] = True
-							if select_all:
-								price = price * quantity
-								quantity = 0
-							else:
-								quantity = quantity - 1
-							player.addCredits(price)
-							# remove one from current quantity
-							if quantity > 0:
-								self.sell[self.current_item][4] = quantity
-							else:
-								self.sell.pop(self.current_item)
-								if self.current_item > 0:
-									self.current_item = self.current_item - 1
-							self.draw("Thank You")
-						else:
-							self.draw( "ERROR: Cannot remove %s" %(item_name.upper()))
-					except:
-						self.draw( "ERROR: Cannot remove %s" %(item_name.upper()))
-				elif type == "launcher":
+					if self.current_item > 0:
+						self.current_item = self.current_item - 1
+					self.draw(args[1])
+				if type == "launcher":
 					# selling a missile/torpedo launcher
 
 					#
@@ -1963,97 +2185,53 @@ class RepairBayComputer:
 					#  Hopefully that will be fixed when the VS upgrade code gets rewritten
 					#
 					self.draw("CANNOT SELL LAUNCHERS")
-
-				elif type == "subunit":
-					# selling a turret
-					if remove_turret(player, item_name):
-						player.addCredits(price)
-						self.sell.pop(self.current_item)
-						if self.current_item > 0:
-							self.current_item = self.current_item - 1
-						self.draw("Thank You")
-					else:
-						self.draw( "ERROR: Cannot remove TURRET")
 				else:
-					self.draw( "ERROR: Unknown upgrade type %s" %(type.upper()) )
-
+					custom.run("RepairBayComputer", ["sell",item_name,mount_num], handleSellResponse)
 
 		elif self.state == "buy":
 			if len(self.buy) > 0:
 				# get the current_item from the list of things to buy
 				item_name = self.buy[self.current_item]
 				type      = lookup_upgrade_type(item_name)
+				player = VS.getPlayer()
 				try:
 					price = int( self.buy_prices[item_name] )
 				except:
 					price = 0
-				player = VS.getPlayer()
-				if type == "cargo":
-					if (player.getCredits() < price):
-						self.draw("INSUFFICIENT CREDIT")
-					else:
-						upgrade_class = lookup_upgrade_class(item_name)
-						try:
-							has_item = self.upgrade_classes[upgrade_class]
-						except:
-							has_item = ''
-						if has_item == '':
-							# deduct cost
-							player.addCredits(-1 * price)
-							# add item to ship
-							if add_item(player, item_name, price, 1):
-								# add item to buy/sell computer datastructures
-								self.sell.append( [item_name, 1.0, type, None, None])
-								self.upgrade_classes[upgrade_class] = item_name
-								# draw the screen
-								self.draw("Thank You")
-							else:
-								self.draw( "ERROR: Can't add %s" %(item_name) )
-						else:
-							self.draw("NO ROOM ON SHIP")
+				def handleBuyResponse(args):
+					if args[0]!='success':
+						self.draw(args[1])
+						return
+					if VS.networked():
+						if type == "cargo" or type == "subunit":
+							upgrade_class = lookup_upgrade_class(item_name)
+							self.cargo_bought(item_name, type, upgrade_class)
+					self.draw(args[1])
+				if (player.getCredits() < price):
+					self.draw("INSUFFICIENT CREDIT")
+				elif type == "cargo" or type == "subunit":
+					#upgrade_class = lookup_upgrade_class(item_name)
+					#has_item = self.upgrade_classes.get(upgrade_class, '')
+					custom.run("RepairBayComputer", ["buy",item_name], handleBuyResponse)
 				elif type == "weapon":
 					# buying a gun 
-					if (player.getCredits() < price):
-						self.draw("INSUFFICIENT CREDIT")
+					slots = available_mounts(self.mounts, 'gun')
+					if len(slots) == 0:
+						self.draw("NO ROOM ON SHIP")
+					elif len(slots) == 1:
+						mount_num = slots[0]
+						self.buy_selected_mount(item_name, type, mount_num)
 					else:
-						slots = available_mounts(self.mounts, 'gun')
-						if len(slots) == 0:
-							self.draw("NO ROOM ON SHIP")
-						elif len(slots) == 1:
-							mount_num = slots[0]
-							success = add_upgrade(player, item_name, mount_num, 0, 0, 0)
-							if success:
-								player.addCredits(-1 * price)
-								self.sell.append( [item_name, 1.0, type, mount_num, None])
-								self.mounts['empty'][mount_num] = False
-								self.draw("Thank You")
-							else:
-								self.draw( "ERROR: Can't add %s to %s" %(item_name, mount_num) )
-						else:
-							self.show_mount_selectors(slots)
-							self.draw("CHOOSE MOUNT")
+						self.show_mount_selectors(slots)
+						self.draw("CHOOSE MOUNT")
 				elif type == "launcher" or type == "tractor":
 					# buying a missile/torpedo launcher
-					if (player.getCredits() < price):
-						self.draw("INSUFFICIENT CREDIT")
-					else:
 						slots = available_mounts(self.mounts, 'special',type=="tractor")
 						if len(slots) == 0:
 							self.draw("NO ROOM ON SHIP")
 						elif len(slots) == 1:
 							mount_num = slots[0]
-							success = add_upgrade(player, item_name, mount_num, 0, 0, 0)
-							if success:
-								player.addCredits(-1 * price)
-								self.sell.append( [item_name, 1.0, type, mount_num, None])
-								self.mounts['empty'][mount_num] = False
-								if item_name == "missile_launcher":
-									self.mounts['missile'].append(mount_num)
-								elif item_name == "torpedo_launcher":
-									self.mounts['torpedo'].append(mount_num)
-								self.draw("Thank You")
-							else:
-								self.draw( "ERROR: Can't add %s to %s" %(item_name, mount_num) )
+							self.buy_selected_mount(item_name, type, mount_num)
 						else:
 							self.show_mount_selectors(slots)
 							self.draw("CHOOSE MOUNT")
@@ -2070,35 +2248,10 @@ class RepairBayComputer:
 						else:
 							slots.sort(sort_missiles)
 							mount_num = slots[0]
-							# add_upgrade returns false for missiles, so we just have to ignore the result
-							success = add_upgrade(player, item_name, mount_num, 0, 0, 0)
-							player.addCredits(-1 * price)
-							# just reload the whole list, rather than try to add a single missile to the list
-							self.sell = get_upgrade_sell_list()
-							self.draw("Thank You")
+							self.buy_selected_mount(item_name, type, mount_num)
 #						else:
 #							self.show_mount_selectors(slots)
 #							self.draw("CHOOSE MOUNT")
-				elif type == "subunit":
-					if (player.getCredits() < price):
-						self.draw("INSUFFICIENT CREDIT")
-					else:
-						upgrade_class = lookup_upgrade_class(item_name)
-						try:
-							has_item = self.upgrade_classes[upgrade_class]
-						except:
-							has_item = ''
-						if has_item == '':
-							success = add_turret(player, item_name)
-							if success:
-								player.addCredits(-1 * price)
-								self.sell.append( [item_name, 1.0, type, None, None])
-								self.upgrade_classes[upgrade_class] = item_name
-								self.draw("Thank You")
-							else:
-								self.draw( "ERROR: Can't add %s to %s" %(item_name, mount_num) )
-						else:
-							self.draw("NO ROOM ON SHIP")
 				else:
 					# error - unknown type
 					self.draw( "ERROR: Unknown upgrade type %s" %(type.upper()) )
@@ -2121,8 +2274,9 @@ class RepairBayComputer:
 				self.draw()
 		elif button_index == "btn_repair":
 			if self.state != "repair":
+				global basic_repair_cost
 				# update the repair list, if user sold any damaged items since reset()
-				self.repair = get_upgrade_repair_list(self.sell)
+				self.repair = get_upgrade_repair_list(self.sell, basic_repair_cost)
 				self.state = "repair"
 				self.current_item = 0
 				self.draw()
@@ -2218,6 +2372,27 @@ class RepairBayComputer:
 			self.txt_message.setText(message)
 
 
+def handle_RepairBayComputer_message(local, cmd, args, id):
+	cp = VS.getCurrentPlayer()
+	if VS.isserver():
+		import server
+		player = server.getDirector().getPlayer(cp)
+		if not player.repair_bay_computer:
+			player.repair_bay_computer = RepairBayComputerGeneric()
+		return player.repair_bay_computer.handle_server_cmd(args)
+	elif RepairBayComputer.singleton:
+		return RepairBayComputer.singleton.handle_server_cmd(args)
+	else:
+		print "RepairBayComputer has no singleton!"
+	return ["failure", 'RepairBayComputer has no singleton!']
+
+custom.add("RepairBayComputer", handle_RepairBayComputer_message)
+
+def handle_removeWeapon_message(local, cmd, args, id):
+	VS.getPlayer().removeWeapon(args[0], int(args[1]), False)
+
+custom.add("removeWeapon", handle_removeWeapon_message)
+
 #
 # helper functions used to add, remove, and repair various ship upgrades
 #
@@ -2309,6 +2484,10 @@ def remove_upgrade(player, item_name, mount_num):
 	weapon_name = lookup_weapon_name(item_name)
 	# the boolean value in removeWeapon parameters does nothing, btw
 	if (player.removeWeapon(weapon_name, mount_num, False)!=-1):
+		# This function doesn't run over network in C++
+		if VS.isserver():
+			custom.run("removeWeapon", [weapon_name, mount_num], None, None,
+				player.isPlayerStarship())
 		return True
 	return False
 

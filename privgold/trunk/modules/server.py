@@ -4,6 +4,8 @@ import unit
 import sys
 import traceback
 
+import custom
+
 import server_lib
 
 baseunits={}
@@ -94,6 +96,7 @@ class player (Director.Mission):
 		self.objectives=0
 		self.player_num=-1
 		self.callsign=''
+		self.repair_bay_computer = None
 		self.ship='Llama.begin'
 		self.docked_un=None
 	
@@ -140,26 +143,15 @@ class player (Director.Mission):
 			traceback.print_exc(file=sys.stderr)
 	
 	
-class IOmessageWriter:
-	def __init__(self,cpnum):
-		self.line=''
-		if cpnum<0:
-			self.cpstr='all'
-		else:
-			self.cpstr = 'p'+str(cpnum)
-	def write(self, text):
-		lines = text.split('\n')
-		self.line=lines[-1]
-		lines = lines[:-1]
-		for l in lines:
-			VS.IOmessage(0,"game",self.cpstr,l)
-	
-
-def processMessage(cp, localhost, command):
+def processMessage(cp, localhost, command, arglist=None, id=''):
 	try:
-		subcmds = command.split(' ')
-		cmd = subcmds[0].lower()
-		args = subcmds[1:]
+		cmd = command
+		args = arglist
+		if not arglist:
+			subcmds = command.split(' ')
+			cmd = subcmds[0]
+			args = subcmds[1:]
+		cmd = cmd.lower()
 		authlevel=0
 		if localhost:
 			authlevel=2 #Can exit the game.
@@ -178,13 +170,16 @@ def processMessage(cp, localhost, command):
 			VS.IOmessage(0,"game","all","The server python script has been reloaded!")
 			print mod.__name__+' has been reloaded!'
 		else:
-			server_lib.processMessage(pl, authlevel, cmd, args)
+			server_lib.processMessage(pl, authlevel, cmd, args, id)
 	except:
 		if cp<0:
 			writer = sys.stderr
 		else:
-			writer = IOmessageWriter(cp)
+			writer = custom.IOmessageWriter(cp)
+		argstr=''
+		if type(arglist)=='list':
+			argstr = ' ' + (' '.join(arglist))
 		writer.write("An error occurred when processing command: \n"
-			+ str(command))
+			+ str(command)+argstr)
 		traceback.print_exc(file=writer)
 	
