@@ -9,6 +9,7 @@ def add(name, proc):
 	procedures[name.lower()] = proc
 
 import weapons_lib #adds to procedures list
+import guilds #adds to procedures list
 
 running_cmds = {}
 

@@ -3,6 +3,8 @@ import Director
 import server
 import launch
 import dynamic_mission
+import mission_lib
+import guilds
 import vsrandom
 import universe
 import faction_ships
@@ -10,17 +12,11 @@ import faction_ships
 def serverDirector():
 	return server.getDirector()
 
-def player_docked(self):
-	nam = self.docked_un.getName()
-	VS.IOmessage(0,'game','news',self.callsign+' has docked to the '+nam)
-	VS.IOmessage(0,'game','all',self.callsign+' has docked to the '+nam)
-	#if self.objectives>0:
-	#	VS.eraseObjective(self.objectives-1)
-	
+def player_docked_old(self):
 	dynamic_mission.eraseExtras()
 	dynamic_mission.plr = self.player_num
 	dynamic_mission.fixerpct=0.0
-	dynamic_mission.guildpct=0.0
+	# dynamic_mission.guildpct=0.0
 	for i in range(1):
 		cursystem = VS.getSystemFile()
 		syses = dynamic_mission.getSystemsNAway(cursystem,i,self.docked_un.getFactionName())
@@ -30,11 +26,21 @@ def player_docked(self):
 			print 'generating patrol'
 			print sys
 			dynamic_mission.generatePatrolMission(sys,vsrandom.randrange(4,10))
+	for key in guilds.guilds:
+		guild = guilds.guilds[key]
+		if guild.HasJoined():
+			guild.MakeMissions()
+
+def player_docked(self):
+	dynamic_mission.CreateMissions()
 
 def player_undocked(self):
 	if not self.docked_un:
 		print 'Base for'+self.callsign+'blew up!'
 		return
+	
+	self.repair_bay_computer = None
+	self.software_booth_computer = None
 
 	dynamic_mission.eraseExtras()
 	nam = self.docked_un.getName()

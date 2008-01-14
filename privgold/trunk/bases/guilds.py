@@ -5,6 +5,9 @@ import VS
 import quest
 # import Director
 import fixers
+
+import custom
+
 def CanX(disallowed):
 	import universe
 	sys = VS.getSystemFile()
@@ -64,8 +67,8 @@ def CanMercenaryGuild():
 		"Joplin":1, # Gemini/XXN-1927
 		}
 	return CanX(no_mercenary)
-class Guild:
-	"""Stores information about the guild itself (name, mission types, number of missions)"""
+
+class GenericGuild:
 	def __init__(self, name, min, max, missiontypes, membership, prefix='#G#', acceptmsg='', tech=[]):
 		"""Initializes the guild"""
 		self.name=name.split('/')[0]
@@ -78,11 +81,16 @@ class Guild:
 		self.tech=tech
 		self.prefix=prefix
 		self.acceptMessage=acceptmsg
-
+		self.tooManyMissionsTrigger = 4
+	
+	def CanTakeMoreMissions(self):
+		return (VS.numActiveMissions()<self.tooManyMissionsTrigger)
+		
 	def MakeMissions(self):
 		"""Creates the missions using the mission_lib interface"""
 		self.nummissions=vsrandom.randrange(self.minmissions,self.maxmissions+1)
 		self.nummissions=mission_lib.CreateGuildMissions(self.name, self.nummissions, self.missions, self.prefix, self.acceptMessage)
+		return ["success", self.nummissions]
 	
 	def HasJoined(self):
 		if (self.membership<=0):
@@ -97,19 +105,74 @@ class Guild:
 	def Join(self):
 		plr=VS.getPlayer()
 		plrnum=plr.isPlayerStarship()
-		VS.StopAllSounds()
 		if self.CanPay():
 			quest.removeQuest(plrnum,self.savestring,1)
 			plr.addCredits(-1*self.membership)
 			for tt in self.tech:
 				import universe
 				universe.addTechLevel(tt)
-
-			Base.Message('Thank you for joining the '+str(self.name)+' Guild! Feel free to accept any of our large quantity of high-paying missions.')
-			VS.playSound("guilds/"+str(self.name).lower()+"accept.wav",(0,0,0),(0,0,0))
+			self.MakeMissions()
+			return ["success"]
 		else:
-			Base.Message('We have checked your account and it appears that you do not have enough credits to join this guild. Please come back and reconsider our offer when you have received more credits.')
-			VS.playSound("guilds/"+str(self.name).lower()+"notenoughmoney.wav",(0,0,0),(0,0,0))
+			return ["failure"]
+	
+	def Accept(self, missionname):
+		if not self.CanTakeMoreMissions():
+			return ["toomany"]
+		else:
+			mission_lib.SetLastMission(missionname);
+			if mission_lib.LoadLastMission():
+				return ["success"]
+			else:
+				return ["notavailable","Mission no longer available"]
+		
+	def handle_server_cmd(self,cmd,args):
+		if cmd=='join':
+			return self.Join()
+		if not self.HasJoined():
+			return ["failure", "You have not joined this guild yet!"]
+		if cmd=='accept':
+			return self.Accept(args[0])
+		elif cmd=='MakeMissions':
+			return self.MakeMissions()
+
+class Guild(GenericGuild):
+	"""Stores information about the guild itself (name, mission types, number of missions)"""
+	def __init__(self, name, min, max, missiontypes, membership, prefix='#G#', acceptmsg='', tech=[]):
+		GenericGuild.__init__(self, name, min, max, missiontypes, membership, prefix, acceptmsg, tech)
+	
+	def RequestJoin(self):
+		def JoinStatus(args):
+			if args[0]=="success":
+				Base.Message('Thank you for joining the '+str(self.name)+' Guild! Feel free to accept any of our large quantity of high-paying missions.')
+				VS.playSound("guilds/"+str(self.name).lower()+"accept.wav",(0,0,0),(0,0,0))
+			else:
+				Base.Message('We have checked your account and it appears that you do not have enough credits to join this guild. Please come back and reconsider our offer when you have received more credits.')
+				VS.playSound("guilds/"+str(self.name).lower()+"notenoughmoney.wav",(0,0,0),(0,0,0))
+		plr=VS.getPlayer()
+		plrnum=plr.isPlayerStarship()
+		VS.StopAllSounds()
+		if self.CanPay():
+			custom.run('guilds',[self.name,'join'], JoinStatus)
+		else:
+			joinStatus(["failure"])
+
+
+def handle_guilds_message(local, cmd, args, id):
+	un = VS.getPlayer()
+	plr = un.isPlayerStarship()
+	if VS.isserver():
+		import server
+		s = server.getDirector()
+		if not s.getPlayer(plr).docked_un:
+			return ["failure", 'Not currently docked']
+	guildinfo = guilds.get(args[0],None)
+	if not guildinfo:
+		return ["failure", 'Guild '+str(args[0])+' does not exit'];
+	else:
+		return guildinfo.handle_server_cmd(args[1], args[2:])
+
+custom.add("guilds", handle_guilds_message)
 
 class Button:
 	"""A button that you can click on."""
@@ -189,8 +252,14 @@ class MissionButton(Button):
 			self.isactive=True
 			self.removeobjs()
 			mission_lib.SetLastMission(self.missionname);
-			mission_lib.BriefLastMission(self.missionname,1,self.guild.textbox)
-			mission_lib.LoadLastMission()
+			def completeAccept(args):
+				if args[0]=="success" or args[0]=="notavailable":
+					mission_lib.BriefLastMission(self.missionname,1,self.guild.textbox)
+					mission_lib.RemoveLastMission(self.missionname)
+				elif args[0]=="toomany":
+					self.guild.TooManyMissions()
+			custom.run("guilds",[self.guild.guild.name,"accept",self.missionname],completeAccept)
+			
 #			Base.Message('Thank you. We look forward to the completion of your mission.')
 
 class GuildRoom:
@@ -229,7 +298,7 @@ class GuildRoom:
 			self.buttons['last'].removeobjs()
 
 	def CanTakeMoreMissions(self):
-		return (VS.numActiveMissions()<self.tooManyMissionsTrigger)
+		return self.guild.CanTakeMoreMissions()
 	
 	def SetCurrentMission(self,missionnum):
 		if missionnum == 'next':
@@ -317,14 +386,15 @@ def SetCurrentMission(room,guildname,missionnum):
 				return True
 	return False
 def JoinGuild(guildname):
-	guilds[guildname].Join()
+	guilds[guildname].RequestJoin()
 	fixers.DestroyActiveButtons()
 	print 'Creahte it ' + guildname
 	if guildname in guildrooms:
 		print 'Create it ' + str(guildrooms[guildname])
 		for guildroom in guildrooms[guildname]:
 			print "drawing"
-			guildroom.drawobjs()
+			CreateJoinedGuild(guildname, guildroom)
+
 def TalkToReceptionist(guildname,introtext):
 	text=introtext
 	import campaign_lib
@@ -351,6 +421,21 @@ def TalkToReceptionist(guildname,introtext):
 				VS.playSound("guilds/"+str(guild.name).lower()+"notenoughmoney.wav",(0,0,0),(0,0,0))			
 		return
 
+def CreateJoinedGuild(guildname,guildroom):
+	print 'has joined.'
+	if not VS.networked():
+		print 'make missions'
+		guildroom.guild.MakeMissions()
+		guildroom.drawobjs()
+	else:
+		def MakeStatus(args):
+			if args[0]=='success':
+				guildroom.guild.nummissions = int(args[1])
+				guildroom.drawobjs()
+			else:
+				print "MakeMissions call returned "+str(args)
+		custom.run('guilds',[guildname,'MakeMissions'], MakeStatus)
+
 def CreateGuild(guildroom):
 	guildname=guildroom.guild.name
 	print 'Create it ' + guildname
@@ -358,13 +443,10 @@ def CreateGuild(guildroom):
 #		guildrooms[guildname].append(guildroom)
 #	else:
 	if True:
-		print 'make missions'
-		guildroom.guild.MakeMissions()
 		guildrooms[guildname]=[guildroom]
 		print 'true'
 		if guildroom.guild.HasJoined():
-			print 'has joined.'
-			guildroom.drawobjs()
+			CreateJoinedGuild(guildname,guildroom)
 
 def Clear():
 	del guildrooms

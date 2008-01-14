@@ -350,13 +350,193 @@ def make_light_spriteset(lit_sprite):
 
 
 #
+# SoftwareBoothComputerGeneric:
+#	server-side version of software booth, contains lists
+#
+class SoftwareBoothComputerGeneric:
+	def __init__(self):
+		# farris_map should be fariss_map, but left as is for backwards compatiblity
+		self.items = [ 
+			'B_and_S_Tripwire', 
+			'B_and_S_EYE', 
+			'B_and_S_Omni',  
+			'hunter_aw_6', 
+			'hunter_aw_6i', 
+			'hunter_aw_infinity',  
+			'iris_mk1', 
+			'iris_mk2', 
+			'iris_mk3',  
+			'humboldt_map', 
+			'farris_map', 
+			'potter_map', 
+			'clarke_map', 
+			'gemini_map'	 ]
+
+		# set up buy, sell and repair prices
+		self.buy_prices    = {'humboldt_map': 2000, 'farris_map': 2000, 'potter_map': 2000, 'clarke_map': 2000, 'gemini_map': 5000}
+		self.sell_prices   = {'humboldt_map': 1000, 'farris_map': 1000, 'potter_map': 1000, 'clarke_map': 1000}
+		# maps can't be damaged
+		self.repair_prices = {}
+		# get list of radar units
+		global master_part_list
+		radar_list = master_part_list.getRadarList()
+		for cargo in radar_list:
+			name     = cargo.GetContent()
+			try:
+				buy_price    = int( cargo.GetPrice() )
+				# in the original, the sell price wasn't a set ratio of the buy price, like we're doing here
+				sell_price   = int( buy_price * 0.75 )
+				repair_price = int( buy_price * 0.7 ) # if the item is 100% damaged, player only has to pay this percent of the purchase price
+				self.buy_prices[name]    = buy_price
+				self.sell_prices[name]   = sell_price
+				self.repair_prices[name] = repair_price
+			except:
+				pass
+		
+		self.reset()
+	
+	def reset(self):
+		# also, rebuild the sell/repair lists, in case user sold radar somehow
+		self.sell   = get_sell_list()
+		self.repair = get_repair_list(self.sell)
+	def setstatus(self,success,message):
+		self.status = [success and "success" or "failure", message]
+	#def draw(self,message=None):
+	#	pass
+	#def drawBlank(self,message=None):
+	#	pass
+	def resetstatus(self):
+		self.status = ["failure", "Unknown error"]
+
+	def sell_server(self, item_name_sent):
+		self.resetstatus()
+		item_name=''
+		sell_index = 0
+		for item_name, undamaged in self.sell:
+			if item_name == item_name_sent:
+				break
+			sell_index += 1
+		if item_name != item_name_sent:
+			self.setstatus(False, "CAN'T SELL ITEM "+str(item_name_sent))
+		else:
+			price = int( self.sell_prices[item_name] * undamaged )
+			player = VS.getPlayer()
+			maps = {'humboldt_map': 1, 'farris_map': 1, 'potter_map': 1, 'clarke_map': 1}
+			if item_name in maps:
+				# selling a map
+				player.addCredits(price)
+				remove_map(item_name)
+				self.sell.pop(sell_index)
+			else:
+				# selling a radar
+				player.addCredits(price)
+				remove_item(player, item_name)
+				self.sell.pop(sell_index)
+			self.setstatus(True, "Thank You")
+		return self.status
+
+	def repair_server(self, item_name_sent):
+		self.resetstatus()
+		item_name=''
+		repair_index = 0
+		for item_name, damage in self.sell:
+			if item_name == item_name_sent:
+				break
+			repair_index += 1
+		if item_name != item_name_sent:
+			self.setstatus(False, "Can't find repair item "+str(item_name_sent))
+		elif repair_index not in self.repair:
+			self.setstatus(False, "ERROR: "+str(item_name_sent)+" CANNOT BE REPAIRED")
+		else:
+			# repair cost is the fraction of functionality * the repair_price
+			price = int( self.repair_prices[item_name] * (1.0 - damage) )
+			player = VS.getPlayer()
+			if player.getCredits() < price:
+				self.setstatus(False, "INSUFFICIENT CREDIT")
+			else:
+				# deduct cost, repair item, and update repair list (it should be empty, but maybe there's some wierd condition out there)
+				player.addCredits(-1 * price)
+				repair_item(player,item_name)
+				self.repair.remove(repair_index)
+				self.sell[repair_index][1] = 1.0
+				self.setstatus(True, "ITEM REPAIRED")
+		return self.status
+
+	def buy_server(self, item_name):
+		self.resetstatus()
+		if item_name not in self.items:
+			self.setstatus(False, "UNKNOWN ITEM "+str(item_name))
+		else:
+			price = self.buy_prices[item_name]
+			player = VS.getPlayer()
+			maps = {'humboldt_map': 1, 'farris_map': 1, 'potter_map': 1, 'clarke_map': 1}
+			if player.getCredits() < price:
+				self.setstatus(False, "INSUFFICIENT CREDIT")
+			else:
+				# player has enough credits to buy item
+				if item_name=='gemini_map':
+					if has_map('humboldt_map') and has_map('farris_map') and has_map('potter_map') and has_map('clarke_map'):
+						self.setstatus(False, "MAP ALREADY LOADED")
+					else:
+						# buy all 4 quadrant maps
+						player.addCredits(-1 * price)
+						add_map('humboldt_map')
+						add_map('farris_map')
+						add_map('potter_map')
+						add_map('clarke_map')
+						# update the sell and repair lists
+						self.sell   = get_sell_list()
+						self.repair = get_repair_list(self.sell)
+						self.setstatus(True, "Thank You")
+				elif item_name in maps:
+					if has_map(item_name):
+						self.setstatus(False, "MAP ALREADY LOADED")
+					else:
+						# buy an individual map
+						player.addCredits(-1 * price)
+						add_map(item_name)
+						# update the sell and repair lists
+						self.sell   = get_sell_list()
+						self.repair = get_repair_list(self.sell)
+						self.setstatus(True, "Thank You")
+				else:
+					if len(get_current_radar()) > 0:
+						self.setstatus(False, "NO ROOM ON SHIP")
+					else:
+						# buy a radar unit
+						player.addCredits(-1 * price)
+						add_item(player, item_name, price)
+						# update the sell and repair lists
+						self.sell   = get_sell_list()
+						self.repair = get_repair_list(self.sell)
+						self.setstatus(True, "Thank You")
+		return self.status
+
+	def handle_server_cmd(self, args):
+		cmd = args[0]
+		if cmd == "buy":
+			return self.buy_server(args[1])
+		elif cmd == "sell":
+			return self.sell_server(args[1])
+		elif cmd == "repair":
+			return self.repair_server(args[1])
+		elif cmd == "reload":
+			self.reset()
+			return ["success", "Reloaded"]
+		else:
+			return ["failure", "Error: subcommand %s not valid" % args[0]]
+
+#
 # SoftwareBoothComputer
 #	displays upgrade options for ship radars and sector/quadrant nav maps
 #	handles buy/sell/repair code
 #
-class SoftwareBoothComputer:
+class SoftwareBoothComputer (SoftwareBoothComputerGeneric):
+	singleton = None
 	def __init__(self,room_software_booth):
 		self.room_id  = room_software_booth
+
+		SoftwareBoothComputer.singleton = self
 
 		# initial state is "buy"
 		self.state = "buy"
@@ -426,44 +606,6 @@ class SoftwareBoothComputer:
 		self.add_button( GUI.GUIRadioButton(guiroom,'Display Iris Mk. II',        'btn_c2', make_light_spriteset(sprite_c2), GUI.GUIRect(195, 157, 51, 40), 'software_booth_display'), display_click )
 		self.add_button( GUI.GUIRadioButton(guiroom,'Display Iris Mk. III',       'btn_c3', make_light_spriteset(sprite_c3), GUI.GUIRect(254, 157, 51, 40), 'software_booth_display'), display_click )
 
-		# farris_map should be fariss_map, but left as is for backwards compatiblity
-		self.items = [ 
-			'B_and_S_Tripwire', 
-			'B_and_S_EYE', 
-			'B_and_S_Omni',  
-			'hunter_aw_6', 
-			'hunter_aw_6i', 
-			'hunter_aw_infinity',  
-			'iris_mk1', 
-			'iris_mk2', 
-			'iris_mk3',  
-			'humboldt_map', 
-			'farris_map', 
-			'potter_map', 
-			'clarke_map', 
-			'gemini_map'	 ]
-
-		# set up buy, sell and repair prices
-		self.buy_prices    = {'humboldt_map': 2000, 'farris_map': 2000, 'potter_map': 2000, 'clarke_map': 2000, 'gemini_map': 5000}
-		self.sell_prices   = {'humboldt_map': 1000, 'farris_map': 1000, 'potter_map': 1000, 'clarke_map': 1000}
-		# maps can't be damaged
-		self.repair_prices = {}
-		# get list of radar units
-		global master_part_list
-		radar_list = master_part_list.getRadarList()
-		for cargo in radar_list:
-			name     = cargo.GetContent()
-			try:
-				buy_price    = int( cargo.GetPrice() )
-				# in the original, the sell price wasn't a set ratio of the buy price, like we're doing here
-				sell_price   = int( buy_price * 0.75 )
-				repair_price = int( buy_price * 0.7 ) # if the item is 100% damaged, player only has to pay this percent of the purchase price
-				self.buy_prices[name]    = buy_price
-				self.sell_prices[name]   = sell_price
-				self.repair_prices[name] = repair_price
-			except:
-				pass
-
 		# add the text labels
 		# select box: GUI.GUIRect(19,  91, 94, 69))  
 		# add 5px margin on X value
@@ -479,10 +621,12 @@ class SoftwareBoothComputer:
 		self.img_item_rect = GUI.GUIRect(19, 87, 94, 73)
 		self.img_item  = GUI.GUIStaticImage(guiroom, 'img_item', None)
 
+		# build item lists
+		SoftwareBoothComputerGeneric.__init__(self)
+
 		# draw now
 		GUI.GUIRootSingleton.broadcastRoomMessage(guiroom.index, 'draw', None)
 
-		self.reset()
 
 
 	def add_button(self, guibutton, onclick_handler):
@@ -496,9 +640,11 @@ class SoftwareBoothComputer:
 		self.current_item = 0
 		GUI.GUIRootSingleton.broadcastRoomMessage(self.guiroom.index,'check',{'index':'btn_buy'})
 
+		if VS.networked():
+			custom.run("RepairBayComputer", ["reload"], None)
+		
 		# also, rebuild the sell/repair lists, in case user sold radar somehow
-		self.sell   = get_sell_list()
-		self.repair = get_repair_list(self.sell)
+		SoftwareBoothComputerGeneric.reset(self)
 
 		self.draw()
 		self.guiroom.redrawIfNeeded()
@@ -571,37 +717,32 @@ class SoftwareBoothComputer:
 				if player.getCredits() < price:
 					self.draw("INSUFFICIENT CREDIT")
 				else:
-					# deduct cost, repair item, and update repair list (it should be empty, but maybe there's some wierd condition out there)
-					player.addCredits(-1 * price)
-					repair_item(player,item_name)
-					self.repair.pop(self.current_item)
-					self.sell[repair_index][1] = 1.0
-					if self.current_item > 0:
-						self.current_item = self.current_item - 1
-					self.drawBlank("ITEM REPAIRED")
+					def repairSuccess(args):
+						if (args[0] != "success"):
+							self.draw(args[1])
+							return
+						if VS.networked():
+							self.repair.pop(self.current_item)
+							self.sell[repair_index][1] = 1.0
+						if self.current_item > 0:
+							self.current_item = self.current_item - 1
+						self.drawBlank(args[1])
+					custom.run("SoftwareBoothComputer", ["repair", item_name], repairSuccess)
 
 		elif self.state == "sell":
 			if len(self.sell) > 0:
 				# if there is stuff to sell
 				item_name, undamaged = self.sell[self.current_item]
-				price = int( self.sell_prices[item_name] * undamaged )
-				player = VS.getPlayer()
-				maps = {'humboldt_map': 1, 'farris_map': 1, 'potter_map': 1, 'clarke_map': 1}
-				if item_name in maps:
-					# selling a map
-					player.addCredits(price)
-					remove_map(item_name)
-					self.sell.pop(self.current_item)
+				def sellSuccess(args):
+					if (args[0] != "success"):
+						self.draw(args[1])
+						return
+					if VS.networked():
+						self.sell.pop(self.current_item)
 					if self.current_item > 0:
 						self.current_item = self.current_item - 1
-				else:
-					# selling a radar
-					player.addCredits(price)
-					remove_item(player, item_name)
-					self.sell.pop(self.current_item)
-					if self.current_item > 0:
-						self.current_item = self.current_item - 1
-				self.draw("Thank You")
+					self.drawBlank(args[1])
+				custom.run("SoftwareBoothComputer", ["sell", item_name], sellSuccess)
 
 		elif self.state == "buy":
 			item_name = self.items[self.current_item]
@@ -612,42 +753,17 @@ class SoftwareBoothComputer:
 				self.draw("INSUFFICIENT CREDIT")
 			else:
 				# player has enough credits to buy item
-				if item_name=='gemini_map':
-					if has_map('humboldt_map') and has_map('farris_map') and has_map('potter_map') and has_map('clarke_map'):
-						self.draw("MAP ALREADY LOADED")
-					else:
-						# buy all 4 quadrant maps
-						player.addCredits(-1 * price)
-						add_map('humboldt_map')
-						add_map('farris_map')
-						add_map('potter_map')
-						add_map('clarke_map')
+				def buySuccess(args):
+					if args[0] != "success":
+						self.draw(args[1])
+						return
+					if VS.networked():
 						# update the sell and repair lists
 						self.sell   = get_sell_list()
 						self.repair = get_repair_list(self.sell)
-						self.draw("Thank You")
-				elif item_name in maps:
-					if has_map(item_name):
-						self.draw("MAP ALREADY LOADED")
-					else:
-						# buy an individual map
-						player.addCredits(-1 * price)
-						add_map(item_name)
-						# update the sell and repair lists
-						self.sell   = get_sell_list()
-						self.repair = get_repair_list(self.sell)
-						self.draw("Thank You")
-				else:
-					if len(get_current_radar()) > 0:
-						self.draw("NO ROOM ON SHIP")
-					else:
-						# buy a radar unit
-						player.addCredits(-1 * price)
-						add_item(player, item_name, price)
-						# update the sell and repair lists
-						self.sell   = get_sell_list()
-						self.repair = get_repair_list(self.sell)
-						self.draw("Thank You")
+					self.draw(args[1])
+				custom.run("SoftwareBoothComputer", ["buy", item_name], buySuccess)
+
 
 	def display(self, button_index):
 		if self.state == "buy":
@@ -780,6 +896,24 @@ class SoftwareBoothComputer:
 			self.txt_message.setText("")
 		else:
 			self.txt_message.setText(message)
+
+def handle_SoftwareBoothComputer_message(local, cmd, args, id):
+	cp = VS.getCurrentPlayer()
+	if VS.isserver():
+		import server
+		player = server.getDirector().getPlayer(cp)
+		if not player.software_booth_computer:
+			player.software_booth_computer = SoftwareBoothComputerGeneric()
+			if args[0] == "reload":
+				return ["success", "loaded"]
+		return player.software_booth_computer.handle_server_cmd(args)
+	elif SoftwareBoothComputer.singleton:
+		return SoftwareBoothComputer.singleton.handle_server_cmd(args)
+	else:
+		print "SoftwareBoothComputer has no singleton!"
+	return ["failure", 'SoftwareBoothComputer has no singleton!']
+
+custom.add("SoftwareBoothComputer", handle_SoftwareBoothComputer_message)
 
 # 
 # A few functions to translate repair bay items from their internal representation 
@@ -1859,6 +1993,7 @@ class RepairBayComputerGeneric:
 
 
 class RepairBayComputer(RepairBayComputerGeneric):
+	singleton = None
 	def __init__(self,room_id):
 		self.room_id  = room_id
 
@@ -1976,7 +2111,6 @@ class RepairBayComputer(RepairBayComputerGeneric):
 	def reset(self):
 		# reset computer to initial state
 		
-		print "reset computer"
 		if VS.networked():
 			custom.run("RepairBayComputer", ["reload"], None)
 		
@@ -2379,6 +2513,8 @@ def handle_RepairBayComputer_message(local, cmd, args, id):
 		player = server.getDirector().getPlayer(cp)
 		if not player.repair_bay_computer:
 			player.repair_bay_computer = RepairBayComputerGeneric()
+			if args[0] == "reload":
+				return ["success", "loaded"]
 		return player.repair_bay_computer.handle_server_cmd(args)
 	elif RepairBayComputer.singleton:
 		return RepairBayComputer.singleton.handle_server_cmd(args)

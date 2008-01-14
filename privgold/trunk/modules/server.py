@@ -97,6 +97,7 @@ class player (Director.Mission):
 		self.player_num=-1
 		self.callsign=''
 		self.repair_bay_computer = None
+		self.software_booth_computer = None
 		self.ship='Llama.begin'
 		self.docked_un=None
 	
