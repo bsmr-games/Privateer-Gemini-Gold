@@ -10,6 +10,9 @@ import news
 import universe
 import fg_util
 import dynamic_battle
+import debug
+import generate_dyn_universe
+
 class random_encounters:
     class playerdata:
         def GeneratePhaseAndAmplitude(self):
@@ -20,12 +23,12 @@ class random_encounters:
             self.prob_phase+=1;
             return self.prob_amplitude*(.6+.4*VS.cos ((self.prob_phase*3.1415926536*2)/self.prob_period))
         def __init__(self,sig_distance,det_distance):
-            print "init playerdat"
+            debug.debug("init playerdata")
             try:
                 faction_ships.Precache()
             except:
                 import sys
-                print str(sys.exc_info()[0])+str(sys.exc_info()[1])
+                debug.debug(str(sys.exc_info()[0])+str(sys.exc_info()[1]))
             self.quests=[]
             self.curquest=0
             self.last_ship=0
@@ -36,10 +39,10 @@ class random_encounters:
             self.significant_distance=sig_distance
             self.detection_distance=det_distance
             self.GeneratePhaseAndAmplitude()
-            print "done playerdat"
+            debug.debug("done playerdat")
     def __init__(self, sigdis, detectiondis, gendis,  minnships, gennships, unitprob, enemyprob, capprob, capdist):
         unitprob=1
-        print "init random enc"
+        debug.debug("init random enc")
         
         self.capship_gen_distance=capdist
         #    player_num=player
@@ -55,7 +58,7 @@ class random_encounters:
         self.capship_prob=capprob
         self.cur_player=0
         self.sig_distance_table = {"enigma_sector/heavens_gate":(2000,4000,.4)}
-        print "end random enc"
+        debug.debug("end random enc")
     def AddPlayer (self):
 #    print "begin add player"
         self.players+=[random_encounters.playerdata(self.sig_distance,self.det_distance)]
@@ -91,25 +94,22 @@ class random_encounters:
         else:
             self.cur.detection_distance=self.det_distance
 
-        print "resetting sigdist=%f detdist=%f" % (self.cur.significant_distance,self.cur.detection_distance)
+        debug.debug("resetting sigdist=%f detdist=%f" % (self.cur.significant_distance,self.cur.detection_distance))
 
     def SetEnemyProb (self,enp):
         self.enprob = enp
 
 
     def AsteroidNear (self,uni, how):
-        num_ships=0
-        count=0
-        un = VS.getUnit (count)
-        while (un):
-            dd = self.cur.detection_distance
+        i = VS.getUnitList()
+        dd = self.cur.detection_distance
+        while i.notDone():
+            un = i.current()            
             if (uni.getSignificantDistance(un)<how):
                 if (unit.isAsteroid (un)):
-                    print "asty near"
+                    debug.debug("asty near")
                     return 1
-            count=count+1
-            if (un):
-                un = VS.getUnit(count)
+            i.advance()
         return 0
     def TrueEnProb(self,enprob):
         ret=1
@@ -117,12 +117,12 @@ class random_encounters:
         while (nam>0):
             ret*=(1-enprob)
             nam-=1
-        print 1-ret
+        debug.debug(1-ret)
         return 1-ret;
 
-    def launch_near(self,un):
-        if (VS.GetGameTime()<10):
-            print "hola!"
+    def launch_near(self,un, forceLaunch=False):
+        if (VS.GetGameTime()<10 and not forceLaunch):
+            debug.debug("hola!")
             return
         cursys=VS.getSystemFile()
 #    numsigs=universe.GetNumSignificantsForSystem(cursys)
@@ -150,18 +150,17 @@ class random_encounters:
                 launch_recycle.launch_types_around(flightgroup,faction,typenumbers,'default',self.generation_distance*vsrandom.random()*0.9,un,self.generation_distance*vsrandom.random()*2,'')
     def atLeastNInsignificantUnitsNear (self,uni, n):
         num_ships=0
-        count=0
         leadah = uni.getFlightgroupLeader ()
-        un = VS.getUnit (count)
+        i = VS.getUnitList()
         dd = self.cur.detection_distance
-        while (un):
+        while i.notDone():
+            un = i.current()
             if (uni.getSignificantDistance(un)<dd*1.6):
                 if ((not un.isSignificant()) and (not un.isSun())):
                     unleadah = un.getFlightgroupLeader ()
                     if (leadah!=unleadah):
                         num_ships+=1
-            count+=1
-            un = VS.getUnit(count)
+            i.advance()
         return num_ships>=n
 
     def SetModeZero(self):
@@ -194,7 +193,7 @@ class random_encounters:
 #        un=VS.getUnit(0);
 #        i=0
 #        while (un):
-#            print un.getName()
+#            debug.debug(un.getName())
 #            i+=1
 #            un=  VS.getUnit(i)
 
@@ -215,7 +214,7 @@ class random_encounters:
             #significant_unit is something.... lets see what it is
             cursys = VS.getSystemFile()
             if (self.DifferentSystemP()):
-                print "different"
+                debug.debug("different")
                 self.SetModeZero()
                 significant_unit.setNull ()
             else:
@@ -234,6 +233,7 @@ class random_encounters:
         self.cur.lastsys=cursys
         return 1
     def Execute(self):
+        generate_dyn_universe.KeepUniverseGenerated()
         dynamic_battle.UpdateCombatTurn()
         if (self.cur_player>=len(self.players)):
             self.AddPlayer()
@@ -254,11 +254,11 @@ class random_encounters:
 #      if ((vsrandom.random()<(self.fighterprob*self.cur.UpdatePhaseAndAmplitude())) and un):
                 if (not self.atLeastNInsignificantUnitsNear (un,self.min_num_ships)):
                     #determine whether to launch more ships next to significant thing based on ships in that range
-                    print ("launch near")
+                    debug.debug("launch near")
                     self.launch_near (VS.getPlayerX(self.cur_player))
         self.cur_player+=1
         if (self.cur_player>=VS.getNumPlayers()):
             self.cur_player=0
         VS.setMissionOwner(self.cur_player)
 
-print "done loading rand enc"
+debug.debug("done loading rand enc")

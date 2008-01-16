@@ -55,6 +55,7 @@ class escort_mission (Director.Mission):
         L.minradius = 2.0*self.you.rSize()
         L.maxradius = 3.0*self.you.rSize()
         self.escortee=L.launch(self.you)
+        self.escortee.setMissionRelevant()
         self.escortee.upgrade("jump_drive",0,0,0,1)
         self.you.SetTarget(self.escortee)
         print "h"

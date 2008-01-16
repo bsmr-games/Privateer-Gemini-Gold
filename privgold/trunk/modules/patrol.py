@@ -21,7 +21,7 @@ class patrol (Director.Mission):
         self.quantity=num_significants_to_patrol
         name = self.you.getName ()
         self.mplay=universe.getMessagePlayer(self.you)
-        VS.IOmessage (0,"patrol",self.mplay,"Greetings, %s. You must patrol a system for us :" % name)
+        VS.IOmessage (0,"patrol",self.mplay,"You must patrol a system for us :")
         self.adjsys = go_to_adjacent_systems(self.you,numsystemsaway,jumps)
         self.adjsys.Print("From the %s system,","Carefully go to %s.","You should shortly arrive in the %s: patrol it.","patrol",1)
 
@@ -51,26 +51,24 @@ class patrol (Director.Mission):
         for sig in self.patrolpoints:
             self.quantity=self.quantity-1
             fac =sig.getFactionName()
-            nam =sig.getFullname ()
-            fg = sig.getFlightgroupName()
+            nam =unit.getUnitFullName(sig)
+            enam =unit.getUnitFullName(sig,True)
+            sig.setMissionRelevant()
             if (fac!="neutral"):
-                if (fg=="Base"):
-                    obj=VS.addObjective ("Scan %s %s"% (nam,sig.getName()))
-                else:
-                    obj=VS.addObjective ("Scan %s %s"% (nam,fg))
-                VS.IOmessage (0,"patrol",self.mplay,"%s owned %s " % (fac,nam))
+                obj=VS.addObjective ("Scan %s"%nam)
+                VS.IOmessage (0,"patrol",self.mplay,"%s owned %s " % (fac,enam))
             else:
                 if (sig.isPlanet()):
-                    nam =sig.getName ()
+                    nam =unit.getUnitFullName(sig)
                     if (sig.isJumppoint()):
-                        obj=VS.addObjective ("Scan %s" % nam)
+                                obj=VS.addObjective ("Scan Jumppoint %s" % nam)
                     else:
                         obj=VS.addObjective ("Scan %s" % nam)
                 else:
                     obj=VS.addObjective ("Scan Natural Phenomenon: %s" % nam)
-                VS.IOmessage (0,"patrol",self.mplay,"The object %s " % nam)
+                VS.IOmessage (0,"patrol",self.mplay,"The object %s " % enam)
             VS.setOwner(int(obj),self.you)
-            VS.setCompleteness(int(obj),-1.0)
+            VS.setCompleteness(int(obj),0.0)
             self.objectives+=[int(obj)]
         self.quantity=0
 
@@ -87,7 +85,7 @@ class patrol (Director.Mission):
                 self.DeletePatrolPoint(self.jnum,"Debris")
             else:
                 if (self.you.getSignificantDistance (jpoint)<self.distance):
-                    self.DeletePatrolPoint(self.jnum,jpoint.getName())
+                    self.DeletePatrolPoint(self.jnum,unit.getUnitFullName(jpoint))
                 else:
                     self.jnum+=1
         else:

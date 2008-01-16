@@ -10,6 +10,8 @@ import vsrandom
 import faction_ships
 import Director
 import launch
+import debug
+
 def catInCatList (cat,catlist):
     for i in catlist:
         loc =cat.find (i)
@@ -25,10 +27,10 @@ def adjustUnitCargo(un,cat,pr,qr):
             carg.SetPrice (pr*carg.GetPrice())
             carg.SetQuantity (int(qr*carg.GetQuantity()))
         carglist += [carg]
-    for i in range (numcargo):
-        un.removeCargo (carglist[i].GetCategory(),carglist[i].GetQuantity(),1)
-    for i in range (numcargo):
-        un.addCargo(carglist[i])
+    for carg in carglist:
+        un.removeCargo (carg.GetCategory(),carg.GetQuantity(),1)
+    for carg in carglist:
+        un.addCargo(carg)
     carglist=0
 #universe.systemCargoDemand (("Natural_Products","starships",),.0001,1000)
 def systemCargoDemand (category,priceratio,quantratio,ships=1,planets=1):
@@ -93,14 +95,12 @@ def getRandomJumppoint():
         return VS.Unit()
 
 def getJumppointList():
-    jp_list=()
-    ship_nr=0
-    uni=VS.getUnit(0)
-    while(uni):
-        if(uni.isJumppoint()):
-            jp_list+=(uni,)
-        ship_nr+=1
-        uni=VS.getUnit(ship_nr)
+    jp_list=[]
+    i = VS.getUnitList()
+    i.advanceNJumppoint(0)
+    while i.notDone():
+        jp_list.append(i.current())
+        i.advanceJumppoint()
     return jp_list
 
 def getMessagePlayer(un):
@@ -127,15 +127,16 @@ def _tmpint(str,default):
     except:
         return default
 def significantUnits():
+    ret=[]
     iter= VS.getUnitList()
-    un = iter.current()
-    ret = []
+    iter.advanceNSignificant(0)
     while (iter.notDone()):
-        if (un):
-            if (un.isSignificant()):
-                ret+=[un]
-        iter.advance()
-        un= iter.current()
+	un = iter.current()
+	debug.debug('Found sig unit: '+un.getName()+' ('+un.getFullname()+')')
+	if not un.isSignificant():
+		debug.error('Unit '+un.getName()+' ('+un.getFullname()+') is not significant!')
+        ret.append(iter.current())
+        iter.advanceSignificant()
     return ret
 
 def GetNumSignificantsForSystem (cursys):
@@ -201,6 +202,25 @@ def getDockedBaseName():
         return (un.getName(),un.getFullname())
     return ('','')
 
+def ReachableSystems(startingsys):
+    rv_list=[]
+    closed={}
+    opened=[startingsys]
+    while len(opened):
+	openmore=[]
+	for sys in opened:
+	    if not sys in closed:
+		closed[sys]=1
+		rv_list.append(sys)
+		openmore += getAdjacentSystemList(sys)
+	opened=openmore
+    return rv_list    
+
+def AllSystems():
+    sys=VS.getSystemFile()
+    if (VS.GetGalaxyProperty("Sol/Sol","jumps")!="" and VS.GetGalaxyProperty("Sol/Sol","faction")!=""):
+        sys="Sol/Sol"
+    return ReachableSystems(sys)
 
 def addTechLevel(level, addToBase=True):
 	# this function allows the addition of new ships and ship upgrades to the list of master part list
@@ -213,17 +233,17 @@ def addTechLevel(level, addToBase=True):
 		import faction_ships
 		upgrades=faction_ships.earnable_upgrades[level]
 	except:
-		print "No tech level named "+str(level)
+		debug.warn("No tech level named "+str(level))
 		return
 	bas=getDockedBase()
 	if (not bas):
 		import unit
 		import vsrandom
-		print "getting significant for upgrade addage"
+		debug.debug("getting significant for upgrade addage")
 		bas = unit.getSignificant(vsrandom.randrange(1,20),1,0);
 	for upgrade in upgrades:
 		if (len(upgrade)<5):
-			print "Upgrade list not big enough to add to tech"
+			debug.debug("Upgrade list not big enough to add to tech")
 			print upgrade
 			continue
 		import Director
@@ -235,7 +255,7 @@ def addTechLevel(level, addToBase=True):
 			if (Director.getSaveString(cp,"master_part_list_content",index)==upgrade[0]):
 				doIt=False
 		if (doIt):
-			print "added UPGRADE AS FOLLOWS to tech level "
+			debug.debug("added UPGRADE AS FOLLOWS to tech level ")
 			print upgrade
 			Director.pushSaveString(cp,"master_part_list_content",str(upgrade[0]))
 			Director.pushSaveString(cp,"master_part_list_category",str(upgrade[1]))
@@ -247,6 +267,6 @@ def addTechLevel(level, addToBase=True):
 			else:
 				Director.pushSaveString(cp,"master_part_list_description","No description")				
 			if (bas and addToBase):
-				print " adding "+str(upgrade[0]) +" to base "+bas.getName()
+				debug.debug(" adding "+str(upgrade[0]) +" to base "+bas.getName())
 				cargo=VS.Cargo(str(upgrade[0]),str(upgrade[1]),float(upgrade[2]),1,float(upgrade[3]),float(upgrade[4]))
 				bas.forceAddCargo(cargo)

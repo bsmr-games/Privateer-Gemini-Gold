@@ -3,6 +3,8 @@ import Director
 import vsrandom
 import generate_dyn_universe
 import dynamic_news
+import debug
+
 global dnewsman_
 dnewsman_ = dynamic_news.NewsManager()
 _ships=[]
@@ -35,27 +37,27 @@ class ShipTracker:
         if (not dead):
             dead = self.un.GetHull()<=0
         if (dead):
-            print "Uunit died"
+            debug.debug("Uunit died")
             if (VS.systemInMemory (self.starsystem)):
                 import dynamic_battle
                 if fg_util.RemoveShipFromFG(self.fgname,self.faction,self.type)!=0:
                   if (VS.getPlayerX(0)):
-                      print 'unit died for real'
+                      debug.debug('unit died for real')
                       if (VS.GetRelation(self.faction,VS.getPlayerX(0).getFactionName())>0):
                           import faction_ships
                           dynamic_battle.rescuelist[self.starsystem]=(self.faction,"Shadow",faction_ships.get_enemy_of(self.faction))
-                          print "friend in trouble"
+                          debug.debug("friend in trouble")
                   global dnewsman_
                   import dynamic_battle
                   numships = updatePlayerKillList(0,self.faction)
-                  print "num ships killed "
-                  print numships
+                  debug.debug("num ships killed ")
+                  debug.debug(numships)
                   if ((numships>0 and VS.getPlayer()) or fg_util.NumShipsInFG(self.fgname,self.faction)==0): #generate news here fg killed IRL
                       varList=[str(Director.getSaveData(0,"stardate",0)),dnewsman_.TYPE_DESTROYED,dnewsman_.STAGE_END,"unknown",self.faction,dnewsman_.SUCCESS_WIN,str(dynamic_battle.getImportanceOfType(self.type)),self.starsystem,dnewsman_.KEYWORD_DEFAULT,"unknown","unknown",self.fgname,self.type]
                       if (numships>0 and VS.getPlayer()):
                           varList=[str(Director.getSaveData(0,"stardate",0)),dnewsman_.TYPE_DESTROYED,dnewsman_.STAGE_END,VS.getPlayer().getFactionName(),self.faction,dnewsman_.SUCCESS_WIN,str(dynamic_battle.getImportanceOfType(self.type)),self.starsystem,dnewsman_.KEYWORD_DEFAULT,VS.getPlayer().getFlightgroupName(),VS.getPlayer().getName(),self.fgname,self.type]
                       dnewsman_.writeDynamicString(varList)
-                      print 'news about unit dying'
+                      debug.debug('news about unit dying')
             else:
                 fg_util.LandShip(self.fgname,self.faction,self.type)
             return 0
@@ -71,6 +73,7 @@ def TrackLaunchedShip(fgname,fac,typ,un):
     _ships+= [ShipTracker(fgname,fac,typ,un)]
 curiter=0
 def Execute():
+    generate_dyn_universe.KeepUniverseGenerated()
     global curiter, _ships
     if (len(_ships)>curiter):
         if (not _ships[curiter].Check()):

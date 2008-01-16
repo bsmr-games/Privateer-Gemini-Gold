@@ -8,6 +8,7 @@ import guilds
 import vsrandom
 import universe
 import faction_ships
+import custom
 
 def serverDirector():
 	return server.getDirector()

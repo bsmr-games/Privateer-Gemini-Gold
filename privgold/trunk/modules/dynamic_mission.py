@@ -6,6 +6,8 @@ import faction_ships
 import universe
 import dynamic_universe
 import dynamic_news
+import debug
+import generate_dyn_universe
 import PickleTools
 global dnewsman_
 dnewsman_ = dynamic_news.NewsManager()
@@ -311,6 +313,12 @@ def writemissionsavegame (name):
 def writemissionvars (vars):
     Director.pushSaveString(plr, "mission_vars", PickleTools.encodeMap(vars))
 def eraseExtras():
+	Director.clearSaveString(plr, "mission_scripts")
+	Director.clearSaveString(plr, "mission_names")
+	Director.clearSaveString(plr, "mission_descriptions")
+	Director.clearSaveString(plr, "mission_vars")
+
+def eraseExtrasOld():
     import sys
     len=Director.getSaveStringLength(plr, "mission_scripts")
     if (   len!=Director.getSaveStringLength(plr, "mission_names") \
@@ -577,7 +585,7 @@ def isHabitable (system):
     for planet in planets:
         if planet=="i" or planet=="a" or planet=="am" or planet=="u" or planet=="com" or planet=="bd" or planet=="s" or planet=="o" or planet=="at" or planet=="bs" or planet=="bdm" or planet=="bsm" or planet=="f" or planet=="fm" or planet=="t":
             return True
-    print str(planets)+ " Not in Habitable List"
+    debug.debug(str(planets)+ " Not in Habitable List")
     return False
 def generateCargoMission (path, numcargos,category, fac):
     #if (isNotWorthy(fac)):
@@ -999,20 +1007,20 @@ def contractMissionsFor(fac,baseship,minsysaway,maxsysaway):
                     count+=1
 
 def CreateMissions(minsys=0,maxsys=4):
+    generate_dyn_universe.KeepUniverseGenerated()
+    if VS.networked():
+        # No generating stuff while networked.
+        return
     eraseExtras()
     i=0
     global plr,basefac,baseship
     plrun=VS.getPlayer()
     plr=plrun.isPlayerStarship()
-    un=VS.getUnit(i)
-    while(un):
-        i+=1
-        if (un.isDocked(plrun)):
-            break
-        un=VS.getUnit(i)
-    if (un):
-        baseship=un
-        basefac=un.getFactionName()
+    i = VS.getUnitList()
+    while(i.notDone() and not i.current().isDocked(plrun)):
+        i.advance()
+    if (i.notDone()):
+        basefac=i.current().getFactionName()
     if (basefac=='neutral'):
         basefac=VS.GetGalaxyFaction(VS.getSystemFile())
     contractMissionsFor(basefac,baseship,minsys,maxsys)

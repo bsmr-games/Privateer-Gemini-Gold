@@ -827,7 +827,7 @@ class GUIButton(GUIStaticImage):
 			# getHotRect returns the BOTTOM-left x,y needed by Base.Python 
 			(x,y,w,h) = self.hotspot.getHotRect()
 			Base.Python(self.room.getIndex(),self.index,x,y,w,h,self.linkdesc,self.pythonstr,True)
-			Base.SetLinkEventMask(self.room.getIndex(),self.index,'cduelm')
+			Base.SetLinkEventMask(self.room.getIndex(),self.index,'cduel')
 			self.linkstate=1
 		self.setState(self.state)
 		GUIStaticImage.draw(self)

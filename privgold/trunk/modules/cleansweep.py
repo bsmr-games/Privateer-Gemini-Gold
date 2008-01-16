@@ -1,5 +1,5 @@
 import patrol_enemies
-
+import unit
 class cleansweep(patrol_enemies.patrol_enemies):
 	def __init__(self,numsystemsaway, num_points,distance,creds,jumps,donevar,minships,maxships,encounterprob,capshipprob,faction, forceattack,canrunaway):
 		patrol_enemies.patrol_enemies.__init__(self,numsystemsaway, num_points,distance,creds,jumps,donevar,minships,maxships,encounterprob,capshipprob,faction,forceattack)
@@ -10,7 +10,7 @@ class cleansweep(patrol_enemies.patrol_enemies):
 		
 	def Track(self,shiptype):
 		import VS
-		obj=VS.addObjective("Destroy the %s:%s ship from the %s flightgroup."%(shiptype.getName(),shiptype.getFullname(),shiptype.getFlightgroupName()))
+		obj=VS.addObjective("Destroy %s."%(unit.getUnitFullName(shiptype,True)))
 		VS.setOwner(obj,self.you)
 		VS.setCompleteness(obj,-1.0)
 		self.activeships.append((shiptype,obj))

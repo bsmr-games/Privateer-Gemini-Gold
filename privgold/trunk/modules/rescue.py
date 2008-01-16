@@ -49,6 +49,7 @@ class rescue (Director.Mission):
 #            except:
 #                pass            
             self.eject = launch.launch_wave_around_unit("Rescue Pilot",self.faction,"eject","printhello.py",1,mymin,mymax,self.adjsys.SignificantUnit())
+            self.eject.setMissionRelevant()
             self.arrived=2
             self.eject.setName("Pilot")
             self.eject.SetHull(25);

@@ -3,6 +3,7 @@ from random_encounters import random_encounters
 from difficulty import difficulty
 import dynamic_universe
 #from garbage_collect import garbage_collect
+import VS
 import Director
 import Briefing
 import ShowProgress
@@ -23,6 +24,8 @@ class privateer (Director.Mission):
               hideProgress())
 
     def Execute(self): #this execute function should not need to be changed...
+        if VS.networked():
+            return # Do not want to do anything to get out of sync.
         for i in self.loops:
             i.Execute()
     def initbriefing(self):

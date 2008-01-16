@@ -46,7 +46,6 @@ class defend (Director.Mission):
         name = self.you.getName ()
         self.mplay=universe.getMessagePlayer(self.you)
         self.adjsys = go_to_adjacent_systems(self.you,numsystemsaway,jumps)  
-        VS.IOmessage (0,"defend",self.mplay,"%s: Your mission is as follows:" % name)
         self.adjsys.Print("You are in the %s system,","Proceed swiftly to %s.","Your arrival point is %s.","defend",1)
         VS.IOmessage (2,"defend",self.mplay,"And there eliminate any %s starships."  % self.faction)
     def SetVarValue (self,value):
@@ -80,14 +79,15 @@ class defend (Director.Mission):
         if (un.isNull() or (un.GetHullPercent()<.7 and self.defendee.getDistance(un)>7000)):
             return 0
         else:
-            VS.setObjective(self.objective,"Destroy the %s"%un.getName())
+            VS.setObjective(self.objective,"Destroy the %s"%unit.getUnitFullName(un))
             self.ship_check_count=0
         return 0
         
     def GenerateEnemies (self,jp,you):
-        VS.IOmessage (0,"escort mission",self.mplay,"You must protect %s." % jp.getName ())
+        VS.IOmessage (0,"escort mission",self.mplay,"You must protect %s." % unit.getUnitFullName(jp,True))
         count=0
-        VS.addObjective ("Protect %s %s from %s" % (jp.getFullname(), jp.getName(),self.faction.capitalize()))
+        jp.setMissionRelevant()
+        VS.addObjective ("Protect %s from the %s" % (unit.getUnitFullName(jp),self.faction.capitalize().replace("_"," ")))
         self.objective = VS.addObjective ("Destroy All %s Hostiles" % self.faction)
         VS.setCompleteness(self.objective,0.0)
         print "quantity "+str(self.quantity)

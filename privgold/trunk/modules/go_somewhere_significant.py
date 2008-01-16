@@ -26,7 +26,7 @@ class go_somewhere_significant:
         return self.significantun
     
     def getSignificantFullName(self):
-        return unit.getUnitFullName(self.significantun)
+        return unit.getUnitFullName(self.significantun,False)
     
     def __init__ (self,you, landable_only, distance_away_to_trigger,base_only=0,capshipfaction="", dyn_fg="", showObjective=1, forcestarship=0):
         self.obj=0
@@ -63,8 +63,6 @@ class go_somewhere_significant:
                 print "orbitee %s " % self.orbitee
                 if (dyn_fg==""):
                     newship=faction_ships.getRandomCapitol(capshipfaction)
-                    testun=VS.getUnit(0)
-                    itt=1
                     found=False
                     near=2000.0
                     far=5000.0
@@ -74,13 +72,14 @@ class go_somewhere_significant:
                     except:
                         pass
 
-                    while(testun):
+                    i=VS.getUnitList()
+                    while i.notDone():
+                        testun = i.current()
+                        i.advance()
                         if testun.getFactionName()==capshipfaction and faction_ships.isCapital(testun.getName()):
                            significant=moveUnitTo(testun,significant,near)
                            found=True
                            break
-                        testun=VS.getUnit(itt)
-                        itt+=1
                     if (not found):
                         significant=launch.launch_wave_around_unit("Base",capshipfaction,newship,"sitting_duck",1,near,far,significant,"")
                 else:
@@ -90,16 +89,15 @@ class go_somewhere_significant:
                     except:
                         pass
                     found=False
-                    aroundthe=" near "+unit.getUnitFullName(significant);
-                    testun=VS.getUnit(0)
-                    itt=1
-                    while(testun):
+                    aroundthe=" near "+unit.getUnitFullName(significant,True);
+                    i = VS.getUnitList()
+                    while i.notDone():
+                        testun = i.current()
+                        i.advance()
                         if testun.getFactionName()==capshipfaction and faction_ships.isCapital(testun.getName()):
                            significant=moveUnitTo(testun,significant,near)
                            found=True
                            break
-                        testun=VS.getUnit(itt)
-                        itt+=1
                     if (not found):
                         significant=launch_recycle.launch_dockable_around_unit(dyn_fg,capshipfaction,"sitting_duck",near,significant,4*near,'','Base')
                     significant.setFullname(dyn_fg)
@@ -110,18 +108,19 @@ class go_somewhere_significant:
             self.significantun=VS.getPlayer()
         else:
             self.significantun=significant
-            qualifier="the "
-            if (significant.isPlanet() and significant.isDockableUnit()):
-                qualifier=""
+            self.significantun.setMissionRelevant()
+            #qualifier="the "
+            #if (significant.isPlanet() and significant.isDockableUnit()):
+            #    qualifier=""
             if (self.showObjective):
-                self.obj=VS.addObjective("You must visit %s%s%s" % (qualifier,self.getSignificantFullName (),aroundthe))
+                self.obj=VS.addObjective("Visit %s %s" % (self.getSignificantFullName (),aroundthe))
                 VS.setOwner(self.obj,VS.getPlayer())
 #      self.begsigdis=self.you.getSignificantDistance(self.significantun) #see note below
 
     def Print(self,visitstr,fro,dockstr="\0%s",time=0):
         if (self.capship):
             visitstr+=(dockstr % (self.orbitee))
-        thename=self.getSignificantFullName()
+        thename=unit.getUnitFullName(self.significantun,True)
         VS.IOmessage(time,fro,universe.getMessagePlayer(self.you),visitstr % (thename) )
     def DestinationSystem(self):
         return self.significantun.getUnitSystemFile();

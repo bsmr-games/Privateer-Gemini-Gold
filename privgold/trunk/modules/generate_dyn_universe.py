@@ -2,8 +2,10 @@ import VS
 import Director
 import vsrandom
 import fg_util
+import dj_lib # Needs to be enabled when loading.
 import campaigns
-from universe import getAdjacentSystemList
+from universe import getAdjacentSystemList,AllSystems
+import debug
 
 cp=fg_util.ccp
 maxshipsinfg=20
@@ -23,7 +25,7 @@ def GenerateFgShips (shipinfg,factionnr,friendly):
     cpr=XProductionRate(fac,faction_ships.capitalProductionRate)
     if cpr>0 and (friendly==2 or (friendly==1 and vsrandom.random()<cpr/fpr)):
         capship=((faction_ships.getRandomCapitolInt(factionnr),1),)
-        print "Generating capital "+str(capship)
+        debug.debug("Generating capital "+str(capship))
     return ((faction_ships.getRandomFighterInt(factionnr),shipinfg),)+capship
 
 def GenerateAllShips ():
@@ -65,8 +67,8 @@ def AddBasesToSystem (faction,sys):
             if whichbase in shiplist:
                 nums[shiplist.index(whichbase)]+=1
             else:
-                shiplist+=[whichbase]
-                nums+=[1]
+                shiplist.append(whichbase)
+                nums.append(1)
         tn =[]
         for i in range (len(shiplist)):
             tn+=[ (shiplist[i],nums[i])]
@@ -117,68 +119,90 @@ def AddSysDict (cursys):
         fg_util.AddShipsToFG (fgname,faction,typenumbertuple,cursys)
     return i
 
+def ForEachSys (functio):
+    debug.debug("Getting reachable systems...")
+    systems = AllSystems()
+    debug.debug("done")
+    for sys in systems:
+	functio(sys)
+    return len(systems)
+def MakeUniverse():
+    # fg_util.DeleteAllFGFromAllSystems()
+    ForEachSys(AddSysDict)
 
-def ForEachSys (startingsys,functio):
-    systemdict={}
-    systemdict[startingsys]=functio(startingsys)
-    todo=getAdjacentSystemList(startingsys)
-    while len(todo):
-        tmptodo=todo.pop(-1)
-        if (not systemdict.has_key(tmptodo)):
-            todo+=getAdjacentSystemList(tmptodo)
-            systemdict[tmptodo]=functio(tmptodo)
-    return len(systemdict)
-def Makesys (startingsys):
-    ForEachSys(startingsys,AddSysDict)
-
-systemcount={}
+systemcount={None:0}
+def getSystemCount(fac=None):
+    global systemcount
+    return systemcount[fac]
 def CountSystems(sys):
     fac =VS.GetGalaxyFaction(sys)
     if fac in systemcount:
         systemcount[fac]+=1
     else:
         systemcount[fac]=1
-        print "FATAL ERROR "+fac+" not in list;"
+    systemcount[None] += 1
 def TakeoverSystem(fac,sys):
     systemcount[VS.GetGalaxyFaction(sys)]-=1
     VS.SetGalaxyFaction(sys,fac)
     systemcount[fac]+=1
     AddBasesToSystem(fac,sys)
 
+hasUniverse=False
+
 genUniverse=-1
-if cp>=0:
-    print 'Purging...'
+def ReloadUniverse():
+  global genUniverse, hasUniverse
+  if cp>=0:
+    debug.debug('Purging...')
     for i in fg_util.AllFactions():
         fg_util.PurgeZeroShips(i)
         systemcount[i]=0
-    print 'StartSystemCount'
-    sys=VS.getSystemFile()
-    if (VS.GetGalaxyProperty("Sol/Sol","jumps")!="" and VS.GetGalaxyProperty("Sol/Sol","faction")!=""):
-        print "He's got SOL"
-        sys="Sol/Sol"
-    ForEachSys(sys,CountSystems)
-    print systemcount
-    print 'EndSystemCount'
+    debug.debug('StartSystemCount')
+    ForEachSys(CountSystems)
+    debug.debug(systemcount)
+    debug.debug('EndSystemCount')
     genUniverse=0
     curfaclist = fg_util.AllFactions()
     reflist = fg_util.ReadStringList(cp,"FactionRefList")
     if (reflist !=curfaclist):
-        print 'reflist is '+str(reflist)
-        print 'curfaclist is '+str(curfaclist)
+        debug.debug('reflist is '+str(reflist))
+        debug.debug('curfaclist is '+str(curfaclist))
 
         fg_util.WriteStringList(cp,"FactionRefList",curfaclist)
-        print 'generating ships... ... ...'
-        GenerateAllShips () ###Insert number of flight groups and max ships per fg
-        print 'placing ships... ... ...'
-        genUniverse=Makesys(sys)
+        debug.debug('generating ships... ... ...')
+        GenerateAllShips() ###Insert number of flight groups and max ships per fg
+        debug.debug('placing ships... ... ...')
+        genUniverse=MakeUniverse()
         #now every system has distributed ships in the save data!
     else:
         GenerateAllShips()
-        print "Second Load"
+        debug.debug("Second Load")
         for i in range(len(fgnames)):
             fgnames[i]=fg_util.TweakFGNames(origfgnames[i])
         fg_util.origfgoffset+=1
     campaigns.loadAll(cp)
+    hasUniverse=True;
     #TODO: add ships to current system (for both modes)  uru?
-else:
-    print 'fatal error: no cockpit'
+  else:
+    debug.error('fatal error: no cockpit')
+
+def KeepUniverseGenerated():
+    if VS.networked():
+        dj_lib.enable()
+        #debug.debug('Not generating dyn universe: Networked game')
+        return False
+    
+    sys = VS.getSystemFile()
+    if not VS.GetNumAdjacentSystems(sys):
+        #debug.debug('Not generating dyn universe: System has no jumps or is not in Universe XML.')
+        return False
+    
+    dj_lib.enable()
+    #curfaclist = fg_util.AllFactions()
+    #reflist = fg_util.ReadStringList(cp,"FactionRefList")
+    #if (reflist == curfaclist):
+    #    debug.debug('Generating dyn universe!');
+    if not hasUniverse:
+        ReloadUniverse()
+        return True
+    return False

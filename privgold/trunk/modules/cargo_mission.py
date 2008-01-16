@@ -96,7 +96,7 @@ class cargo_mission (Director.Mission):
             VS.terminateMission(0)
             return
 
-        VS.IOmessage (0,"cargo mission",self.mplay,"Good Day, %s. Your mission is as follows:" % (name))
+        VS.IOmessage (0,"cargo mission",self.mplay,"Your mission is as follows:" )
         self.adjsys.Print("You should start in the system named %s","Then jump to %s","Finally, jump to %s, your final destination","cargo mission",1)
         VS.IOmessage (2,"cargo mission",self.mplay,"Give the cargo to a %s unit or planet." % (self.faction))
         VS.IOmessage (3,"cargo mission",self.mplay,"You will receive %d of the %s cargo" % (self.quantity,self.cargoname))
@@ -171,7 +171,7 @@ class cargo_mission (Director.Mission):
             tempfac=self.faction
             if vsrandom.random()<=.5:
                 tempfac=''
-            self.adjsys=go_somewhere_significant(self.you,1,100,self.capship,tempfac)
+            self.adjsys=go_somewhere_significant(self.you,1,100,not self.capship,tempfac)
             capstr="planet"
             dockstr="land"
             if tempfac=='':

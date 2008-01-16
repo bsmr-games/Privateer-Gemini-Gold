@@ -1,4 +1,5 @@
 import VS
+import unit
 import cleansweep
 class cleansweep_escort(cleansweep.cleansweep):
 	def __init__(self,numsystemsaway, num_points,distance,creds,jumps,donevar,minships,maxships,encounterprob,capshipprob,faction, forceattack,canrunaway, friendlyfaction,allygreetingtext=[],lastnum=3,enemygreetingtext=[]):
@@ -30,8 +31,9 @@ class cleansweep_escort(cleansweep.cleansweep):
 		L.num=1
 		L.ai="default"
 		L.type = faction_ships.getRandomCapitol(self.friendlyfaction)
-		self.allyobj=VS.addObjective("Protect the %s"%L.type)
 		self.ally = L.launch(self.you)
+		self.ally.setMissionRelevant()
+		self.allyobj=VS.addObjective("Protect the %s"%unit.getUnitFullName(self.ally))
 		L.type = faction_ships.getRandomFighter(self.friendlyfaction)
 		import vsrandom
 		L.num=vsrandom.randrange(3,6)

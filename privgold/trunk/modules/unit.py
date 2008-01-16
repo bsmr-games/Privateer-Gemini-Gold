@@ -1,4 +1,12 @@
 import VS
+import debug
+
+#statistics - for profiling (disabled in release version)
+try:
+    profiling_level = int(VS.vsConfig("general","profiling","0"))
+except:
+    profiling_level = 0
+
 def isLandable (un):
     if (un):
         return un.isDockableUnit()
@@ -19,55 +27,72 @@ def isAsteroid (un):
     retval = unit_fgid=="Asteroid"
     return retval
 
+def moveOutOfPlayerPath(un):
+    def reposition(un,playa,min_distance,vel):
+        import Vector
+        import vsrandom
+        ex=(vsrandom.uniform(-1,1),vsrandom.uniform(-1,1),vsrandom.uniform(-1,1))
+        if vel[0]==0 and vel[1]==0 and vel[2]==0:
+           vel=(1,0,0)
+        dir=Vector.Scale(Vector.ScaledCross(ex,vel),min_distance)
+        print "offsetting you a few meters to the "+str(dir)
+        un.SetPosition(Vector.Add(playa.Position(),dir))
+    import faction_ships
+    playa=VS.getPlayer()
+    min_distance=100
+    min_forward_distance=1300
+    try:
+       min_distance=faction_ships.min_distance
+       min_forward_distance=faction_ships.min_forward_distance
+    except:
+       print "badness no faction_ships.min_distance"
+    dis=un.getDistance(playa)
+    import Vector
+    vel=playa.GetVelocity()
+    vel=Vector.SafeNorm(vel)
+    if (dis<min_distance):
+       reposition(un,playa,min_distance,vel)
+    dir=Vector.SafeNorm(Vector.Sub(playa.Position(),un.Position()))
+    if (dis<min_forward_distance and Vector.Dot(dir,vel)>.8):
+       reposition(un,playa,min_distance,vel)
 
-def getUnitFullName(un):
-    thename=(un.getName())
-    fg=un.getFlightgroupName()
-    if fg=='Base':
-        thename=un.getFullname()+' '+thename.replace('_',' ')
+def getUnitFullName(un,inenglish=False):
+    thename=(un.getFullname())#.replace("_"," ")
+    snumber=str(un.getFgSubnumber())
+    fg=un.getFlightgroupName()#.replace("_"," ")
+    if un.isPlanet():
+	thename=un.getName()
+    elif fg=='Base':
+        if un.getFullname().capitalize()==un.getName().capitalize():
+             thename=thename+" "+snumber        
     elif fg!='Shadow' and fg!='':
-        thename=thename+' in the '+fg+' flightgroup'            
+        if inenglish:
+           thename=un.getFactionName().replace("_"," ")+" "+thename+ " "+snumber +' in the '+fg+' flightgroup'
+        else:
+           thename=thename+":"+fg+' <'+snumber+'>'
+    else:
+        thename=thename+":"+fg+' <'+snumber+'>'
     return thename
 
 def getSignificant (whichsignificant, landable_only, capship_only):
     import vsrandom
-    which=0
-    signum=0
-    rez = []
-    un=VS.getUnit(0)
-    #print "is this null "+str(un.isNull())
-    while (not un.isNull()):
-        #print "is this null "+str(un.isNull())
-        un=VS.getUnit(which)
-        if (un.isNull()):
-            which=0
-            if (signum==0):
-                signum=whichsignificant+1
-        else:
-            #print "checking "+un.getName()
-            if ((landable_only) or (capship_only)):
-                if(capship_only):
-                    if (isBase (un)):
-                        signum=signum+1
-                        rez.append(un)
-                else:
-                    if (isLandable (un)):
-                        signum=signum+1
-                        rez.append(un)
-                    else:
-                        print "not landable "+un.getName()+" fg "+un.getFlightgroupName()
-            else:
-                if (un.isSignificant()):
-                    signum=signum+1
-                    rez.append(un)
-            which=which+1
+    if not (landable_only or capship_only):
+        rez = getPlanetList(True) #Gets all significants
+    else:
+        rez = []
+        i = VS.getUnitList()
+        while i.notDone():
+            un = i.current()
+            if (capship_only and isBase(un)) or (not capship_only and isLandable(un)):
+                rez.append(un)
+            i.advance()
     if (len(rez)==0):
         if (capship_only):
             return getSignificant(whichsignificant,landable_only,0)
         elif(landable_only):
             return getSignificant (whichsignificant,0,0)
         else:
-            print "fatal error, no significants in system "+VS.getSystemFile()
+            debug.warn("no significants in system "+VS.getSystemFile())
             return VS.getPlayer()
     return rez[vsrandom.randrange(0,len(rez))]
 
@@ -81,61 +106,59 @@ def inSystem (unit):
         i.advance()
     return 0
 def getPlanet (whichsignificant, sig):
-    un=VS.Unit()
-    signum=0
     i = VS.getUnitList()
-    while (signum<=whichsignificant):
-        un=i.current()
-        if (un):
-            if(sig):
-                if (un.isSignificant ()):
-                    signum=signum+1
-            else:
-                if (un.isPlanet ()):
-                    signum=signum+1
-            i.advance()
-        elif (i.isDone()):
-            break
+    if sig:
+        i.advanceNSignificant(whichsignificant)
+    else:
+        i.advanceNPlanet(whichshignificant)   
+    if i.isDone():
+        return VS.Unit()
+    else:
+        return i.current()
+
+def getPlanetList (sig):
+    res = []
+    i = VS.getUnitList()
+    if i.notDone():
+        if sig:
+            i.advanceNSignificant(0)
         else:
-            i.advance()
-    return un
+            i.advanceNPlanet(0)
+    while i.notDone():
+        res.append(i.current())
+        if sig:
+            i.advanceSignificant()
+        else:
+            i.advancePlanet()   
+    return res
 
 def getJumpPoint(whichsignificant):
-    un=VS.Unit()
-    which=0
-    signum=0
-    while (signum<whichsignificant):
-        un=VS.getUnit(which)
-        if (un):
-            if (un.isJumppoint()):
-                signum=signum+1
-            which=which+1
-        else:
-            which=0
-            if (signum==0):
-                un.setNull()
-                signum=whichsignificant
-    return un
+    i = VS.getUnitList()
+    i.advanceNJumppoint(whichsignificant)
+    if i.isDone():
+        un = VS.Unit()
+        un.setNull()
+        return un
+    else:
+        return i.current()
 
 def obsolete_getNearestEnemy(my_unit,range):
-    ship_nr=0
+    i = VS.getUnitList()
     min_dist=9999999.0
     min_enemy=VS.Unit()
-    un=VS.getUnit(ship_nr)
-    while(unit):
-        unit_pos=un.getPosition()
+    while(i.notDone()):
+        un=i.current()
+        unit_pos=un.Position()
         dist=my_unit.getMinDis(unit_pos)
         relation=my_unit.getRelation(unit)
         if(relation<0.0):
             if((my_unit==unit) and (dist<range) and (dist<min_dist)):
                 min_dist=dist
                 min_enemy=unit
-        ship_nr=ship_nr+1
-        unit=VS.getUnit(ship_nr)
+        i.advance()
     if(min_enemy):
         other_fgid=min_enemy.getFgID()
     return min_enemy
-
 
 def obsolete_getThreatOrEnemyInRange(un,range):
     threat=un.getThreat()
@@ -144,65 +167,53 @@ def obsolete_getThreatOrEnemyInRange(un,range):
     return threat
 
 def setPreciseTargetShip (which_fgid, target_unit):
-    ship_nr=0
-    un=VS.getUnit(ship_nr)
     if (target_unit):
-        while(un.isNull()):
+        i = VS.getUnitList()
+        while i.notDone():
+            un = i.current()
             unit_fgid=un.getFgID()
             if(unit_fgid[:len(which_fgid)]==which_fgid):
                 un.SetTarget(target_unit)
-            ship_nr=ship_nr+1
-            un=VS.getUnit(ship_nr)
+            i.advance()
 
-def getMinDistFrom(sig1):
-    sig2=getPlanet (0,0)
+def getMinDistFrom(sig1,siglist=None):
+    siglist=siglist or getPlanetList(0)
     mindist=100000000000000000000000000000000000000000000.0
-    i=0
-    while (sig2):
+    for sig2 in siglist:
         tempdist = sig1.getSignificantDistance(sig2)
         if (tempdist<mindist and tempdist>0.0):
             mindist=tempdist
-        i+=1
-        sig2 = getPlanet (i,0)
     return mindist
 
 def minimumSigDistApart():
-    sig1=getPlanet (0,0)
+    siglist=getPlanetList(0)
     i=0
     mindist=100000000000000000000000000000000000000000000.0
     ave=0.0
-    while (sig1):
-        tempdist = getMinDistFrom (sig1)
+    for sig1 in siglist:
+        tempdist = getMinDistFrom (sig1,siglist)
         if (ave<0.9):
             mindist = tempdist
         else:
             mindist += tempdist
         ave+=1.0
-        i+=1
-        sig1 = getPlanet (i,0)
     if (ave!=0.0):
         mindist = mindist/ave
     return mindist
 
 def getUnitByName (name):
-    ship_nr=0
-    unit = VS.getUnit(0)
-    while (unit):
-        if (unit.getName()==name):
-            return unit
-        ship_nr+=1
-        unit=VS.getUnit(ship_nr)
-    return unit
+    return VS.getUnitByName(name) or VS.getUnit(0)
 
 def getUnitByFgIDFromNumber(fgid, ship_nr):
-    unit=VS.getUnit(ship_nr)
-    found_unit=VS.Unit()
-    while(unit and not found_unit):
+    i = VS.getUnitList()
+    i.advanceN(ship_nr)
+    found_unit = VS.Unit()
+    while i.notDone() and not found_unit:
+        un = i.current()
         unit_fgid=unit.getFgID()
         if(unit_fgid==fgid):
             found_unit=unit
-        ship_nr=ship_nr+1
-        unit=VS.getUnit(ship_nr)
+        i.advance()
     return found_unit
 
 def getUnitByFgID(fgid):
@@ -213,17 +224,16 @@ def setTargetShip(which_fgid,target_fgid):
     setPreciseTargetShip(which_fgid,target_unit)
 
 def removeFg(which_fgid):
-    ship_nr=0
-    un=VS.getUnit(ship_nr)
-    while(un):
+    i = VS.getUnitList()
+    klist = []
+    while i.notDone():
+        un = i.current()
         unit_fgid=un.getFgID()
         if(unit_fgid[:len(which_fgid)]==which_fgid):
-            un.Kill()
-        else:
-            ship_nr=ship_nr+1
-        un=VS.getUnit(ship_nr)
-
-
+            klist.append(un)
+        i.advance()
+    for un in klist:
+        un.Kill()
 
 # A collection of functions useful for dealing with flightgroup tuples.
 # Added as used.
@@ -268,3 +278,16 @@ def TfgJumpTo(tup,system):
     num = len(tup)
     for i in range(num):
         tup[i].JumpTo(system)
+
+def getUnitSequenceBackwards():
+    rez1 = []
+    rez2 = []
+    i = VS.getUnitList()
+    while i.notDone():
+       rez1.append(i.current())
+       i.advance()
+    i = len(rez1)-1
+    while (i>=0):
+       rez2.append(rez1[i])
+       i-=1
+    return rez2

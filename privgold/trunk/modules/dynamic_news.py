@@ -3,9 +3,12 @@ import VS
 import vsrandom
 import string
 import stardate
+import debug
 
 class SystemInformation:
-
+    """A class the provides a query mechanism, for each
+    instance, that will return the specified system's
+    faction, name, or parent sector."""
     SECTOR_SYSTEM = 1
     SECTOR = 2
     SYSTEM = 3
@@ -16,6 +19,8 @@ class SystemInformation:
         self.faction = VS.GetGalaxyFaction(self.system)
 
     def getInfo(self, inf_type=False):
+        """Returns the information corresponding to the
+        given class variable."""
         try:
             [sec, sys] = self.system.split('/')
         except:
@@ -33,10 +38,17 @@ class SystemInformation:
             return self.faction
         else:
             raise ValueError("Invalid information type specified")
+def LookupRealName(oldname,faction):
+    import VS
+    newname=VS.LookupUnitStat(oldname,faction,"Name")
+    if len(newname)==0:
+        return oldname
+    return newname
 
 
 class NewsTranslator:
-
+    """Provides functions that handle the translation of a
+    news item using a relevant event tuple."""
     STARDATE_TEXT = "\\\\\\\This story first broadcast on: "
 
     def __init__(self, dynamic_data):
@@ -46,7 +58,8 @@ class NewsTranslator:
         self.rand_int = None
 
     def lookupInfo(self, var, tag):
-#        print "LOOKING UP %s %s" % (var, tag)
+        """Returns the information corresponding to the
+        given var and tag pair."""
         try:
             return self.vars[var][tag]
         except:
@@ -54,11 +67,13 @@ class NewsTranslator:
                 results = self.dynamic_data.getFactionData(self.vars[var]['faction'], tag)
             except:
                 st = 'ERROR_%s_%s'%(var,tag)#this is in case there is a typo like 'docketat'
-                print st
+                debug.error(st)
                 results=['ERROR_%s_%s'%(var,tag)]
             return results[self.rand_int % len(results)]
 
     def translateWord(self, word):
+        """Determines if the word given is a variable set,
+        and if so returns the substitute information."""
         if word.find('VAR_') == -1:
             return word
         try:
@@ -75,6 +90,8 @@ class NewsTranslator:
         return pre + self.formatText(self.lookupInfo(var, tagnopun)) + tag[len(tagnopun):]
 
     def translateItem(self, item, news_tuple, docked_faction):
+        """Using the given item and information, returns a
+        fully translated version of the item."""
         self.rand_int = news_tuple[NewsManager.RANDOM_INTEGER_INDEX]
         self.item = item[2].split()
         self.vars = dict()
@@ -84,12 +101,12 @@ class NewsTranslator:
         aggressor = dict()
         aggressor['faction'] = news_tuple[NewsManager.AGGRESSOR_INDEX]
         aggressor['FG'] = news_tuple[NewsManager.AGGRESSOR_FLIGHTGROUP_INDEX]
-        aggressor['FGtype'] = news_tuple[NewsManager.AGGRESSOR_SHIPTYPE_INDEX]
+        aggressor['FGtype'] = LookupRealName(news_tuple[NewsManager.AGGRESSOR_SHIPTYPE_INDEX],aggressor['faction'])
         self.vars['aggressor'] = aggressor
         defender = dict()
         defender['faction'] = news_tuple[NewsManager.DEFENDER_INDEX]
         defender['FG'] = news_tuple[NewsManager.DEFENDER_FLIGHTGROUP_INDEX]
-        defender['FGtype'] = news_tuple[NewsManager.DEFENDER_SHIPTYPE_INDEX]
+        defender['FGtype'] = LookupRealName(news_tuple[NewsManager.DEFENDER_SHIPTYPE_INDEX],defender['faction'])
         self.vars['defender'] = defender
         dockeda_ = dict()
         dockeda_['faction'] = docked_faction
@@ -104,6 +121,9 @@ class NewsTranslator:
         return string.join(self.item) + self.STARDATE_TEXT + stardate.formatStarDate(self.vars['dockedat']['faction'],self.vars['stardate']['value'])
 
     def formatText(self, text, punc=[' ' , '_' , '.'], capitalise=True):
+        """Runs a quick formatting algorithm over the
+        provided text, using the punc list as a guide to
+        the markup."""
         for pun in punc:
             tex = text.split(pun)
             for i in range(len(tex)):
@@ -115,25 +135,32 @@ class NewsTranslator:
         return text
 
 class DynamicNewsData:
-
+    """Each instance of this class acts as an accessor to
+    the faction specific information stored for the purpose
+    of translating news stories."""
     def __init__(self):
         import dynamic_news_content
         self.faction_dict = dynamic_news_content.allFactionNames()
         self.news_dict = dynamic_news_content.allNews()
 
     def getFactionData(self, faction, variable):
+        """Return the variable information stored for this
+        faction."""
         if variable in self.faction_dict["alltags"]:
             try:
                 return self.faction_dict[faction][variable]
             except:
 #                raise ValueError("Invalid Faction Specified")
-                print "ERROR: FACTION LOOKUP ERROR"
+                debug.error("ERROR: FACTION LOOKUP ERROR faction %s variable %s" % (faction, variable))
                 return self.faction_dict['unknown'][variable]
         else:
-            print "ERROR: VARIABLE LOOKUP ERROR faction %s variable %s" % (faction, variable)
+            debug.error("ERROR: VARIABLE LOOKUP ERROR faction %s variable %s" % (faction, variable))
             return "VARIABLE LOOKUP ERROR"
 
     def translateKeyToDictionary(self, variable):
+        """Translates the information from the stored
+        values to those used to lookup items in the item
+        dictionary."""
         replace = ""
         if variable == NewsManager.KEYWORD_DEFAULT:
             replace = "all"
@@ -170,6 +197,8 @@ class DynamicNewsData:
         return replace
 
     def makeNewsKeyList(self, news_list, news_faction, pov):
+        """Creates a list of the structure used to store
+        each news event."""
         key_list = list()
         key_list.append(news_faction)
         key_list.append(news_list[NewsManager.EVENT_TYPE_INDEX])
@@ -179,6 +208,8 @@ class DynamicNewsData:
         return key_list
 
     def getNewsList(self, key_list, get_neutral=False):
+        """Searches the item dictionary to find matching
+        items for this given event."""
         story_list = self.news_dict
         try:
             if get_neutral:
@@ -190,13 +221,15 @@ class DynamicNewsData:
         return story_list
 
     def getBestMatch(self, stories, varlist):
+        """From the provided list of stories, return the
+        item who's \"scale\" most closely matches that of
+        the given event (minimise variance)."""
         kw_stories = list()
         for story in stories:
             if story[1] == varlist[NewsManager.EVENT_KEYWORD_INDEX]:
                 kw_stories.append(story)
         if not len(kw_stories):
-            print "ERROR: NO KEYWORD STORIES AVAILABLE FOR "
-            print varlist
+            debug.error("ERROR: NO KEYWORD STORIES AVAILABLE FOR "+str(varlist))
             return False
         if len(kw_stories) == 1:
             return kw_stories[0]
@@ -304,7 +337,7 @@ class NewsManager:
             elif success == self.SUCCESS_DRAW:
                 return self.POV_BAD
         else:
-            print "ERROR:  VS is returning -0 for relationship relatagg number"
+            debug.error("ERROR:  VS is returning -0 for relationship relatagg number")
             return self.POV_NEUTRAL
 
     def sTovarlist(self, s):
@@ -320,20 +353,19 @@ class NewsManager:
         """Updates the current self.dockedat_faction to its
         current value.  Should be called before translating
         a batch of stores."""
-        i=0
+        i = VS.getUnitList()
         playa=VS.getPlayer()
-        un=VS.getUnit(i)
-        while(un):
-            i+=1
+        while i.notDone():
+            un = i.current()
+            i.advance()
             if (un.isDocked(playa) or playa.isDocked(un)):
                 if not (un.isPlanet() or (un.getFactionName() == "neutral")):
                     fac = un.getFactionName()
-#                    print 'returning '+un.getName()+' s faction as '+fac+' from flightgroup '+un.getFlightgroupName()
+#                    debug.debug('returning '+un.getName()+' s faction as '+fac+' from flightgroup '+un.getFlightgroupName())
                     self.dockedat_faction = fac
                 break
-            un=VS.getUnit(i)
         retfac = VS.GetGalaxyFaction(VS.getSystemFile())
-#        print "Returning " + retfac + " as the systems faction"
+#        debug.debug("Returning " + retfac + " as the systems faction")
         self.dockedat_faction = retfac
 
     def isStoryRelevant(self, strin):
@@ -366,7 +398,7 @@ class NewsManager:
     def writeDynamicString(self, varlist):
         """Stores a news story list into the \"dynamic news\"
         key in the save game."""
-#        print 'Dynamic news Event'
+#        debug.debug('Dynamic news Event')
         varlist = string.join([str(vsrandom.randrange(0,4194304))]+varlist,',')
         import Director        
         Director.pushSaveString(0,"dynamic_news",varlist)

@@ -116,7 +116,7 @@ def processMessage(local, cmd, argstr, id):
 			print arg
 		if cmd=='reloadlib' and local and len(args)>=1:
 			reload(__import__(args[0]))
-			VS.IOMessage(0, "game", "p"+str(cp), "Reloaded "+str(args[0]))
+			VS.IOmessage(0, "game", "p"+str(cp), "Reloaded "+str(args[0]))
 		elif cmd=='local':
 			# simple way of bouncing back message to client....
 			if id:

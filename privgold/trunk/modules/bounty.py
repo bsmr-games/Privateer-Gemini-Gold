@@ -116,7 +116,7 @@ class bounty (Director.Mission):
                     self.you.SetTarget(self.enemy)
                     import universe
                     universe.greet(self.greetingText,self.enemy,self.you)
-                    self.obj=VS.addObjective("Destroy the %s ship." % (self.enemy.getName ()))
+                    self.obj=VS.addObjective("Destroy %s." % (unit.getUnitFullName(self.enemy)))
                     if (self.enemy):
                         if (self.runaway):
                             self.enemy.SetTarget(significant) #CHANGE TO SetTarget ==>NOT setTarget<==
@@ -137,7 +137,7 @@ class bounty (Director.Mission):
                 self.adjsys=go_somewhere_significant(self.you,self.dockable_unit,10000.0,0,'','',self.displayLocation)
                 if not self.displayLocation:
                     VS.addObjective("Search/Destroy "+self.faction.capitalize()+" mark");
-                localdestination=self.adjsys.SignificantUnit().getName()
+                localdestination=unit.getUnitFullName(self.adjsys.SignificantUnit(),True)
                 tmpfg=self.dynfg
                 if len(tmpfg)==0:
                     tmpfg="shadow"

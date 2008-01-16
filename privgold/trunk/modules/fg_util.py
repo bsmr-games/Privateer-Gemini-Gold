@@ -1,6 +1,13 @@
 import Director
 import VS
 import vsrandom
+import Vector
+import faction_ships
+from universe import AllSystems
+
+import ShowProgress
+import debug
+
 ccp=VS.getCurrentPlayer()
 #Aera Plants
 #Rlaan Rocks
@@ -8,16 +15,14 @@ ccp=VS.getCurrentPlayer()
 #Uln adVerbs
 #klkk Adjectives
 def MaxNumFlightgroupsInSystem (syst):
-    import faction_ships
-    try:
+    if syst in faction_ships.max_flightgroups:
         return faction_ships.max_flightgroups[syst]
-    except:
+    else:
         return 3
 def MinNumFlightgroupsInSystem (syst):
-    import faction_ships
-    try:
+    if syst in faction_ships.min_flightgroups:
         return faction_ships.min_flightgroups[syst]
-    except:
+    else:
         return 1
 def MaxNumBasesInSystem():
     return 10
@@ -36,14 +41,14 @@ def PerShipDataSize ():
 def AllFactions ():
     facs =[]
     for i in range (VS.GetNumFactions()):
-        facs+= [VS.GetFactionName(i)]
+        facs.append(VS.GetFactionName(i))
     return facs
 basenamelist={}
 flightgroupnamelist={}
 genericalphabet=['Alpha','Beta','Gamma','Delta','Epsilon','Zeta','Phi','Omega']
 def ReadBaseNameList(faction):
     bnl=[]
-    print 'reading base names '+str(faction)
+    debug.debug('reading base names '+str(faction))
     filename = 'universe/fgnames/'+faction+'.txt'
     try:
         f = open (filename,'r')
@@ -76,6 +81,8 @@ def GetRandomFGNames (numflightgroups, faction):
     global flightgroupnamelist
     if (not (faction in flightgroupnamelist)):
         flightgroupnamelist[faction]=ReadBaseNameList(faction)
+    if numflightgroups < 0:
+        numflightgroups = len(flightgroupnamelist[faction])
     additional=[]
     if (numflightgroups>len(flightgroupnamelist[faction])):
         for i in range (numflightgroups-len(flightgroupnamelist)):
@@ -561,6 +568,22 @@ def launchBases(sys):
     for fg in fgs:
         launchBase(fg[0],fg[1],fac,sys,sig_units,shipcount)
 
+def randDirection():
+   leng=2
+   while leng>1 or leng<.00001:
+      X = vsrandom.uniform(-1,1);
+      Y = vsrandom.uniform(-1,1);
+      Z = vsrandom.uniform(-1,1);
+      leng=X*X+Y*Y+Z*Z
+   import VS
+   leng=VS.sqrt(leng)
+   return (X/leng,Y/leng,Z/leng)
+def incr_by_abs(num,val):
+   #print "A: "+str(num+val)+" or "+str(num-val)
+   if (num>0):
+      return num+val
+   return num-val
+
 def DefaultNumShips():
     import vsrandom
     diff=VS.GetDifficulty()
@@ -581,7 +604,7 @@ def GetShipsInFG(fgname,faction):
     try:
         count=int(ships[0])
     except:
-        print 'bad flightgroup record '+ships
+        debug.error('bad flightgroup record '+ships)
     launchnum = DefaultNumShips()
     if (launchnum>count):
         launchnum=count
@@ -596,21 +619,24 @@ def GetShipsInFG(fgname,faction):
 def LaunchLandShip(fgname,faction,typ,numlaunched=1):
     key = MakeFGKey (fgname,faction)
     ships=ReadStringList (ccp,key)
+    debug.debug('LaunchLandShip: '+str((fgname, faction, typ, numlaunched)))
     for num in range (ShipListOffset(),len(ships),PerShipDataSize()):
         if (typ == ships[num]):
             try:
+                debug.debug("attempting launch for ship"+str(typ)+', begin '+
+                            str(ships[num+1])+', act '+str(ships[num+2]))
                 ntobegin=int(ships[num+1])
                 nactive=int(ships[num+2])
                 nactive-=numlaunched
                 if (nactive<0):
                     nactive=0
-                    print 'error more ships launched than in FG '+fgname
+                    debug.debug('error more ships launched than in FG '+fgname)
                 if (nactive>ntobegin):
                     nactive=ntobegin
-                    print 'error ships '+typ+'landed that never launched'
+                    debug.debug('error ships '+typ+'landed that never launched')
                 Director.putSaveString(ccp,key,num+2,str(nactive))
             except:
-                print 'error in FG data (str->int)'
+                debug.error('error in FG data (str->int)')
 def LaunchShip (fgname,faction,typ,num=1):
     LaunchLandShip (fgname,faction,typ,num)
 def LandShip (fgname,faction,typ,num=1):
@@ -625,7 +651,7 @@ def CheckAllShips(faction):
         sys = FGSystem(i,faction)
         fgsin=AllFGsInSystem(faction,sys)
         if (not i in fgsin):
-            print 'error '+str(fgsin) + i+' not in system '+ sys
+            debug.error('error '+str(fgsin) + i+' not in system '+ sys)
 def SortedAllShips (faction,offset=1):
     ret={}
     for i in AllFlightgroups (faction):

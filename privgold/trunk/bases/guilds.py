@@ -253,11 +253,14 @@ class MissionButton(Button):
 			self.removeobjs()
 			mission_lib.SetLastMission(self.missionname);
 			def completeAccept(args):
-				if args[0]=="success" or args[0]=="notavailable":
-					mission_lib.BriefLastMission(self.missionname,1,self.guild.textbox)
-					mission_lib.RemoveLastMission(self.missionname)
-				elif args[0]=="toomany":
+				if VS.networked():
+					if args[0]=="success" or args[0]=="notavailable":
+						mission_lib.BriefLastMission(self.missionname,1,self.guild.textbox)
+						mission_lib.RemoveLastMission(self.missionname)
+				if args[0]=="toomany":
 					self.guild.TooManyMissions()
+			if not VS.networked():
+				mission_lib.BriefLastMission(self.missionname,1,self.guild.textbox)
 			custom.run("guilds",[self.guild.guild.name,"accept",self.missionname],completeAccept)
 			
 #			Base.Message('Thank you. We look forward to the completion of your mission.')

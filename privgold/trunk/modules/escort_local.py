@@ -49,7 +49,7 @@ class escort_local (Director.Mission):
 		self.objectivezero=0
 		self.mplay=universe.getMessagePlayer(self.you)
 		self.adjsys = go_to_adjacent_systems(self.you,numsystemsaway,jumps)
-		VS.IOmessage (0,"escort mission",self.mplay,"Good Day, %s. Your mission is as follows:" % name)
+		VS.IOmessage (0,"escort mission",self.mplay,"Your mission is as follows:")
 		self.adjsys.Print("You are in the %s system,","Proceed swiftly to %s.","Your arrival point is %s.","escort mission",1)
 
 	def SetVarValue (self,value):
@@ -71,9 +71,9 @@ class escort_local (Director.Mission):
         			un=unit.getSignificant(vsrandom.randrange(0,40),1,0)
                         if (un.getName()!=self.defendee.getName()):
 	        		self.defendee.performDockingOperations(un,0)
-        			print "docking with "+un.getName()
+        			#print "docking with "+un.getName()
 				self.todock=un
-				VS.setObjective (self.objectivezero,"Escort To %s %s" % (un.getName(),un.getFullname()))
+				VS.setObjective (self.objectivezero,"Escort To %s" % unit.getUnitFullName(un))
 		else:
 			self.defendee.ActivateJumpDrive(0)			
 			self.defendee.SetTarget(self.adjsys.SignificantUnit())
@@ -106,13 +106,13 @@ class escort_local (Director.Mission):
 		if (un.isNull() or (un.GetHullPercent()<.7 and self.defendee.getDistance(un)>7000)):
 			return 0
 		else:
-			VS.setObjective(self.objective,"Destroy the %s"%un.getName())
+			VS.setObjective(self.objective,"Destroy the %s"%unit.getUnitFullName(un))
 			self.ship_check_count=0
 		return 0
 		
 	def GenerateEnemies (self,jp,you):
 		count=0
-		self.objectivezero=VS.addObjective ("Protect %s from %s" % (jp.getName(),self.faction))
+		self.objectivezero=VS.addObjective ("Protect %s from %s" % (unit.getUnitFullName(jp),self.faction))
 		self.objective = VS.addObjective ("Destroy All %s Hostiles" % self.faction)
 		VS.setCompleteness(self.objective,0.0)
 		print "quantity "+str(self.quantity)
@@ -148,7 +148,7 @@ class escort_local (Director.Mission):
 			universe.greet(self.greetingText,self.attackers[0],you);
 		else:
 			VS.IOmessage (0,"escort mission",self.mplay,"Eliminate all %s ships here" % self.faction)
-			VS.IOmessage (0,"escort mission",self.mplay,"You must protect %s." % jp.getName ())
+			VS.IOmessage (0,"escort mission",self.mplay,"You must protect %s." % unit.getUnitFullName(jp))
 
 		self.quantity=0
 	def GenerateDefendee(self):
@@ -172,6 +172,7 @@ class escort_local (Director.Mission):
 		escortee.upgrade("jump_drive",0,0,0,1)
 		escortee.setFlightgroupLeader(self.you)
 		escortee.setFgDirective('F')
+		escortee.setMissionRelevant()
 		return escortee
 
 	def Execute (self):

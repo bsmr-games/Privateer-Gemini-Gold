@@ -29,9 +29,11 @@ class PlayerMissionInfo:
 
 def addPlayer(num, reset=True):
 	while len(players)<=num:
-		players.append(None)
-	if reset or not players[num]:
+		players.append(PlayerMissionInfo())
+	if reset:
 		players[num] = PlayerMissionInfo()
+
+addPlayer(VS.getNumPlayers()-1)
 
 # addPlayer(0) #single player -- add 0th player.
 global_plr = -1
@@ -391,7 +393,7 @@ def PickRandomMission(goodlist):
 # is the asterisk ('*'), which is a wildcard key that applies to any other
 # key. If a mission's type cannot find a matching key (the wildcard matches
 # all), then it will have frequency 0 (meaning, it will be disallowed).
-def CreateGuildMissions(guildname,nummissions,accepttypes,prefix,acceptmsg=''):
+def CreateGuildMissions(guildname,nummissions,accepttypes,prefix="#G#",acceptmsg=''):
 	plr=getMissionPlayer()
 	addPlayer(plr, False)
 	

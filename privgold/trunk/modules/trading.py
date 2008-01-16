@@ -3,6 +3,7 @@ import VS
 
 from XGUIDebug import trace
 _trace_level = 3
+import debug
 
 production={}
 def getImports(name,faction):
@@ -16,7 +17,7 @@ def getImports(name,faction):
                 break;
             else:
                 s=s[where+1:]
-            #print "beg: "+s
+            #debug.debug("beg: "+s)
             where = s.find("}")
             if (where==-1):
                 s=""
@@ -50,8 +51,7 @@ def getImports(name,faction):
         return prodlist
     except:
         import sys
-        print "GetImportFailure"
-        print str(sys.exc_info()[0])+str(sys.exc_info()[1])
+        debug.error("GetImportFailure\n"+str(sys.exc_info()[0])+str(sys.exc_info()[1]))
     return []
 def getExports(name,faction, twice=1000000):
 	prodlist=getImports(name,faction)
@@ -120,16 +120,16 @@ class trading:
                                 ownedcargo=un.GetCargo(cargo.GetContent())
                                 quant=ownedcargo.GetQuantity()
                                 #if un.getName()=="mining_base" and (cargo.GetContent()=="Tungsten" or cargo.GetContent()=="Space_Salvage"):
-                                #    print "Mining "+str(quant)+" from "+str(prod[3])+" to "+str(prod[4])
+                                #    debug.debug("Mining "+str(quant)+" from "+str(prod[3])+" to "+str(prod[4]))
                                 if (quant<prod[3]-prod[4] or quant==0):
                                     quant=int(prod[3]+vsrandom.uniform(-1,1)*prod[4])
                                     #if un.getName()=="mining_base" and (cargo.GetContent()=="Tungsten" or cargo.GetContent()=="Space_Salvage"):                                   
-                                    #    print "Will add quant "+str(quant)
+                                    #    debug.debug("Will add quant "+str(quant))
                                     if (quant>0):
                                         cargo.SetQuantity(quant)
                                         price = prod[1]+vsrandom.uniform(-1,1)*prod[2]
                                         cargo.SetPrice(cargo.GetPrice()*price)
-                                        print " adding "+str(quant)+" of "+cargo.GetContent()+" cargo for "+str(price)
+                                        debug.debug("Adding "+str(quant)+" of "+cargo.GetContent()+" cargo for "+str(price))
                                         un.addCargo(cargo)
                                     else:
                                         removeCargo=True
@@ -140,7 +140,7 @@ class trading:
                             if removeCargo:
                                 ownedcargo=un.GetCargo(cargo.GetContent())
                                 if (ownedcargo.GetQuantity()):
-                                    print "Removing one "+ownedcargo.GetContent()
+                                    debug.debug("Removing one "+ownedcargo.GetContent())
                                     
                                     un.removeCargo(ownedcargo.GetContent(),ownedcargo.GetQuantity()/3+1,0)
             self.last_ship+=1

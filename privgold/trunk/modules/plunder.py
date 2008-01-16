@@ -32,7 +32,7 @@ class plunder (Director.Mission):
         self.mplay=universe.getMessagePlayer(self.you)
         if (self.you):
             VS.IOmessage (0,"plunder mission",self.mplay,"Your mission is to destroy a %s merchant unit." % (self.newship))
-            VS.IOmessage (1,"plunder mission",self.mplay,"It is orbiting around the %s planet in the system." % (self.gosig.SignificantUnit().getName()))
+            VS.IOmessage (1,"plunder mission",self.mplay,"It is orbiting around the %s planet in the system." % (unit.getUnitFullName(self.gosig.SignificantUnit())))
             VS.IOmessage (2,"plunder mission",self.mplay,"After it is destroyed, pick up all %s cargo that got ejected."%self.category)
             VS.IOmessage (3,"plunder mission",self.mplay,"Then return to a %s base with your cargo. #00ff00Good luck!"%self.faction)
         else:
@@ -84,7 +84,7 @@ class plunder (Director.Mission):
                 self.arrived=3
                 self.gosig=go_somewhere_significant(self.you,1,3000.,1,"pirates")
                 self.gosig.SignificantUnit().setCombatRole("INERT")
-                VS.IOmessage(0,"plunder mission",self.mplay,'Give all of your cargo to the %s unit.'%(self.gosig.SignificantUnit().getName()))
+                VS.IOmessage(0,"plunder mission",self.mplay,'Give all of your cargo to the %s unit.'%(unit.getUnitFullName(self.gosig.SignificantUnit())))
         elif (self.arrived==1):
             if (self.enemy):
                 self.pos=self.enemy.Position()
@@ -122,7 +122,7 @@ class plunder (Director.Mission):
                     VS.setCompleteness(self.gosig.obj,1.)
                     VS.IOmessage(0,"plunder mission",self.mplay,'You must now destroy the %s ship.'%self.newship)
                     VS.IOmessage(0,"plunder mission",self.mplay,'That fighter contains the wanted %s cargo in its hold.'%self.content)
-                    self.obj=VS.addObjective("Destroy the %s ship." % (self.enemy.getName ()))
+                    self.obj=VS.addObjective("Destroy the %s ship." % (unit.getUnitFullName(self.enemy)))
                     if (self.enemy):
                         self.arrived=1
                     else:

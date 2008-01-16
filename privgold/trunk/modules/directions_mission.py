@@ -63,19 +63,18 @@ class directions_mission (Director.Mission):
         return
         
     def findUnit(self, name):
-        testun=VS.getUnit(0)
-        itt=1
-        while(testun):
+        i = VS.getUnitList()
+        while i.notDone():
+            testun=i.current()
+            i.advance()
             if testun.getName().lower()==name.lower() or testun.getFullname().lower()==name.lower():
                 return testun
-            testun=VS.getUnit(itt)
-            itt+=1
-        testun=VS.getUnit(0)
-        while(testun):
+        i = VS.getUnitList()
+        while i.notDone():
+            testun=i.current()
+            i.advance()
             if testun.isDockableUnit():
                 return testun
-            testun=VS.getUnit(itt)
-            itt+=1
         return VS.getUnit(0)
     def getCargo(self,un):
         lis=[]

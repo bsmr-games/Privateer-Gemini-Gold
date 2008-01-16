@@ -87,7 +87,7 @@ class ambush(directions_mission.directions_mission):
 						VS.AdjustRelation(faction,"privateer",-.02-rel,1.0)
 						rel=VS.GetRelation("privateer",faction)
 						VS.AdjustRelation("privateer",faction,-.02-rel,1.0)
-					if (i==0 and z==0):
+					if (i==len(self.faction)-1 and z==0):
 						universe.greet(self.greetingText,enemy,you)
 					#print "launchin"
 					print 'Ambush: Ships have been launched. Exiting...'
