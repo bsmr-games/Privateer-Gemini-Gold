@@ -163,8 +163,7 @@ def handle_guilds_message(local, cmd, args, id):
 	plr = un.isPlayerStarship()
 	if VS.isserver():
 		import server
-		s = server.getDirector()
-		if not s.getPlayer(plr).docked_un:
+		if not server.getDocked(un):
 			return ["failure", 'Not currently docked']
 	guildinfo = guilds.get(args[0],None)
 	if not guildinfo:

@@ -561,11 +561,34 @@ def intToFaction (faction):
 def getMaxFactions ():
     return len(factions)
 
-def get_X_of (mylist, index):
-    enemylist = mylist[index]
+
+
+    
+
+def get_non_citizen_X_of (mylist, index):
     import vsrandom
+    import VS
+    enemylist = mylist[index]
+    newindex = vsrandom.randrange(0,len(enemylist))
+    rez=intToFaction(enemylist[newindex])
+    if VS.isCitizen(rez):
+        while (newindex>0):
+          newindex-=1
+          rez=intToFaction(enemylist[newindex])          
+          if not VS.isCitizen(rez):
+              return rez
+        while (newindex+1<len(enemylist)):
+          newindex+=1
+          rez=intToFaction(enemylist[newindex])          
+          if not VS.isCitizen(rez):
+              return rez
+    return rez
+def get_X_of (mylist, index):
+    import vsrandom
+    enemylist = mylist[index]
     newindex = vsrandom.randrange(0,len(enemylist))
     return intToFaction(enemylist[newindex])
+
 
 def get_enemy_of (factionname):
     return get_X_of (enemies, factionToInt(factionname))
@@ -578,6 +601,23 @@ def get_friend_of (factionname):
 
 def get_rabble_of (factionname):
     return get_X_of (rabble, factionToInt(factionname))
+
+
+def get_enemy_of_no_citizen (factionname):
+    return get_X_of (enemies, factionToInt(factionname))
+    #return get_non_citizen_X_of (enemies, factionToInt(factionname))
+
+def get_insys_enemy_of_no_citizen (factionname):
+    return get_X_of (insysenemies, factionToInt(factionname))
+    #return get_non_citizen_X_of (insysenemies, factionToInt(factionname))
+
+def get_friend_of_no_citizen (factionname):
+    return get_X_of (friendlies, factionToInt(factionname))
+    #return get_non_citizen_X_of (friendlies, factionToInt(factionname))
+
+def get_rabble_of_no_citizen (factionname):
+    return get_X_of (rabble, factionToInt(factionname))
+    #return get_non_citizen_X_of (rabble, factionToInt(factionname))
 
 def getRandomShipType(ship_list):
     import vsrandom

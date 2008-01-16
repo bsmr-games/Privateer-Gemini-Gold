@@ -1,15 +1,20 @@
 import VS
+import vsrandom
 
 __active = set()
 __showing = None
 __delay = 0
 
-def activateProgressScreen(screen_id,delay=0):
+def activateProgressScreen(screen_id,delay=0,force=False):
+    # Sometimes we have to force it, because VS engine forceably unloads some splash screens at the very start.
 	global __active, __showing, __delay
-	if screen_id not in __active:
+	if screen_id not in __active or force:
 		__active.add(screen_id)
+	if True:
 		screen  = VS.vsConfig("splash","%s_sprite" % screen_id,"")
 		message = VS.vsConfig("splash","%s_message" % screen_id,"")
+		screensplit  = screen.split(" ")
+		screen  = screensplit[vsrandom.randrange(0,len(screensplit))]
 		if screen != "" or message != "":
 			__showing = screen_id
 			__delay = delay
