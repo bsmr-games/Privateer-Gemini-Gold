@@ -246,7 +246,7 @@ class random_encounters:
         else:
             self.cur.curquest=0
         un = self.decideMode ()
-        if (self.cur.curmode!=self.cur.lastmode):
+	if VS.getPlayerX(self.cur_player) and (self.cur.curmode!=self.cur.lastmode):
             #lastmode=curmode#processed this event don't process again if in critical zone
             self.cur.lastmode=self.cur.curmode
             print "curmodechange %d" % (self.cur.curmode)#?
@@ -259,6 +259,8 @@ class random_encounters:
         self.cur_player+=1
         if (self.cur_player>=VS.getNumPlayers()):
             self.cur_player=0
-        VS.setMissionOwner(self.cur_player)
+	
+	# This could cause some issues, don'cha think?
+        #VS.setMissionOwner(self.cur_player)
 
 debug.debug("done loading rand enc")

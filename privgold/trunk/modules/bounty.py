@@ -113,6 +113,8 @@ class bounty (Director.Mission):
                     except:
                         pass
                     self.enemy=L.launch(significant)
+                    self.enemy.SetTarget(self.you)
+                    self.enemy.setFgDirective('B.')
                     self.you.SetTarget(self.enemy)
                     import universe
                     universe.greet(self.greetingText,self.enemy,self.you)

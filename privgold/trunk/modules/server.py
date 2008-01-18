@@ -7,6 +7,7 @@ import traceback
 import custom
 
 import server_lib
+import privateer
 
 baseunits={}
 
@@ -59,13 +60,21 @@ def getDirector():
 
 class server (Director.Mission):
 	def __init__(self):
-		Director.Mission.__init__(self)
+		from trading import trading
+		from random_encounters import random_encounters
+		import dynamic_universe
 		
+		Director.Mission.__init__(self)
 		global _server_inst
 		_server_inst=self
 		
 		self.playerlist=[]
 		self.loopnum=0
+		self.loops=(
+			random_encounters (3000,5000,500,3,2,.6,.25,.1,2000),
+			trading (),
+			dynamic_universe,
+			)
 	
 	def playerJoined(self, pl):
 		self.playerlist.append(pl)
@@ -80,6 +89,8 @@ class server (Director.Mission):
 	def Execute(self):
 		self.loopnum+=1
 		try:
+			for i in self.loops:
+				i.Execute()
 			server_lib.server_execute(self)
 		except:
 			traceback.print_exc(file=sys.stderr)
@@ -92,6 +103,7 @@ class player (Director.Mission):
 		self.reinit()
 	
 	def reinit(self):
+		from difficulty import difficulty
 		self.current_un=VS.Unit()
 		self.objectives=0
 		self.player_num=-1
@@ -100,6 +112,7 @@ class player (Director.Mission):
 		self.software_booth_computer = None
 		self.ship='Llama.begin'
 		self.docked_un=None
+		self.loops = (difficulty(850000), )
 	
 	def sendMessage(self, msg, fromname='game'):
 		if self.player_num>=0:
@@ -140,6 +153,8 @@ class player (Director.Mission):
 				self.docked_un = dockedUn
 		try:
 			server_lib.player_execute(self)
+			for i in self.loops:
+				i.Execute()
 		except:
 			traceback.print_exc(file=sys.stderr)
 	
