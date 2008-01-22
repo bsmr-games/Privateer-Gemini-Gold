@@ -179,12 +179,23 @@ def Siege(fac):
 simulateiter=None
 deadbattles=[]
 deadbattlesiter=-2
+
+runevery=100
+curloop=0
 def SimulateBattles():
     global deadbattles
     global cpsal
     global attacklist
     global simulateiter
     global deadbattlesiter
+    global curloop
+    
+    if VS.isserver(): # On 100% of the time, so this should run slower.
+        curloop += 1
+        curloop %= runevery
+        if curloop != 0:
+            return 1
+    
     if simulateiter==None:
         if (deadbattlesiter!=-2):
             if (deadbattlesiter<0):

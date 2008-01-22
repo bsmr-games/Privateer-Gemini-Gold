@@ -5,7 +5,9 @@ import Base
 import Director
 import mission_lib
 import fixer_lib
+import custom
 import code
+import debug
 activelinks=[]
 activeobjs=[]
 
@@ -33,11 +35,11 @@ class Choice:
 		global activelinks
 		global activeobjs
 		activelinks.append((room,self.index))
-		print '*** add link: '+str((room,self.index))
-		print activelinks
+		debug.debug('*** add link: '+str((room,self.index)))
+		debug.debug(activelinks)
 		activeobjs.append((room,self.index))
-		print '*** add obj: '+str((room,self.index))
-		print activeobjs
+		debug.debug('*** add obj: '+str((room,self.index)))
+		debug.debug(activeobjs)
 class Fixer:
 	"""A class that draws nobody."""
 	def __init__(self,name,text,precondition,image,choices):
@@ -175,7 +177,7 @@ def queueFixer(playernum, name, scripttext, overwrite=0):
             if overwrite:
                 Director.putSaveString(int(playernum),str("CFixers"),i,name + '|' + scripttext)
                 return
-            print "WARNING: Fixer already exists."
+            debug.warn("WARNING: Fixer already exists.")
             return
 #            raise RuntimeError("Campaign Fixer already exists with reference \'%s\'"%name)
     Director.pushSaveString(int(playernum),str("CFixers"),name + '|' + scripttext)
@@ -188,12 +190,12 @@ def DestroyActiveButtons ():
 	global activeobjs
 	for button in activelinks:
 		Base.EraseLink(button[0],button[1])
-		print '*** erase link: '+str(button)
-		print activelinks
+		debug.debug('*** erase link: '+str(button))
+		debug.debug(activelinks)
 	for button in activeobjs:
 		Base.EraseObj(button[0],button[1])
-		print '*** erase obj: '+str(button)
-		print activeobjs
+		debug.debug('*** erase obj: '+str(button))
+		debug.debug(activeobjs)
 	activeobjs=[]
 	activelinks=[]
 def CreateChoiceButtons (room,buttonlist,vert=0,spacing=.025,wid=.2,hei=.2):
@@ -204,16 +206,16 @@ def CreateChoiceButtons (room,buttonlist,vert=0,spacing=.025,wid=.2,hei=.2):
 	else:
 		y=-.75-(hei/2.)
 		x=-(wid*len(buttonlist)+(len(buttonlist)-1)*spacing)/2.
-	print x,y
+	debug.debug("button x: "+str(x)+", y: "+str(y))
 	for button in buttonlist:
-		print '*** draw: '+str(button.index)
+		debug.debug('*** draw: '+str(button.index))
 		button.drawobjs(room,x,y,wid,hei)
 		if (vert):
 			y-=(spacing+hei)
 		else:
 			x+=spacing+wid
 		
-def CreateCampaignFixers (room,locations,j=0):
+def CreateCampaignFixers_real (room,locations,j=0):
 	fixerlist = getCampaignFixers(room)
 	locfixers = fixers.get (VS.getSystemFile())
 	if locfixers:
@@ -227,6 +229,16 @@ def CreateCampaignFixers (room,locations,j=0):
 				fixerlist[i].drawobjs (room,locations[j][0],locations[j][1],locations[j][2],locations[j][3],append)
 				j+=1
 	return j
+
+def CreateCampaignFixers(room,locations,j=0):
+	if VS.networked():
+		import campaign_lib
+		def cont(args):
+			CreateCampaignFixers_real(room,locations,j)
+		campaign_lib.default_room = room # Don't want stuff appearing in the launch pad.
+		custom.run("campaign_readsave",[],cont)
+	else:
+		CreateCampaignFixers_real(room,locations,j)
 
 def CreateMissionFixers (room,locations,j=0):
 	return j
@@ -275,7 +287,7 @@ class Conversation:
             name = self.ROOT_KEY
         if self.nodes.has_key(name):
             return self.nodes[name]
-        print "Error: Node with name \'%s\' does not exist."%name
+        debug.error("Error: Node with name \'%s\' does not exist."%name)
 
     def addNode(self, node, name=str()):
         """Add a Node to the conversation.  Only one RootNode can exist in a
@@ -284,11 +296,11 @@ class Conversation:
             self.nodes[self.ROOT_KEY] = node
         elif isinstance(node, Node):
             if name==str():
-                print "Error: Node must be added with a name argument."
+                debug.error("Error: Node must be added with a name argument.")
             else:
                 self.nodes[name] = node
         else:
-            print "Error: Node is not of a valid type."
+            debug.error("Error: Node is not of a valid type.")
 
     def getFixerStrings(self):
         """Gets the required strings for the construction of the CFixer class."""
@@ -343,14 +355,14 @@ class SubNode:
         try:
             self.conditions.append(condition)
         except:
-            print "Error: Condition could not be added."
+            debug.error("Error: Condition could not be added.")
 
     def addChoice(self, choice):
         """Adds the choice (a string) to the choices list."""
         try:
             self.choices.append(choice)
         except:
-            print "Error: Choice could not be added."
+            debug.error("Error: Choice could not be added.")
 
 class Node:
 
@@ -377,9 +389,9 @@ class Node:
             le = len(self.subnodes)
             for i in range(le):
                 if fixer_lib.evaluateConditions(self.subnodes[i].conditions):
-                    print "Returning subnode with text=" + self.subnodes[i].text
+                    debug.debug("Returning subnode with text=" + self.subnodes[i].text)
                     return self.subnodes[i]
-                print "Rejecting subnode with text=" + self.subnodes[i].text
+                debug.debug("Rejecting subnode with text=" + self.subnodes[i].text)
             return self.subnodes[le - 1]
 
 class RootNode(Node):

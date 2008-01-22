@@ -1,5 +1,6 @@
 import VS
 import debug
+import custom
 
 class Condition:
 	def __init__(self):
@@ -100,6 +101,10 @@ class HasUndocked(Condition):
 		self.count=-1
 	
 	def __call__(self):
+		if VS.isserver():
+			import server
+			return server.getDocked(VS.getPlayer())==None
+		
 		global fixerloaded
 
 		import fixers
@@ -259,7 +264,14 @@ def textline(strs):
 
 #depends on Base
 def displayText(room,textlist,enqueue=False):
+	print "displayText()"
+	debug.warn("Displaying campaign text "+str(textlist))
+	if VS.isserver():
+		return
+	if room==-1:
+		debug.error("Room is -1!!!")
 	import Base
+	room=Base.GetCurRoom()
 	func=Base.MessageToRoom
 	if enqueue:
 		func=Base.EnqueueMessageToRoom
@@ -310,6 +322,8 @@ class RemoveCargo(Script):
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
 		import VS
+		if VS.networked():
+			return True
 		you=VS.getPlayer()
 		removenum=you.removeCargo(self.cargname,self.cargnum,True)
 		if self.missionflag:
@@ -341,8 +355,10 @@ class AddCargo(Script):
 		self.missionflag=missionflag
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
+		import VS
+		if VS.networked():
+			return True
 		if True or CargoSpaceCondition(self.cargname,self.cargnum)():
-			import VS
 			you=VS.getPlayer()
 			mpart=VS.GetMasterPartList()
 			carg=mpart.GetCargo(self.cargname)
@@ -400,6 +416,8 @@ class SetSaveVariable(Script):
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
 		import VS
+		if VS.networked():
+			return True
 		debug.debug("*** Setting \'%s : %d\'"%(self.name,self.value))
 		setSaveValue(VS.getCurrentPlayer(),self.name,self.value)
 		return True
@@ -413,6 +431,8 @@ class IncSaveVariable(Script):
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
 		import VS
+		if VS.networked():
+			return True
 		debug.debug("*** Incrementing \'%s \'"%self.name)
 		incSaveValue(VS.getCurrentPlayer(),self.name)
 		return True
@@ -423,6 +443,9 @@ class AddTechnology(Script):
 		self.tech=technology
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
+		import VS
+		if VS.networked():
+			return True
 		import universe
 		universe.addTechLevel(self.tech)
 
@@ -496,6 +519,8 @@ class LaunchWingmen(Script):
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
 		import VS
+		if VS.networked():
+			return True
 		you=VS.getPlayer()
 		import launch
 		wing=launch.launch_wave_around_unit("Wingmen",
@@ -540,6 +565,8 @@ class AddCredits(Script):
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
 		import VS
+		if VS.networked():
+			return True
 		un=VS.getPlayer()
 		if not un.isNull():
 			if not self.added:
@@ -589,6 +616,8 @@ class RemoveCredits(Script):
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
 		import VS
+		if VS.networked():
+			return True
 		un=VS.getPlayer()
 		if not un.isNull():
 			un.addCredits(-self.creds)
@@ -601,6 +630,8 @@ class SetCredits(Script):
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
 		import VS
+		if VS.networked():
+			return True
 		un=VS.getPlayer()
 		if not un.isNull():
 			un.addCredits(self.creds-un.getCredits())
@@ -613,6 +644,8 @@ class PushCredits(Script):
 		Script.__call__(self,room,subnodes)
 		import Director
 		import VS
+		if VS.networked():
+			return True
 		cp=VS.getCurrentPlayer()
 		un=VS.getPlayerX(cp)
 		if not un.isNull():
@@ -628,6 +661,8 @@ class PopCredits(Script):
 		Script.__call__(self,room,subnodes)
 		import Director
 		import VS
+		if VS.networked():
+			return True
 		cp=VS.getCurrentPlayer()
 		un=VS.getPlayerX(cp)
 		if not un.isNull():
@@ -645,6 +680,8 @@ class PushNews(Script):
 		Script.__call__(self,room,subnodes)
 		import Director
 		import VS
+		if VS.networked():
+			return True
 		cp=VS.getCurrentPlayer()
 		Director.pushSaveString(cp,"dynamic_news",'#'+self.story)
     
@@ -663,6 +700,8 @@ class LoadMission(Script):
 		Script.__call__(self,room,subnodes)
 		import mission_lib
 		import VS
+		if VS.networked():
+			return True
 		mission_lib.AddNewMission(self.name,self.args,self.mname,self.briefing0,self.briefing1,self.vars0,self.vars1)
 		mission_lib.SetLastMission(self.name)
 		debug.debug('*** Loading the mission!')
@@ -684,6 +723,8 @@ class AddSprite(Script):
 	def __call__(self,room,subnodes):
 		debug.debug('***************** ADD THE SPRITE')
 		Script.__call__(self,room,subnodes)
+		if VS.isserver():
+			return True
 		import Base
 		debug.debug('*** AddSprite: Base.Texture'+str((room,self.name,self.sprite,self.pos[0],self.pos[1])))
 		Base.Texture(room,self.name,self.sprite,self.pos[0],self.pos[1])
@@ -697,7 +738,10 @@ class AddPythonSprite(AddSprite):
 		self.python=python
 	def __call__(self,room,subnodes):
 		AddSprite.__call__(self,room,subnodes)
+		if VS.isserver():
+			return True
 		import Base
+		debug.debug("Creating a new python in room %d, %s (%f,%f), %fx%f"%(room,self.sprite,self.pos[0],self.pos[1],self.widthheight[0],self.widthheight[1]))
 		Base.Python(room,self.name,self.pos[0]-(self.widthheight[0]/2.), self.pos[1]-(self.widthheight[1]/2.),
 			self.widthheight[0], self.widthheight[1], self.text, self.python, True)
 		return True
@@ -728,11 +772,14 @@ class Cutscene(AddPythonSprite):
 	def MakeEnqueue(self):
 		self.enqueue=True
 		return self
-	def __call__(self,room,subnodes):
+	def __call__(self,room,subnodes):	
 		import Base
 		import VS
-		Base.Texture(0, self.name+"_black", "black.spr", 0, 0);
+		if not VS.isserver():
+			Base.Texture(0, self.name+"_black", "black.spr", 0, 0);
 		AddPythonSprite.__call__(self,0,subnodes)
+		if VS.isserver():
+			return True
 		displayText(0,self.BaseMessage,self.enqueue)
 		if self.origSong:
 			slist=VS.musicAddList(self.music)
@@ -748,6 +795,9 @@ class GoToSubnodeIfTrue(Script):
 		self.iffalse=iffalse
 	def __call__(self,room,subnodes):
 		ret=False
+		import VS
+		if VS.networked():
+			return True
 		if self.nextscript:
 			ret=self.nextscript(room,subnodes)
 		if ret:
@@ -763,6 +813,9 @@ class TrueSubnode(Script):
 		Script.__init__(self,nextscript)
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
+		import VS
+		if VS.networked():
+			return True
 		for i in range(len(subnodes)):
 			if subnodes[i].checkPreconditions():
 				return i
@@ -772,6 +825,9 @@ class TrueBackwardsSubnode(Script):
 		Script.__init__(self,nextscript)
 	def __call__(self,room,subnodes):
 		Script.__call__(self,room,subnodes)
+		import VS
+		if VS.networked():
+			return True
 		for i in range(len(subnodes)-1,-1,-1):
 			if subnodes[i].checkPreconditions():
 				return i
@@ -786,75 +842,195 @@ class GoToSubnode(Script):
 	def __call__(self,room,subnodes):
 		debug.debug('************* Goto before script call')
 		Script.__call__(self,room,subnodes)
+		import VS
+		if VS.networked():
+			return True
 		debug.debug('************* Goto after script call')
 		return self.const
 
 YES_SPRITE='yes.spr'
 NO_SPRITE='no.spr'
 
+class CampaignState:
+	def __init__(self,rootnode):
+		self.savegame=[]
+		self.Init(rootnode)
+	def Init(self,rootnode):
+		self.current=rootnode
+		self.docked=False
+
 class Campaign:
 	def __init__(self,savegamename,rootnode=None):
 		self.name=savegamename
 		self.root=rootnode
-		self.current=rootnode
-		self.savegame=[]
+		self.players=[]
 	
 	def Init(self,rootnode):
 		self.root=rootnode
-		self.current=rootnode
+		self.players=[]
+	
+	def checkPlayer(self,num):
+		if len(self.players)>num:
+			if self.players[num]:
+				return True
+		return False
+	
+	def InitPlayer(self, num):
+		while len(self.players)<=num:
+			self.players.append(None)
+		self.players[num]=CampaignState(self.root)
 		# Note: Init() will not evaluate the first node because it probably is not in a base.
 		# The root note therefore sould probably be a CampaignClickNode
+
+	def handle_server_cmd(self, current_room, cmd, args):
+		if current_room == -1 and not VS.isserver():
+			import Base
+			current_room = Base.GetCurRoom()
+		if cmd=='goto':
+			if VS.isserver():
+				print self.clickNextNode(-1, int(args[0]))
+				print self.getCurrentNode(-1) # calculates next node.
+			else:
+				print self.clickNextNode(current_room, int(args[0]), True)
+				print self.getCurrentNode(current_room) # calculates next node.
+				
+		if cmd=='setsavegame':
+			print "settingsavegame"
+			if VS.networked():
+				self.readPositionFromSavegame(args)
+				print self.getCurrentNode(current_room)
 	
 	#depends on Base... should remove dependencies?
 	def setCurrentNode(self,room,newnodenum):
-		debug.debug('*** set tehc urr3nt n0d3 to '+str(newnodenum))
+		debug.warn('*** Going to branch number '+str(newnodenum))
 		import VS
 		import Director
+		plr = VS.getCurrentPlayer()
+		if not self.checkPlayer(plr):
+			return ["failure","player %d not initialized yet!"%plr]
+		player = self.players[plr]
 		if newnodenum>=0:
-			if newnodenum>=len(self.current.subnodes):
+			if newnodenum>=len(player.current.subnodes):
 				debug.debug('Error: cannot go to node '+str(newnodenum))
 				debug.debug('Failed node has text:')
-				debug.debug(str(self.current.text))
-				return
-			self.current=self.current.subnodes[newnodenum]
-			self.savegame.append(newnodenum)
+				debug.debug(str(player.current.text))
+				return ["failure", "Attempt to go to an invalid subnode"]
+			player.current=player.current.subnodes[newnodenum]
+			player.savegame.append(newnodenum)
 			Director.pushSaveData(VS.getCurrentPlayer(),self.name,float(newnodenum))
 		elif newnodenum==-2:
-			if not self.current.contingency:
+			if not player.current.contingency:
 				debug.debug('Error: cannot go to contingency node!')
 				debug.debug('Failed node has text:')
-				debug.debug(str(self.current.text))
-				return
+				debug.debug(str(player.current.text))
+				return ["failure", "Failed attempt to go to contingency"]
 			debug.debug('*** Going to contingency!!!')
-			self.current=self.current.contingency
-			self.savegame.append(-2)
+			player.current=player.current.contingency
+			player.savegame.append(-2)
 			Director.pushSaveData(VS.getCurrentPlayer(),self.name,float(-2))
-		self.current.evaluate(room)
+		if VS.isserver():
+			self.sendGotoMessage(newnodenum)
+		if player.current.acceptClientInput() or not VS.networked():
+			player.current.evaluate(room)
+		return ["success"]
 	
-	def readPositionFromSavegame(self):
+	def sendGotoMessage(self, newnodenum):
+		plr = VS.getCurrentPlayer()
+		#if VS.isserver():
+		#	if not self.isDocked():
+		#		debug.debug("Not notifying client of setCurrentNode(%d) because not fully docked yet"%(newnodenum))
+		#		return
+		custom.run("campaign", [self.name, "goto", newnodenum], None)
+	
+	def clickNextNode(self,room,choicenum,force=False):
+		plr = VS.getCurrentPlayer()
+		if not self.checkPlayer(plr):
+			return ["failure","player %d not initialized yet!"%plr]
+		player = self.players[plr]
+		if force:
+			curr = player.current
+		else:
+			curr = self.getCurrentNode(room)
+		if not curr:
+			return ["failure","getCurrentNode returned null"]
+		if curr.acceptClientInput():
+			if (curr.IsCampaignChoiceNode() or (VS.networked() and choicenum==-2)):
+				ret = curr.gotoChoice(room,choicenum)
+				if VS.networked():
+					import fixers
+					fixers.DestroyActiveButtons() # Don't always go away on their own
+				return ret
+			else:
+				ret = curr.clickFixer(room,force)
+				if VS.networked():
+					ret = curr.gotoChoice(room,choicenum)
+				return ret
+		else:
+			if VS.isserver():
+				return ["failure", "don't have a choice here..."]
+			else:
+				return curr.gotoChoice(room,choicenum)
+	
+	
+	def readPositionFromSavegame(self, savegamelist=None):
 		import VS
 		import Director
-		self.savegame=[]
-		self.current=self.root
+		
 		plr=VS.getCurrentPlayer()
-		length=Director.getSaveDataLength(plr,self.name)
+		self.InitPlayer(plr)
+		player = self.players[plr]
+		player.savegame=[]
+		player.current=self.root
+		if savegamelist:
+			length=len(savegamelist)
+		else:
+			length=Director.getSaveDataLength(plr,self.name)
 		for i in range(length):
-			newnodenum=int(Director.getSaveData(plr,self.name,i))
+			if savegamelist:
+				newnodenum=int(savegamelist[i])
+			else:
+				newnodenum=int(Director.getSaveData(plr,self.name,i))
 			if newnodenum>=0:
-				if newnodenum>=len(self.current.subnodes):
+				print 'curr: '+str(player.current)
+				print player.current.subnodes
+				if newnodenum>=len(player.current.subnodes):
 					debug.debug('Error: save game index out of bounds: '+str(newnodenum))
 					return
-				debug.debug(self.current)
-				self.current=self.current.subnodes[newnodenum]
+				debug.debug(player.current)
+				player.current=player.current.subnodes[newnodenum]
 			elif newnodenum==-2:
-				if not self.current.contingency:
+				if not player.current.contingency:
 					debug.debug('Error: save game moves to invalid contengency node!')
 					return
-				debug.debug(self.current)
-				self.current=self.current.contingency
-			self.savegame.append(newnodenum)
-		debug.debug('*** read position from save game: for '+self.name+': '+str(self.savegame))
-		debug.debug(self.current)
+				debug.debug(player.current)
+				player.current=player.current.contingency
+			player.savegame.append(newnodenum)
+		if VS.isserver():
+			custom.run("campaign", [self.name, "setsavegame"] + player.savegame, None)
+		debug.debug('*** read position from save game: for '+self.name+': '+str(player.savegame))
+		debug.debug(player.current)
+	
+	def checkCurrentNode(self):
+		plr = VS.getCurrentPlayer()
+		if not self.checkPlayer(plr):
+			return None
+		player = self.players[plr]
+		return player.current
+	
+	def setDocked(self,isdocked):
+		plr=VS.getCurrentPlayer()
+		if not self.checkPlayer(plr):
+			debug.error("campaign.setDocked(%s) called for invalid player %d"%(str(isdocked),plr))
+			return
+		player = self.players[plr]
+		player.docked = isdocked
+	def isDocked(self):
+		plr=VS.getCurrentPlayer()
+		if not self.checkPlayer(plr):
+			debug.error("campaign.isDocked() called for invalid player %d"%(str(isdocked),plr))
+			return False
+		player = self.players[plr]
+		return player.docked
 	
 	#depends on Base... should remove dependencies?
 	def getCurrentNode(self,room):
@@ -862,28 +1038,43 @@ class Campaign:
 		import VS
 		import Director
 		plr=VS.getCurrentPlayer()
-		if Director.getSaveDataLength(plr,self.name)!=len(self.savegame):
+		if not self.checkPlayer(plr):
+			self.InitPlayer(plr)
+		player = self.players[plr]
+		
+		if not VS.isserver():
+			self.setDocked(True)
+		if VS.networked():
+			pass
+		elif Director.getSaveDataLength(plr,self.name)!=len(player.savegame):
 			self.readPositionFromSavegame()
 		else:
 			debug.debug('*** read stuff from savegame')
-			for i in range(len(self.savegame)):
-				if int(Director.getSaveData(plr,self.name,i))!=self.savegame[i]:
+			for i in range(len(player.savegame)):
+				if int(Director.getSaveData(plr,self.name,i))!=player.savegame[i]:
 					self.readPositionFromSavegame()
 					break
+		player = self.players[plr] #readPositionFromSavegame recreates the player sometimes.
 		debug.debug('*** :-) ***')
-		debug.debug(self.savegame)
+		debug.debug(player.savegame)
 		while True:
-			if self.current.checkPreconditions():
-				if room>=0:
-					self.current.evaluate(room)
+			if player.current.checkPreconditions():
+				if True or room>=0: # True condition added to fix server.
+					player.current.evaluate(room)
 					debug.debug('*** cur evalutaed')
-				return self.current
-			if not self.current.contingency:
+				return player.current
+			if not player.current.contingency:
 				debug.debug('*** no contingency!')
+				print player.current
+				print player.current.text
+				print '*** still no contingency'
 				return None
 			debug.debug('*** cur contingency!!')
-			self.setCurrentNode(room,-2)
-		debug.debug('*** Your Python is broken. Please fix it now!!!!')
+			if VS.networked():
+				break
+			else:
+				self.setCurrentNode(room,-2)
+		debug.warn('*** Your Python is broken. Please fix it now!!!!')
 		return None
 	
 
@@ -891,6 +1082,8 @@ class CampaignNode:
 	def __init__(self):
 		pass
 	def IsCampaignChoiceNode(self):
+		return False
+	def acceptClientInput(self):
 		return False
 	def Init(self,campaign,preconditions,text,spritelink,script,contingency,subnodes):
 		self.campaign=campaign
@@ -917,7 +1110,7 @@ class CampaignNode:
 		return True
 	#depends on Base
 	def getFixer(self,room):
-		if self.spritelink and self.checkPreconditions():
+		if self.spritelink and self.checkPreconditions() and not VS.isserver():
 			import fixers
 			debug.debug('*** create fixer'+ str(self.spritelink))
 			tmpscript="#\nimport campaign_lib\n"
@@ -925,38 +1118,53 @@ class CampaignNode:
 				tmpscript+="campaign_lib.AddConversationStoppingSprite('Talking',"+repr(self.talkinghead)+",(.582,-.2716),(3.104,2.4832),'Return_To_Bar').__call__("+str(room)+",None)\n"
 			return fixers.Fixer(self.spritelink[1].split(' ')[-1].lower(),self.spritelink[1],[],
 				self.spritelink[0],tmpscript+"campaign_lib.clickFixer("+str(room)+")\n")
-		debug.debug('*** no sprite. You lose.')
+			debug.debug('*** no sprite. You lose.')
 		return None
 	#depends on Base
 	def gotoChoice(self,room,num):
-		self.campaign.setCurrentNode(room,num)
+		realcurrent = self.campaign.checkCurrentNode()
+		if realcurrent != self:
+			debug.error("node.gotoChoice called, but this is not the current node.")
+			debug.debug("This node "+str(self)+"; text: "+str(self.text))
+			debug.debug("Real current node "+str(realcurrent)+"; text: "+str(realcurrent.text))
+			return ["failure","At an incorrect node"]
+		return self.campaign.setCurrentNode(room,num)
 	#depends on Base
-	def clickFixer(self,room):
-		CampaignNode.evaluate(self,room)
+	def clickFixer(self,room,force=False):
+		return CampaignNode.evaluate(self,room,force)
 	#depends on Base... should remove dependencies?
-	def evaluate(self,room):
-		if self.checkPreconditions():
+	def evaluate(self,room,force=False):
+		if force or self.checkPreconditions():
 			displayText(room,self.text)
-			debug.debug(self.subnodes)
+			debug.debug('subnodes: '+str(self.subnodes))
 			num=self.script(room,self.subnodes)
-			if num>=0 and num<len(self.subnodes):
-				self.gotoChoice(room,num)
+			if not VS.networked(): #Don't actually go anywhere yet.
+				if num>=0 and num<len(self.subnodes) or num==-1:
+					return self.gotoChoice(room,num)
+				else:
+					debug.warn("*** evaluate is going to an invalid node %d" % num)
+		else:
+			return
 	
 
 class CampaignClickNode(CampaignNode):
 	def __init__(self):
 		CampaignNode.__init__(self)
+	def acceptClientInput(self):
+		return True
 	def Init(self,campaign,preconditions,text,spritelink,script,contingency,subnodes):
 		CampaignNode.Init(self,campaign,preconditions,text,spritelink,script,contingency,subnodes)
 		return self
 	#depends on Base... should remove dependencies?
-	def evaluate(self,room):
+	def evaluate(self,room,force=False):
 		pass
 	
 
 class CampaignChoiceNode(CampaignNode):
 	def __init__(self):
 		CampaignNode.__init__(self)
+	def acceptClientInput(self):
+		return True
 	def IsCampaignChoiceNode(self):
 		return True
 	def Init(self,campaign,preconditions,text,spritelink,contingency,choices):
@@ -971,12 +1179,12 @@ class CampaignChoiceNode(CampaignNode):
 		CampaignNode.Init(self,campaign,preconditions,text,spritelink,None,contingency,tmp)
 		self.choices=tmpchoices
 		return self
-	def gotoChoice(self,room,num):
-		self.campaign.setCurrentNode(room,num)
 	def clickFixer(self,room):
 		displayText(room,self.text)
 	#depends on Base... should remove dependencies?
-	def evaluate(self,room):
+	def evaluate(self,room,force=False):
+		if VS.isserver():
+			return
 		debug.debug('***')
 		debug.debug('***')
 		debug.debug(self.text)
@@ -1286,6 +1494,11 @@ def getCampaignList():
 	import campaigns
 	return campaigns.getCampaigns()
 
+def resetCampaigns(plr):
+	clist = getCampaignList()
+	for c in clist:
+		c.InitPlayer(plr)
+
 def getActiveCampaignNodes(room):
 	campaigns=getCampaignList()
 	clist=[]
@@ -1293,12 +1506,12 @@ def getActiveCampaignNodes(room):
 	for campaign in campaigns:
 		curnode=campaign.getCurrentNode(room)
 		if curnode:
-			debug.debug('*** found actuive node in campaign '+campaign.name)
+			debug.debug('*** found active node in campaign '+campaign.name)
 			clist.append(curnode)
 			debug.debug('checking contingency: '+str(curnode.checkPreconditions()))
 			#return clist # The bar shouldn't have more than one campaign at a time.
 		else:
-			debug.debug('*** no actuve node for '+campaign.name)
+			debug.debug('*** no active node for '+campaign.name)
 	if (len(clist)):
 		debug.debug('Nodes '+str(len(clist)))
 	else:
@@ -1315,10 +1528,27 @@ def getActiveCampaignNodes(room):
 			tmp = clist[index]
 			del clist[index]
 			clist = [tmp]+clist;# doesn't change list length
+	debug.debug(str(clist))
 	return clist
 #depends on Base
+
+queued_cmds = []
+
+def handle_queued_cmds(room):
+	ret=None
+	global queued_cmds
+	for cmd in queued_cmds:
+		campaign=cmd[0]
+		command=cmd[1]
+		args=cmd[2]
+		ret=campaign.handle_server_cmd(room, command, args)
+	queued_cmds = []
+	return ret
+
 def getFixersToDisplay(room):
-	debug.debug('*** Get teh fixer to display!!!')
+	debug.debug('*** Get the fixers to display!!!')
+	handle_queued_cmds(room)
+	
 	global fixerloaded
 	fixerloaded+=1
 	cnodelist=getActiveCampaignNodes(room)
@@ -1332,16 +1562,20 @@ def getFixersToDisplay(room):
 
 #depends on Base
 def clickFixer(room):
-	debug.debug('*** Clicked teh fixeer!!!')
+	debug.debug('*** Clicked a fixer!!!')
 	cnodelist=getActiveCampaignNodes(room)
 	# Should only evaluate first one?
 	for c in cnodelist:
-		c.clickFixer(room)
+		if VS.networked():
+			#displayText(room,c.text) # Done in server response.
+			c.campaign.sendGotoMessage(0)
+		else:
+			c.clickFixer(room)
 
 #depends on Base
 def clickChoice(room,choicenum):
 	import fixers
-	debug.debug('*** Clicked teh choice!!!')
+	debug.debug('*** Clicked a choice!')
 	cnodelist=getActiveCampaignNodes(-1)
 	# Should only evaluate first one?
 	import VS
@@ -1349,7 +1583,58 @@ def clickChoice(room,choicenum):
 	for c in cnodelist:
 		debug.debug('*** clicked on choice +'+str(choicenum)+': '+cnodelist[0].campaign.name)
 		if (c.IsCampaignChoiceNode()):
-			c.gotoChoice(room,choicenum)
 			fixers.DestroyActiveButtons()
+			if VS.networked():
+				c.campaign.sendGotoMessage(choicenum)
+				break
+			c.gotoChoice(room,choicenum)
 			break
+		else:
+			debug.debug('This is not a choice node!')
+
+default_room = -1
+def handle_campaign_message(local, cmd, args, id):
+	global queued_cmds, default_room
+	print "handle1"
+	plr = VS.getCurrentPlayer()
+	if VS.isserver():
+		import server
+		if not server.getDocked(VS.getPlayer()):
+			return ["failure", 'Not currently docked']
+	print "handle2"
+	clist = getCampaignList()
+	campaign=None
+	for c in clist:
+		print "Checking campaign "+str(c.name)
+		if c.name == args[0]:
+			campaign = c
+	print "handle3"
+	if not campaign:
+		print "handle4"
+		return ["failure", 'Campaign '+str(args[0])+' does not exit'];
+	else:
+		print "handle5"
+		queued_cmds.append((campaign,args[1],args[2:]))
+		if VS.isserver():
+			return handle_queued_cmds(-1)
+		import Base
+		if Base.GetNumRoom()>0:
+			return handle_queued_cmds(default_room)
+
+custom.add("campaign", handle_campaign_message)
+
+def handle_campaign_readsave_message(local,cmd,args,id):
+	clist = getCampaignList()
+	for c in clist:
+		c.setDocked(True)
+		c.getCurrentNode(-1)
+	return ["success"]
+custom.add("campaign_readsave", handle_campaign_readsave_message)
+
+def undock_campaigns():
+	clist = getCampaignList()
+	for c in clist:
+		c.setDocked(False)
+
+
 

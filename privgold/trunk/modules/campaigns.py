@@ -2,13 +2,21 @@ import campaign_bonus
 campaignsloaders=[lambda:LoadMainCampaign(),lambda:LoadRFCampaign(),lambda:LoadRFMurphyCampaign(),lambda:LoadRFGoodinCampaign(),lambda:LoadRFTaylaCampaign(),lambda:LoadRFLynchCampaign(), lambda:campaign_bonus.LoadBonusCampaign()]
 campaigns=[]
 
+_loaded=False
+
 def loadAll(cockpit):
+	global _loaded
+	_loaded=True
 	for x in campaignsloaders:
 		ret=x()
 		if ret:
 			campaigns.append(ret)
 
 def getCampaigns():
+	if not _loaded:
+		# Loading happens in generate_dyn_universe.py
+		# But sometimes, e.g. multiplayer, this is not loaded.
+		loadAll(VS.getCurrentPlayer())
 	return campaigns
 
 import campaign_lib

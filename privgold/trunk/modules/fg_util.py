@@ -420,6 +420,7 @@ def AddShipsToFG (fgname,faction,typenumbertuple,starsystem):
 def RemoveShipFromFG (fgname,faction,type,numkill=1,landed=0):
     key = MakeFGKey (fgname,faction)
     leg = Director.getSaveStringLength (ccp,key)
+    debug.debug("Trying to remove ship key %s, fg %s, faction %s, type %s" % (key,fgname,faction,type))
     debug.debug("Scanning %d units..." % leg)
     for i in range (ShipListOffset()+1,leg,PerShipDataSize()):
         if (Director.getSaveString(ccp,key,i-1)==str(type)):

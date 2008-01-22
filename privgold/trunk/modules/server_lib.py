@@ -9,6 +9,7 @@ import vsrandom
 import universe
 import faction_ships
 import custom
+import campaign_lib
 
 def serverDirector():
 	return server.getDirector()
@@ -34,6 +35,7 @@ def player_docked_old(self):
 
 def player_docked(self):
 	dynamic_mission.CreateMissions()
+	print campaign_lib.getActiveCampaignNodes(-1)
 
 def player_undocked(self):
 	if not self.docked_un:
@@ -45,6 +47,8 @@ def player_undocked(self):
 
 	dynamic_mission.eraseExtras()
 	nam = self.docked_un.getName()
+	
+	campaign_lib.undock_campaigns()
 	VS.IOmessage(0,'game','news',self.callsign+' has undocked from the '+nam)
 	VS.IOmessage(0,'game','all',self.callsign+' has undocked from the '+nam)
 	#self.objectives=1+VS.addObjective('Dock to the '+nam+' again')
@@ -52,6 +56,7 @@ def player_undocked(self):
 
 def player_joined(self):
 	self.sendMessage('Welcome, '+self.callsign+' to the server.')
+	campaign_lib.resetCampaigns(self.player_num)
 
 def player_execute(self):
 	self.player_num=self.current_un.isPlayerStarship()

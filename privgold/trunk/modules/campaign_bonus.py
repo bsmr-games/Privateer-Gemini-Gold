@@ -530,7 +530,7 @@ def LoadBonusCampaign():
 	#FOR USE LATER AddPythonSprite("Corporate_Affiliate","blackclear.spr",(0.5875, 0),(.7,1),'Talk_To_Corporate_Affiliate',"#\nimport Base\nimport VS\nBase.Message('comment')\nVS.StopAllSounds()\nVS.playSound('barspeech/campaign/bartender_counteroffer.ogg',(0,0,0),(0,0,0))\n"+OptionalTalkingHead("bases/heads/refinery.spr"),AddPythonSprite("demetria",DEMETRIA_SPRITE_SMALL[0],DEMETRIA_SMALL_POSITION,(.18,.54),DEMETRIA_SPRITE_SMALL[1],"#\nimport Base\nimport VS\nBase.Message('comment')\nVS.StopAllSounds()\nVS.playSound('barspeech/campaign/demetria_counteroffer.ogg',(0,0,0),(0,0,0))\n"+OptionalTalkingHead(DEMETRIA_SPRITE_SMALL[2]))),
 	#DEMETRIA_SMALL_POSITION=(0.034, -0.138125, 0.1758125, 0.5385)
 	DEMETRIA_SMALL_POSITION=(-.88, -0.048125, 0.1758125, 0.5385)
-	priv.Init(CampaignNode().Init(priv,[],None,None,GoToSubnode(0,IntroCutscene()),None,[MakeMission(priv,
+	priv.Init(CampaignNode().Init(priv,[InSystemCondition("Gemini/Tingerhoff","DoNotEnter")],None,None,GoToSubnode(0,IntroCutscene()),None,[MakeMission(priv,
 			DESTINEE_SPRITE,
 			[InSystemCondition("Gemini/Tingerhoff","DoNotEnter")],
 			[InSystemCondition("Gemini/Tingerhoff","Munchen")],

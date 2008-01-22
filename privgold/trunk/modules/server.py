@@ -34,6 +34,8 @@ def baseUnits():
 
 def getDocked(un):
 	#print 'getDocked('+un.getName()
+	if not un:
+		return None
 	bases = baseUnits()
 	for b in bases:
 		if b:

@@ -174,6 +174,8 @@ class random_encounters:
         self.cur.last_ship=0
         self.cur.curmode=1
         self.cur.sig_container=significant
+        if VS.getPlayer().isNull():
+            return
         cursys = VS.getSystemFile()
         oldsys = self.cur.lastsys==cursys
         if (not oldsys):
@@ -226,6 +228,8 @@ class random_encounters:
                     return significant_unit
             return significant_unit
     def DifferentSystemP(self):
+        if VS.getPlayer().isNull():
+            return 0
         cursys=VS.getSystemFile()
         if (cursys==self.cur.lastsys):
             return 0
