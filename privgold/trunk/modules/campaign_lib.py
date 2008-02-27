@@ -931,7 +931,8 @@ class Campaign:
 		if VS.isserver():
 			self.sendGotoMessage(newnodenum)
 		if player.current.acceptClientInput() or not VS.networked():
-			player.current.evaluate(room)
+			if newnodenum != -1:
+				player.current.evaluate(room)
 		return ["success"]
 	
 	def sendGotoMessage(self, newnodenum):

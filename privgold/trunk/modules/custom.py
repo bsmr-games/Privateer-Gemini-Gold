@@ -10,6 +10,7 @@ def add(name, proc):
 
 import weapons_lib #adds to procedures list
 import guilds #adds to procedures list
+import campaign_lib
 
 running_cmds = {}
 
