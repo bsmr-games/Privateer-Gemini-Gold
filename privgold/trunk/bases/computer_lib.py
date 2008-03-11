@@ -105,8 +105,17 @@ def makeNewSaveName():
 		i += 1
 	return "%s_%02d" % (prefix,i)
 
+def MakeQuineLink(from_room, quine_room, to_room):
+	if VS.networked():
+		#to_room = quine_room
+		Base.LinkPython(from_room,  'quine_pc', '#\nimport custom\ncustom.run("computer",[' +
+			str(from_room)+','+str(quine_room)+'],None)', -1, 0.75, 0.25, 0.25, 'Quine_4025', to_room)
+		# Base.Python(from_room,  'quine_pc', -1, 0.75, 0.25, 0.25, 'Quine_4025', '#\nimport custom\ncustom.run("computer",[-1,'+str(quine_room)+'],None)', True)
+	else:
+		Base.Link (from_room,   'quine_pc', -1, 0.75, 0.25, 0.25, 'Quine_4025', quine_room)
+
 def MakePersonalComputer(room_landing_pad, room_concourse, make_links=1, enable_missions=1, enable_finances=1, enable_manifest=1, enable_load=1, enable_save=1, return_room_map=0):
-	 
+	
 	# create the screen
 	room_id = Base.Room ('XXXQuine_4025')
 	
@@ -116,8 +125,9 @@ def MakePersonalComputer(room_landing_pad, room_concourse, make_links=1, enable_
 	# link this screen with the landing pad and the concourse
 	# this will be replaced with a keybinding, eventually
 	if make_links:
-		Base.Link (room_concourse,   'quine_pc', -1, 0.75, 0.25, 0.25, 'Quine_4025', room_id)
-		Base.Link (room_landing_pad, 'quine_pc', -1, 0.75, 0.25, 0.25, 'Quine_4025', room_id)
+		netcomp = Base.Room("XXXNetwork Computer")
+		MakeQuineLink (room_concourse, room_id, netcomp)
+		MakeQuineLink (room_landing_pad, room_id, netcomp)
 
 	if return_room_map:	
 		# They want a room map, pointing to each section separately (right now... only root,

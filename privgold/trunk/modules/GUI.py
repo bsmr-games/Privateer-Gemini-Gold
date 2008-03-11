@@ -3,7 +3,7 @@ import VS
 from XGUIDebug import *
 
 GUIRootSingleton = None
-_doWhiteHack = 1
+_doWhiteHack = 0
 _GUITraceLevel = TRACE_VERBOSE
 
 """----------------------------------------------------------------"""
@@ -13,9 +13,6 @@ _GUITraceLevel = TRACE_VERBOSE
 """     hold any kind of state (that's a To-Do)                    """
 """                                                                """
 """----------------------------------------------------------------"""
-
-"""lost key handling, so find out where the message goes through and dispatch to keyTarget"""
-"""also somehow make buttons shade when noninteractive"""
 
 class GUIRoot:
 	"""global GUI setup"""
@@ -167,7 +164,7 @@ class GUIRect:
                           )
 		elif (self.mode=='normalized_biased_scaled'):
 			""" direct coordinates: top-left = (-1,+1), bottom-right = (+1,-1) - margins WILL NOT be applied """
-			return (self.x,self.h,self.w,self.h)
+			return (self.x,self.y,self.w,self.h)
 		elif (self.mode=='normalized_biased'):
 			""" direct coordinates: top-left = (-1,+1), bottom-right = (+1,-1) - margins WILL be applied """
 			return (self.x*(1.0-marginX),self.y*(1.0-marginY),self.w*(1.0-marginX),self.h*(1.0-marginY))
@@ -663,10 +660,17 @@ class GUIStaticText(GUIElement):
 
 class GUILineEdit(GUIGroup):
 
-	def __init__(self,action,room,index,text,location,color,fontsize=1.0,bgcolor=None,**kwarg):
+	def focus_text(self,button,params):
+		print 'focusing',self.index
+		self.focus(True)
+	def __init__(self,action,room,index,text,location,color,fontsize=1.0,bgcolor=None,focusbutton=None,**kwarg):
 		GUIGroup.__init__(self,room,**kwarg)
-		self.text = GUIStaticText(room,index,text+'-',location,color,fontsize,bgcolor,**kwarg)
-		self.children += [self.text]
+		self.text = GUIStaticText(room,index,' '+text+'-',location,color,fontsize,bgcolor,**kwarg)
+		self.children.append(self.text)
+		if focusbutton:
+			self.focusbutton = GUIButton(room,"XXXFocus Element",str(index)+'focus',{'*':None},location,
+				clickHandler=self.focus_text)
+			self.children.append(self.focusbutton)
 		(x,y,w,h) = location.getNormalXYWH()
 		(uw,uh) = GUIRect(0,0,10,10).getNormalWH()
 		self.index=index
@@ -686,7 +690,10 @@ class GUILineEdit(GUIGroup):
 		self.canceled = False
 
 	def getText(self):
-		return self.text.getText()[:-1]
+		return self.text.getText()[1:-1]
+
+	def setText(self,text):
+		self.text.setText(' ' + text + '-')
 
 	def undraw(self):
 		Base.EraseObj(self.room.getIndex(),str(self.index)+"line1")
@@ -695,6 +702,7 @@ class GUILineEdit(GUIGroup):
 		Base.EraseObj(self.room.getIndex(),str(self.index)+"line4")
 		if _doWhiteHack != 0:
 			Base.EraseObj(self.room.getIndex(),self.index+"_white_hack")
+		GUIGroup.undraw(self)
 
 	def keyDown(self,key):
 		print "got key: %i" % key 
@@ -704,10 +712,10 @@ class GUILineEdit(GUIGroup):
 			self.canceled = True
 			self.action(self)		
 		elif key == 127 or key == 8: #avoid specifying the platform by treating del and backspace alike
-			self.text.setText(self.getText()[:-1] + '-')
+			self.setText(self.getText()[:-1])
 		elif key<127 and key>0:
 			try:
-				self.text.setText(self.getText() + ('%c' % key) + '-');
+				self.setText(self.getText() + ('%c' % key));
 			except:
 				print "Character value too high "+str(key)
 		#self.notifyNeedRedraw()
@@ -727,8 +735,30 @@ class GUITextInputDialog(GUIGroup):
 
 
 
-
-
+class GUIMouseOver(GUIElement):
+	def __init__(self,room,linkdesc,index,hotspot,**kwarg):
+		self.linkdesc=linkdesc
+		self.index=index
+		self.hotspot=hotspot
+		self.linkstate=0
+		GUIElement.__init__(self,room,**kwarg)
+	
+	def draw(self):
+		if self.visible and self.linkstate==0:
+			(x,y,w,h) = self.hotspot.getHotRect()
+			Base.Python(self.room.getIndex(),self.index,x,y,w,h,self.linkdesc,'#',True)
+			self.linkstate=1
+	
+	def undraw(self):
+		if self.linkstate==1:
+			self.linkstate=0
+			Base.EraseLink(self.room.getIndex(),self.index)
+			
+	def redraw(self):
+		self.undraw()
+		self.draw()
+	
+	
 """----------------------------------------------------------------"""
 """                                                                """
 """ GUIButton - a button you can click on.                         """
@@ -897,7 +927,7 @@ class GUIButton(GUIStaticImage):
 				self.setCaption(spr[2],spr[3])
 			else:
 				self.setCaption(spr[2])
-		else:
+		elif spr:
 			self.setCaption(None)
 
 	def getState(self):
@@ -1241,9 +1271,10 @@ class GUISimpleListPicker(GUIElement):
 		nlines = int(self.hotspot.getTextRect()[3]/theight)
 		if nlines<=0:
 			return
-		theight = self.hotspot.h / nlines 
+		hotx,hoty,hotw,hoth = self.hotspot.getNormalXYWH()
+		theight = hoth / nlines 
 		for i in range(nlines):
-			hot = GUIRect(self.hotspot.x,self.hotspot.y+i*self.hotspot.h/float(nlines),self.hotspot.w,theight,self.hotspot.mode,self.hotspot.ref)
+			hot = GUIRect(hotx,hoty-i*hoth/float(nlines),hotw,theight,'normalized_biased_scaled')
 			self._listitems.append( GUIRadioButton(self.room,self.linkdesc,"%s[%s]" % (self.index,i),spr,hot,self._radiogroup(),i,onChange=self._notifySelectionChange,owner=self) )
 			i += 1
 			
@@ -1293,5 +1324,12 @@ class GUISimpleListPicker(GUIElement):
 	def viewMove(self,lines):
 		self.firstVisible = max(0,min(len(self.items)-1-len(self._listitems)/2,self.firstVisible + lines))
 		self.notifyNeedRedraw()
+		self._recheck()
+
+	def setSelection(self,sel):
+		if sel is False or sel is None or sel<0:
+			self.selection = None
+		else:
+			self.selection = sel
 		self._recheck()
 	

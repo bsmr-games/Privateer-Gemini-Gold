@@ -59,6 +59,7 @@ _server_inst=None
 
 def getDirector():
 	return _server_inst
+s = getDirector # Shortcut
 
 class server (Director.Mission):
 	def __init__(self):
@@ -88,6 +89,12 @@ class server (Director.Mission):
 		return self.getPlayerBy(lambda pl: pl.player_num==num)
 	def getPlayerByCallsign(self, callsign):
 		return self.getPlayerBy(lambda pl: pl.callsign==callsign)
+	def getCallsignList(self):
+		ret=[]
+		for p in self.playerlist:
+			if p.callsign:
+				ret.append(p.callsign)
+		return ret
 	def Execute(self):
 		self.loopnum+=1
 		try:
@@ -105,16 +112,16 @@ class player (Director.Mission):
 		self.reinit()
 	
 	def reinit(self):
-		from difficulty import difficulty
-		self.current_un=VS.Unit()
-		self.objectives=0
-		self.player_num=-1
-		self.callsign=''
-		self.repair_bay_computer = None
-		self.software_booth_computer = None
-		self.ship='Llama.begin'
 		self.docked_un=None
+		self.current_un=VS.Unit()
+		self.player_num=-1
+		self.objectives=0
+		self.callsign=''
+		self.ship='Llama.begin'
+		#self.loops=()
+		from difficulty import difficulty
 		self.loops = (difficulty(850000), )
+		server_lib.player_reinit(self)
 	
 	def sendMessage(self, msg, fromname='game'):
 		if self.player_num>=0:
@@ -184,8 +191,13 @@ def processMessage(cp, localhost, command, arglist=None, id=''):
 			if authlevel<1:
 				return
 			mod=server_lib
+			if len(arglist)>=1 and arglist[0]:
+				libname =arglist[0].replace('/','_')
+				libname = libname.replace('\\','_')
+				libname = libname.replace('.','_')
+				mod = __import__(libname)
 			reload(mod)
-			VS.IOmessage(0,"game","all","The server python script has been reloaded!")
+			VS.IOmessage(0,"game","all","The "+mod.__name__+" script has been reloaded!")
 			print mod.__name__+' has been reloaded!'
 		else:
 			server_lib.processMessage(pl, authlevel, cmd, args, id)

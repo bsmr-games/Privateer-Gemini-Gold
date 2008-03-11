@@ -10,7 +10,7 @@
   	<var name="num_players" value="1"/>
   	<var name="unit_to_dock_with" value="1"/>
   	<var name="system" value="Special/Network" />
-	!--<var name="system" value="testsystems/absolutelynothing" />-->
+	<!--<var name="system" value="testsystems/absolutelynothing" />-->
 	<var name="description" value="Default mission used on a private server." />
    </variables>
    	<flightgroups>

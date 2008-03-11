@@ -11,6 +11,8 @@ def add(name, proc):
 import weapons_lib #adds to procedures list
 import guilds #adds to procedures list
 import campaign_lib
+import dialog_box
+import net_computer
 
 running_cmds = {}
 
@@ -25,14 +27,17 @@ def splitArgs(argstr):
 	while argstr:
 		arg = ''
 		qadd = ''
+		empty = True
 		while argstr and argstr[0]=='"':
 			end=argstr.find('"', 1)
 			if end!=-1:
 				arg += qadd + argstr[1:end]
 				qadd='"'
 				argstr = argstr[end+1:]
+				empty = False
 			else:
 				arg = argstr[1:]
+				empty = False
 				argstr = ''
 		space = argstr.find(' ')
 		if space != -1:
@@ -41,7 +46,8 @@ def splitArgs(argstr):
 		else:
 			arg += argstr
 			argstr = ''
-		ret.append(arg)
+		if arg or not empty:
+			ret.append(arg)
 	return ret
 
 def joinArgs(arglist):
@@ -53,7 +59,7 @@ def joinArgs(arglist):
 		space = arg.find(' ')
 		quote = arg.find('"')
 		newstr = arg.replace('"','""')
-		if space!=-1 or quote!=-1:
+		if not newstr or space!=-1 or quote!=-1:
 			ret += '"' + newstr + '"'
 		else:
 			ret += newstr
@@ -87,28 +93,42 @@ def run(cmd, args, continuation, id=None, cp=-1):
 		id = "null"
 	print "running: "+cmd+", "+str(args)+"; id: "+id
 	VS.sendCustom(cp, cmd, joinArgs(args), id)
+	return id
 
 def respond(args, continuation, id, cp=-1):
 	run("response", args, continuation, id, cp)
 
-class IOmessageWriter:
-	def __init__(self,cpnum):
-		self.line=''
-		if cpnum<0:
-			self.cpstr='all'
-		else:
-			self.cpstr = 'p'+str(cpnum)
-	def write(self, text):
+class LineBufferWriter:
+	def __init__(self,line=''):
+		self.line=line
+	def println(self,line):
+		print line
+	def write(self,text):
 		lines = text.split('\n')
 		self.line=lines[-1]
 		lines = lines[:-1]
 		for l in lines:
-			VS.IOmessage(0,"game",self.cpstr,l)
+			self.println(l)
+
+class IOmessageWriter:
+	def __init__(self,cpnum):
+		LineBufferWriter.__init__(self)
+		if cpnum<0:
+			self.cpstr='all'
+		else:
+			self.cpstr = 'p'+str(cpnum)
+	def println(self, l):
+		VS.IOmessage(0,"game",self.cpstr,l)
 	
 
-def processMessage(local, cmd, argstr, id):
+def processMessage(local, cmd, argstr, id, writer=None):
 	cp = VS.getCurrentPlayer();
 	cmd = cmd.lower()
+	if not writer:
+		if id or cp<0:
+			writer = sys.stderr
+		else:
+			writer = IOmessageWriter(cp)
 	print "======= Processing message "+str(id)+" ======="
 	try:
 		args = splitArgs(argstr)
@@ -117,7 +137,7 @@ def processMessage(local, cmd, argstr, id):
 			print arg
 		if cmd=='reloadlib' and local and len(args)>=1:
 			reload(__import__(args[0]))
-			VS.IOmessage(0, "game", "p"+str(cp), "Reloaded "+str(args[0]))
+			writer.write("Reloaded "+str(args[0])+"\n")
 		elif cmd=='local':
 			# simple way of bouncing back message to client....
 			if id:
@@ -132,25 +152,28 @@ def processMessage(local, cmd, argstr, id):
 				ret = func(args)
 				if ret and isinstance(ret, tuple) and len(ret)==2:
 					respond(ret[0], ret[1], id, cp)
+				elif ret==True:
+					putFunction(func, id, cp)
 				elif ret:
 					respond(ret, None, id, cp)
+				return ret
 		elif procedures.has_key(cmd):
 			ret = procedures[cmd](local, cmd, args, id)
-			if ret and isinstance(ret, tuple) and len(ret)==2:
-				respond(ret[0], ret[1], id, cp)
-			elif ret:
-				respond(ret, None, id, cp)
+			if id and id != 'null':
+				if ret and isinstance(ret, tuple) and len(ret)==2:
+					respond(ret[0], ret[1], id, cp)
+				elif ret:
+					respond(ret, None, id, cp)
+			else:
+				return ret
+
 		elif VS.isserver():
 			import server
 			server.processMessage(cp, local, cmd, args, id)
 		else:
-			print "Command "+repr(cmd)+" does not exist. Available functions:"
-			print procedures.keys()
+			writer.write("Command "+repr(cmd)+" does not exist. Available functions:\n")
+			writer.write(procedures.keys())
 	except:
-		if id or cp<0:
-			writer = sys.stderr
-		else:
-			writer = IOmessageWriter(cp)
 		writer.write("An error occurred when processing custom command: \n"
 			+ str(cmd)+" "+argstr + "\n")
 		traceback.print_exc(file=writer)

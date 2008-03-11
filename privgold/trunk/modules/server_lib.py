@@ -14,6 +14,11 @@ import campaign_lib
 def serverDirector():
 	return server.getDirector()
 
+def player_reinit(self):
+	self.repair_bay_computer = None
+	self.software_booth_computer = None
+	self.computer_open=False
+
 def player_docked_old(self):
 	dynamic_mission.eraseExtras()
 	dynamic_mission.plr = self.player_num
@@ -41,7 +46,7 @@ def player_undocked(self):
 	if not self.docked_un:
 		print 'Base for'+self.callsign+'blew up!'
 		return
-	
+	self.computer_open = False
 	self.repair_bay_computer = None
 	self.software_booth_computer = None
 
