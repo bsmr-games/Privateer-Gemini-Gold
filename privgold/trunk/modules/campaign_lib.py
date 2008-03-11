@@ -264,8 +264,7 @@ def textline(strs):
 
 #depends on Base
 def displayText(room,textlist,enqueue=False):
-	print "displayText()"
-	debug.warn("Displaying campaign text "+str(textlist))
+	#debug.warn("Displaying campaign text "+str(textlist))
 	if VS.isserver():
 		return
 	if room==-1:
@@ -888,17 +887,16 @@ class Campaign:
 			current_room = Base.GetCurRoom()
 		if cmd=='goto':
 			if VS.isserver():
-				print self.clickNextNode(-1, int(args[0]))
-				print self.getCurrentNode(-1) # calculates next node.
+				self.clickNextNode(-1, int(args[0]))
+				self.getCurrentNode(-1) # calculates next node.
 			else:
-				print self.clickNextNode(current_room, int(args[0]), True)
-				print self.getCurrentNode(current_room) # calculates next node.
+				self.clickNextNode(current_room, int(args[0]), True)
+				self.getCurrentNode(current_room) # calculates next node.
 				
 		if cmd=='setsavegame':
-			print "settingsavegame"
 			if VS.networked():
 				self.readPositionFromSavegame(args)
-				print self.getCurrentNode(current_room)
+				self.getCurrentNode(current_room)
 	
 	#depends on Base... should remove dependencies?
 	def setCurrentNode(self,room,newnodenum):
@@ -992,18 +990,16 @@ class Campaign:
 			else:
 				newnodenum=int(Director.getSaveData(plr,self.name,i))
 			if newnodenum>=0:
-				print 'curr: '+str(player.current)
-				print player.current.subnodes
 				if newnodenum>=len(player.current.subnodes):
-					debug.debug('Error: save game index out of bounds: '+str(newnodenum))
+					debug.debug(str(player.savegame)+': current has '+str(player.current.subnodes))
+					debug.warn('Error: save game index out of bounds: '+str(newnodenum))
 					return
-				debug.debug(player.current)
 				player.current=player.current.subnodes[newnodenum]
 			elif newnodenum==-2:
 				if not player.current.contingency:
-					debug.debug('Error: save game moves to invalid contengency node!')
+					debug.debug(str(player.savegame))
+					debug.warn('Error: save game moves to invalid contengency node!')
 					return
-				debug.debug(player.current)
 				player.current=player.current.contingency
 			player.savegame.append(newnodenum)
 		if VS.isserver():
@@ -1050,14 +1046,12 @@ class Campaign:
 		elif Director.getSaveDataLength(plr,self.name)!=len(player.savegame):
 			self.readPositionFromSavegame()
 		else:
-			debug.debug('*** read stuff from savegame')
 			for i in range(len(player.savegame)):
 				if int(Director.getSaveData(plr,self.name,i))!=player.savegame[i]:
 					self.readPositionFromSavegame()
 					break
 		player = self.players[plr] #readPositionFromSavegame recreates the player sometimes.
-		debug.debug('*** :-) ***')
-		debug.debug(player.savegame)
+		debug.debug(player.current)
 		while True:
 			if player.current.checkPreconditions():
 				if True or room>=0: # True condition added to fix server.
@@ -1066,16 +1060,14 @@ class Campaign:
 				return player.current
 			if not player.current.contingency:
 				debug.debug('*** no contingency!')
-				print player.current
-				print player.current.text
-				print '*** still no contingency'
+				#print player.current
+				debug.debug(player.current.text)
 				return None
 			debug.debug('*** cur contingency!!')
 			if VS.networked():
 				break
 			else:
 				self.setCurrentNode(room,-2)
-		debug.warn('*** Your Python is broken. Please fix it now!!!!')
 		return None
 	
 
@@ -1187,7 +1179,6 @@ class CampaignChoiceNode(CampaignNode):
 		if VS.isserver():
 			return
 		debug.debug('***')
-		debug.debug('***')
 		debug.debug(self.text)
 		displayText(room,self.text)
 		import fixers
@@ -1197,7 +1188,6 @@ class CampaignChoiceNode(CampaignNode):
 			arr.append(fixers.Choice(self.choices[x][0],"#\nimport campaign_lib\ncampaign_lib.clickChoice("+str(room)+","+str(x)+")\n",self.choices[x][1]))
 		fixers.DestroyActiveButtons()
 		fixers.CreateChoiceButtons(room,arr)
-		debug.debug('***')
 		debug.debug('***')
 	
 def CampaignEndNode(campaign):
@@ -1211,7 +1201,7 @@ def CampaignEndNode(campaign):
 #		debug.debug('End Node init')
 #		return self
 #	def checkPreconditions(self):
-#		debug.debug('end check precondtions')
+#		debug.debug('end check preconditions')
 #		return True
 #	def getFixer(self,room):
 #		debug.debug('end get fixer')
@@ -1596,25 +1586,20 @@ def clickChoice(room,choicenum):
 default_room = -1
 def handle_campaign_message(local, cmd, args, id):
 	global queued_cmds, default_room
-	print "handle1"
 	plr = VS.getCurrentPlayer()
 	if VS.isserver():
 		import server
 		if not server.getDocked(VS.getPlayer()):
 			return ["failure", 'Not currently docked']
-	print "handle2"
 	clist = getCampaignList()
 	campaign=None
 	for c in clist:
-		print "Checking campaign "+str(c.name)
+		#print "Checking campaign "+str(c.name)
 		if c.name == args[0]:
 			campaign = c
-	print "handle3"
 	if not campaign:
-		print "handle4"
 		return ["failure", 'Campaign '+str(args[0])+' does not exit'];
 	else:
-		print "handle5"
 		queued_cmds.append((campaign,args[1],args[2:]))
 		if VS.isserver():
 			return handle_queued_cmds(-1)
