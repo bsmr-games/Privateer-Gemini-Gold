@@ -90,11 +90,16 @@ savefilters = set(["test2_main_menu","New_Game"])
 
 class NewSaveGame: pass
 
+def time_sorted_listdir(dir):
+	import os
+	def time_key(filename):
+		return (-os.stat(dir+'/'+filename).st_mtime, filename)
+	return sorted(os.listdir(dir), key=time_key)
+
 def savelist():
 	global savefilters
-	from os import listdir
 	return [ GUI.GUISimpleListPicker.listitem(path,path) 
-		for path in listdir(VS.getSaveDir())
+		for path in time_sorted_listdir(VS.getSaveDir())
 		if path[:1] != '.' and path not in savefilters ]
 
 def makeNewSaveName():
