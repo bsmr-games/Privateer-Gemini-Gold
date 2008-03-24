@@ -1504,14 +1504,14 @@ def MakeDrakePirateNode(rf,creds,contingency=None):
 	SelectWinningNode=CampaignNode()
 	WinRF.Init(rf,
 		[InSystemCondition("Gemini/Perry","Perry"),SaveVariableCondition("jones_dead",1.0)],
-		[("Terrell","Brilliant work. Gemini and the Confederation owe you another debt. It's too bad so few people know about your heroic actions. If they did, you'd be the most popular man in Gemini."),("Burrows","Flattery will get you nowhere, Admiral. I'm not going to join the Navy. End of story."),("Terrell","Maybe not, but who knows what the future will bring? Anyway, I assume you've been paid?"),("Burrows","Yes I have, and I think I'm going to take a holiday."),("Terrell","Good. You certainly deserve it. Goodbye, son. You have my eternal respect and gratitude.")],
+		[("Terrell","Brilliant work. Gemini and the Confederation owe you another debt. It's too bad so few people know about your heroic actions. If they did, you'd be the most popular man in Gemini.", "barspeech/campaign/rf/terrellfinal.ogg"),("Burrows","Flattery will get you nowhere, Admiral. I'm not going to join the Navy. Period."),("Terrell","Maybe not, but who knows what the future will bring? Anyway, I assume you've been paid?"),("Burrows","Yes I have, and I think I'm going to take a holiday."),("Terrell","Good. You certainly deserve it. Goodbye, son. You have my eternal respect and gratitude.")],
 		None,
 		TrueSubnode(AddCredits(creds,ChangeSystemOwner("Gemini/Eden","unknown"))),
 		None,
 		[CampaignEndNode(rf)])
 	WinInformant.Init(rf,
 		[InSystemCondition("Gemini/Capella"),SaveVariableCondition("jones_dead",1.0)],
-		[("Informant","Greetings. I thank you for your service. But I must also warn you that I am once again your mortal enemy. I am a man of my word, and will carry out my promise. All plans and copies of the Steltek gun will be destroyed. In return, you must refrain from revealing the location of Eden to the Confederation."),("Burrows","The Confederation would pay a lot for that information. What's to stop me?"),("Informant","Only the threat of vengeance. And your conscience, if you have one. Our acquaintance has been brief, and we will not meet again. Farewell, infidel.")],
+		[("Informant","Greetings. I thank you for your service. But I must also warn you that I am once again your mortal enemy. I am a man of my word, and will carry out my promise. All plans and copies of the Steltek gun will be destroyed. In return, you must refrain from revealing the location of Eden to the Confederation."),("Burrows","The Confederation would pay a lot for that information. What's to stop me?"),("Informant","Only the threat of vengeance. And your conscience, if you have one. Our acquaintance has been brief, and we will not meet again. Farewell, infidel.", "barspeech/campaign/rf/informant3.ogg")],
 		INFORMANT_SPRITE,	
 		GoToSubnode(0),
 		None,
@@ -1519,7 +1519,7 @@ def MakeDrakePirateNode(rf,creds,contingency=None):
 	JonesBountyMissionNode = CampaignNode()			
 	return CampaignClickNode().Init(rf,
 				[InSystemCondition("Gemini/Capella")],
-				[("Burrows","You were looking for me?"),
+				[("Burrows","You were looking for me?", "barspeech/campaign/rf/informant2.ogg"),
 				 ("Informant","Yes, I'm glad you've come. Normally, I'd consider a privateer like you far too risky to confide in. But your recent destruction of Kahl and Menesch gives me faith in your trustworthiness. My clothing belies my true calling. I am a member of the Church of Man."),
 				 ("Burrows","Go on."),
 				 ("Informant","I am one of Mordecai Jones? elite counsellors. I, like all my brethren, have sworn to accomplish the destruction of all technology. And I believe that our ends justify the means we use. What do you think?"),
@@ -1534,7 +1534,9 @@ def MakeDrakePirateNode(rf,creds,contingency=None):
 				 ("Burrows","Pretty crazy. Your word is all I have."),
 				 ("Informant","That is true. Of course, during the mission you will discover our headquarters. If you wish, you can inform the Confederation and they can eventually destroy it. We will be forced to relocate. Very costly and disruptive. But it's worth it to me."),
 				 ("Burrows","Why me? Why not take this to the Confederation?"),
-				 ("Informant","A large fleet would be detected too far in advance. The jump tunnel could be blocked. There is no other pilot in Gemini with your reputation for success. I'm afraid you are my only hope: You are to fly to the Valhalla system. There is a secret jump tunnel there."),
+				 ("Informant","A large fleet would be detected too far in advance. The jump tunnel could be blocked. There is no other pilot in Gemini with your reputation for success. I'm afraid you are my only hope."),
+				 ("Burrows","What are the details of the mission?"),
+				 ("Informant","You are to fly to the Valhalla system. There is a secret jump tunnel there."),
 				 ("Burrows","Secret' How does that work?"),
 				 ("Informant","We have contacts at the Exploratory Services. They have removed it from official records. Do not worry. I will enter the co-ordinates into your ships navigation system. After locating the tunnel, you must jump to a new system called Eden. There you will find Jones and members of his elite guard. You must destroy them all. Return here afterwards.") ],
 				INFORMANT_SPRITE,
@@ -1552,7 +1554,7 @@ def MakeDrakePirateNode(rf,creds,contingency=None):
 								CampaignClickNode().Init(rf,
 									[InSystemCondition("Gemini/Eden")],
 									[ "Alas! Woe to us all! Our leader has been stricken down! His mighty temple, destroyed. You have survived and returned for initiation, but in vain. The light shines in the temple no longer.",
-									 ("Burrows","Darn. Guess I'd better be going, then"),
+									 ("Burrows","Darn. Guess I'd better be going, then", "barspeech/campaign/rf/churchofman2.ogg"),
 									  "The tears of the faithful will flood the land. A new, dark age has risen for the Church of Man. Will we survive? I do not know" ],
 									None,
 									GoToSubnode(0),
@@ -1564,7 +1566,7 @@ def MakeDrakePirateNode(rf,creds,contingency=None):
 					CampaignClickNode().Init(rf,
 						[InSystemCondition("Gemini/Eden"),NotCondition(SaveVariableCondition("jones_dead",1.0))],
 						[ "Greetings, convert! Welcome to the bliss of Eden. There is no suffering here. Your clothing is strange. You have just arrived, yes? You may be initiated in the temple.",
-						 ("Burrows","I see. Thank you."),
+						 ("Burrows","I see. Thank you.", "barspeech/campaign/rf/churchofman1.ogg"),
 						  "Ah, soon the glory of the Church of Man will spread throughout the stars. Soon our great leader will vanquish the infidels and bring us peace.",
 						 ("Burrows","Um, may I ask a question about our great leader?"),
 						  "Of course, of course!",
@@ -1785,23 +1787,23 @@ def LoadRFGoodinCampaign():
 	terrell = {
 		'failure': terrellfailure, 
 		'intro': [
-			('Terrell', 'Good day, privateer. I trust you remember me?'), 
+			('Terrell', 'Good day, privateer. I trust you remember me?', 'barspeech/campaign/rf/terrell1.ogg'), 
 			('Burrows', 'Naturally.'), 
-			('Terrell', "I've been impressed by your recent efforts to help the Confederation. Captain Goodin's reports to me have been most positive. As I'm sure you have learned, the Retros have got out of hand. Their recent surge in activity is attributable to one Mordecai Jones. Stopping the threat means eliminating Jones. Unfortunately, we have very little information about his current location. Intelligence analysis indicates that he's operating from the Fariss quadrant. But that's all we know. Therefore, we'll begin a thorough search of Fariss. We'll comb each system until we find him."), 
+			('Terrell', "I've been impressed by your recent efforts to help the Confederation. Captain Goodin's reports to me have been most positive. As I'm sure you have learned, the Retros have got out of hand. Their recent surge in activity is attributable to one Mordecai Jones. Stopping the threat means eliminating Jones. Unfortunately, we have very little information about his current location. Intelligence analysis indicates that he's operating from the Fariss quadrant. But that's all we know. Therefore, were going to begin a thorough search of Fariss. Were going to comb each system until we find him."), 
 			('Burrows', 'So how do I fit in?'), 
 			('Terrell', "As you know, we've got nearly all our forces mobilised already. They're split between the Kilrathi and the Retros. We can only spare a handful of ships for the search. But a handful is not enough. Using Confederation ships alone, the search would take years. We need volunteers to beef up our search teams. That's how you fit in."), 
 			('Burrows', 'What are you offering?'), 
 			('Terrell', 'We need you to patrol Death, Pestilence, and War. You get 20000.'), 
 			('Burrows', "That's an awful lot of space to cover in one flight."), 
 			('Terrell', 'I know. You should fuel up at Macabee in Nexus before starting.')], 
-		'reconsider': [('Terrell', 'Good to see you again. We need you badly. Let me describe my offer again. You are to patrol Death, Pestilence and War. I recommend you fuel up at Macabee in Nexus first. Return here afterwards. The pay is 20000.')], 
-		'reject1': [('Terrell', "That's too bad. Our effort depends on you. Please reconsider.")], 
-		'reject2': [('Terrell', 'I see. Then our cause is all but lost.')], 
+		'reconsider': [('Terrell', 'Good to see you again. We need you badly. Let me describe my offer again. You are to patrol Death, Pestilence and War. I recommend you fuel up at Macabee in Nexus first. Return here afterwards. The pay is 20000.', 'barspeech/campaign/rf/terrell1reconsider.ogg')], 
+		'reject1': [('Terrell', "That's too bad. Our effort depends on you. Please reconsider.", "barspeech/campaign/rf/terrell1reject1.ogg")], 
+		'reject2': [('Terrell', 'I see. Then our cause is all but lost.', 'barspeech/campaign/rf/terrell1reject2.ogg')], 
 		'reminder': [
-			('Terrell', "What are you doing here... Your mission's not complete."), 
+			('Terrell', "What are you doing here... Your mission's not complete.", "barspeech/campaign/rf/terrell1reminder.ogg"), 
 			('Burrows', 'I may be reconsidering. What are the details again?'), 
 			('Terrell', 'You are to patrol Death, Pestilence and War. I recommend you fuel up at Macabee in Nexus first. Return here afterwards. The pay is 20000.')], 
-		'accept': [('Terrell', "Good. Return here when you're done. We'll analyse your data and see if there's any place to attack.")]}
+		'accept': [('Terrell', "Good. Return here when you're done. We'll analyse your data and see if there's any place to attack.", "barspeech/campaign/rf/terrell1accept1.ogg")]}
 
 	rf.Init(CampaignNode().Init(rf,
 					[InSystemCondition("Gemini/Perry","Perry"),SaveVariableCondition("gun_stolen",1.0)],
@@ -1895,7 +1897,7 @@ def LoadRFGoodinCampaign():
 					[InSystemCondition("Gemini/Perry","Perry")],
 					[("Goodin","Good work. I'm frankly surprised you obeyed orders so well.", "barspeech/campaign/rf/goodinfinal.ogg"),
 					 ("Burrows","Cash helps put me in my place."),
-					 ("Goodin","Admiral Terrell is impressed as well. In fact, he wants to see you right away. He's waiting for you in his office across the main concourse.","Burrows","I wonder what he wants this time."),
+					 ("Goodin","Admiral Terrell is impressed as well. In fact, he wants to see you right away. He's waiting for you in his office across the main concourse."),("Burrows","I wonder what he wants this time."),
 					 ("Goodin","I have no idea, so it must be pretty confidential. Good luck.")],
 					GOODIN_SPRITE,
 					GoToSubnode(0,AddCredits(20000)),
@@ -1928,7 +1930,7 @@ def LoadRFGoodinCampaign():
 			None,
 			[MakeDrakePirateNode(rf,100000,ChoiceDrakeTerrell),CampaignClickNode().Init(rf,
 				[InSystemCondition("Gemini/Perry","Perry"),SaveVariableCondition("rf_patrol_war",1.0),SaveVariableCondition("rf_patrol_death",1.0)],
-				[("Terrell","Good work. Your data is complete. I'm afraid that there was no evidence of any bases in the systems you patrolled. You're not alone. All patrols so far have turned up nothing. All except the Epsilon group, which hasn't returned yet. They were sent to patrol 17-AR, J-900, Telar, and Valhalla. We?ve lost contact with them. I'm sending additional ships to look for them. Anyway, I want to thank you for your help, and to inform you that I'll pay you 80000 if you can somehow get rid of Jones. That's all. Goodbye.")],
+				[("Terrell","Good work. Your data is complete. I'm afraid that there was no evidence of any bases in the systems you patrolled. You're not alone. All patrols so far have turned up nothing. All except the Epsilon group, which hasn't returned yet. They were sent to patrol 17-AR, J-900, Telar, and Valhalla. We?ve lost contact with them. I'm sending additional ships to look for them. Anyway, I want to thank you for your help, and to inform you that I'll pay you 80000 if you can somehow get rid of Jones. That's all. Goodbye.", "barspeech/campaign/rf/terrell2.ogg")],
 				None,				
 				GoToSubnode(0,AddCredits(20000)),
 				ChoiceDrakeTerrell,
@@ -1946,27 +1948,27 @@ def LoadRFTaylaCampaign():
 	tayla1 = {
 		'failure': taylafailure, 
 		'intro': [
-			('Burrows', 'Hello, Tayla.'), 
+			('Burrows', "Hello, Tayla.", "barspeech/campaign/rf/tayla1.ogg"), 
 			('Tayla', "Wow. I never expected to see you again. What's new?"), 
 			('Burrows', 'The usual. Boy meets gun, boy blows up drone, boy loses gun, you know the story.'), 
 			('Tayla', 'I heard. Say, you interested in some dirty work?'), 
 			('Burrows', 'Probably.'), 
 			('Tayla', "I could use you to deliver some personal cargo for me. I need it to go to Tuck in Sherwood. No contraband, and I'll make sure the pirates stay off your back. The job pays 10000. I'll meet you at Tuck. How about it?")], 
 		'reconsider': [
-			('Tayla', "I knew you'd come back."), 
+			('Tayla', "I knew you'd come back.", "barspeech/campaign/rf/tayla1reconsider.ogg"), 
 			('Burrows', "Let's hear the specs again."), 
 			('Tayla', "Here it is. You deliver some personal cargo for me to Tuck in Sherwood. There's no contraband, and I'll keep the pirates on your side. You get 10000, and I'll be at Tuck to greet you.")], 
-		'reject1': [('Tayla', "Not good enough for you, huh... I know you. You'll change your tune.")], 
-		'reject2': [('Tayla', 'Whatever you say.')], 
+		'reject1': [('Tayla', "Not good enough for you, huh... I know you. You'll change your tune.", "barspeech/campaign/rf/tayla1reject1.ogg")], 
+		'reject2': [('Tayla', "Why do I bother with you?", "barspeech/campaign/rf/tayla1reject2.ogg")], 
 		'reminder': [
-			('Tayla', "I see you still haven't delivered my goods to Tuck."), 
+			('Tayla', "I see you still haven't delivered my goods to Tuck.", "barspeech/campaign/rf/tayla1reminder.ogg"), 
 			('Burrows', 'I had some stuff to take care of. What was the plan again?'), 
 			('Tayla', "Let me refresh your memory. Deliver some personal cargo for me to Tuck in Sherwood. There's no contraband, and I'll keep the pirates on your side. The pay is 10000. I'll be at Tuck to greet you. Once and for all, are you going to do it or not?")], 
-		'accept': [('Tayla', 'Great. See you there.')]}
+		'accept': [('Tayla', "Great. See you there.", "barspeech/campaign/rf/tayla1accept1.ogg")]}
 	tayla2 = {
 		'failure': taylafailure, 
 		'intro': [
-			('Tayla', 'Congratulations, you finally made it.'), 
+			('Tayla', "Congratulations, you finally made it.", "barspeech/campaign/rf/tayla2.ogg"), 
 			('Burrows', "Yeah, yeah. Say, just what was that 'personal stuff, anyway?"), 
 			('Tayla', "None of your business, naturally. And speaking of business, I've got a load of Brilliance for you to smuggle."), 
 			('Burrows', "Great. There's nothing like running a gauntlet of self-righteous Confeds. Where's the Brilliance going?"), 
@@ -1974,16 +1976,16 @@ def LoadRFTaylaCampaign():
 			('Burrows', "What's the wages?"), 
 			('Tayla', '20000. Deal?')], 
 		'reconsider': [
-			('Burrows', "Tayla, I've thought about your offer. Tell me the details again."), 
+			('Burrows', "Tayla, I've thought about your offer. Tell me the details again.", "barspeech/campaign/rf/tayla2reconsider.ogg"), 
 			('Tayla', "Take a load of Brilliance to Saratov base in Prasepe. Come back here and get 20000. It's that simple.")], 
-		'reject1': [('Burrows', 'Sorry. Not my style.')], 
-		'reject2': [('Tayla', 'Whatever.')], 
-		'reminder': [('Tayla', "The boys on Saratov say they haven't got their Brilliance yet. What's the deal... Just bring the Brilliance to Saratov, and you get 20000. Are you going to do it?")], 
-		'accept': [('Tayla', 'Good luck. See you soon.')]}
+		'reject1': [('Burrows', "Sorry. Not my style.", "barspeech/campaign/rf/tayla2reject1.ogg")], 
+		'reject2': [('Tayla', "You have to quit changing your mind like this... It will give you a bad rep.", "barspeech/campaign/rf/tayla2reject2.ogg")], 
+		'reminder': [('Tayla', "The boys on Saratov say they haven't got their Brilliance yet. What's the deal... Just bring the Brilliance to Saratov, and you get 20000. Are you going to do it?", "barspeech/campaign/rf/tayla2reminder.ogg")], 
+		'accept': [('Tayla', "Good luck. See you soon.", "barspeech/campaign/rf/tayla2accept1.ogg")]}
 	tayla3 = {
 		'failure': taylafailure, 
 		'intro': [
-			('Tayla', "You're back. Good work. I've got another Brilliance run for you, if you're interested."), 
+			('Tayla', "You're back. Good work. I've got another Brilliance run for you, if you're interested.", "barspeech/campaign/rf/tayla3.ogg"), 
 			('Burrows', 'Tell me the payoff first.'), 
 			('Tayla', '30000.'), 
 			('Burrows', 'Go on.'), 
@@ -1993,36 +1995,36 @@ def LoadRFTaylaCampaign():
 			('Burrows', "I'm glad you've finally noticed."), 
 			('Tayla', 'What do you say?')], 
 		'reconsider': [
-			('Tayla', 'Back so soon?'), 
+			('Tayla', "Back so soon?", "barspeech/campaign/rf/tayla3reconsider.ogg"), 
 			('Burrows', "Yeah, back so soon. Let's hear the deal again."), 
 			('Tayla', 'Okay. For 30000, you deliver a cargo of Brilliance to Speke in Junction. Return here afterwards.')], 
-		'reject1': [('Tayla', 'Seems strange to back out now, ace.')], 
-		'reject2': [('Burrows', "Nope. Still don't want it.")], 
+		'reject1': [('Tayla', "Seems strange to back out now, ace.", "barspeech/campaign/rf/tayla3reject1.ogg")], 
+		'reject2': [('Burrows', "Nope. Still don't want it.", "barspeech/campaign/rf/tayla3reject2.ogg")], 
 		'reminder': [
-			('Tayla', "They haven't got the Brilliance yet. What's going on?"), 
+			('Tayla', "They haven't got the Brilliance yet. What's going on?", "barspeech/campaign/rf/tayla3reminder.ogg"), 
 			('Burrows', 'Yeah, I know. Sorry. I got side-tracked. Let me hear the scoop again.'), 
 			('Tayla', "I don't know why, but I'll give you another chance. Take the load of Brilliance to Speke in Junction. That's it. The job pays 30000.")], 
-		'accept': [('Tayla', 'Good luck.')]}
+		'accept': [('Tayla', "Good luck.", "barspeech/campaign/rf/tayla3accept1.ogg")]}
 	tayla4 = {
 		'failure': taylafailure, 
 		'intro': [
-			('Tayla', 'Excellent work. That last run made a lot of important people happy.'), 
+			('Tayla', "Excellent work. That last run made a lot of important people happy.", "barspeech/campaign/rf/tayla4.ogg"), 
 			('Burrows', 'Swell. Then it was all worth while.'), 
 			('Tayla', "I do have another run, if you're interested."), 
 			('Burrows', 'Let me guess. Brilliance.'), 
 			('Tayla', "Correct. Bring it to Basque base in the Pyrenees system. Pyrenees is quite a trip from here, and you'll be compensated accordingly: 40000. Come back here afterwards.")], 
 		'reconsider': [
-			('Burrows', 'Tell me about the mission again.'), 
+			('Burrows', "Tell me about the mission again.", "barspeech/campaign/rf/tayla4reconsider.ogg"), 
 			('Tayla', 'Okay. For 40000, you deliver a cargo of Brilliance to Basque in Pyrenees.')], 
-		'reject1': [('Tayla', 'Too bad. 40000 would buy a lot of spare missiles, you know.')], 
-		'reject2': [('Burrows', "Nope. Still don't want it.")], 
+		'reject1': [('Tayla', "Too bad. 40000 would buy a lot of spare missiles, you know.", "barspeech/campaign/rf/tayla4reject1.ogg")], 
+		'reject2': [('Tayla', "Ok. But I can't hold the offer for you much longer.", "barspeech/campaign/rf/tayla4reject2.ogg")], 
 		'reminder': [
-			('Tayla', "I hope you're not going to ask for payment, since you haven't made the delivery yet."), 
+			('Tayla', "I hope you're not going to ask for payment, since you haven't made the delivery yet.", "barspeech/campaign/rf/tayla4reminder.ogg"), 
 			('Burrows', 'Sorry. Are you still offering?'), 
 			('Tayla', 'Yes, but only because of your past success. You are to take the Brilliance to Basque in Pyrenees for 40000. Decide carefully. Do you want the job?')], 
-		'accept': [('Tayla', 'Good.')]}
+		'accept': [('Tayla', "Good.", "barspeech/campaign/rf/tayla4accept1.ogg")]}
 	taylafinal=[
-		("Tayla","Great job. You've made my friends on Basque very happy. Well, that's all the work I have for you. Be advised, though, I've got several contacts who are interested in your exploits. I'll make sure to put in a good word for you."),
+		("Tayla","Great job. You've made my friends on Basque very happy. Well, that's all the work I have for you. Be advised, though, I've got several contacts who are interested in your exploits. I'll make sure to put in a good word for you.", "barspeech/campaign/rf/taylafinal.ogg"),
 		("Burrows","Great. Thanks.")]
 	rf.Init(TaylaMission1)
 	MakeCargoMission(rf,
@@ -2119,7 +2121,7 @@ def LoadRFCampaign():
 	monte1 = {
 		'failure': montefailure, 
 		'intro': [
-			('Monte', 'Greetings. You must be that privateer.'), 
+			('Monte', "Greetings. You must be that privateer.", "barspeech/campaign/rf/monte1.ogg"), 
 			('Burrows', "That's right. I was sent to see you by Masterson."), 
 			('Monte', 'I know.'), 
 			('Burrows', 'Just who are you?'), 
@@ -2132,15 +2134,15 @@ def LoadRFCampaign():
 			('Monte', 'Hold on, my friend. The information in my possession is more important than you realise. For example, I have been able to obtain a list of the Retros, most wanted enemies. It names the ten individuals who pose the greatest threat to the Retros, growing empire. Your name is on that list. The danger to your life becomes ever more serious. Your survival depends on the defeat of the Retros.'), 
 			('Burrows', "Well, I'll hear you out. What's the first job?"), 
 			('Monte', 'Quite simple. I desire safe transport to New Detroit. If you take me there, our discussions can proceed.')], 
-		'reconsider': [('Monte', "I hope you've reconsidered. I would like safe transport to New Detroit. Take me there, and our discussions can proceed.")], 
-		'reject1': [('Monte', 'Time is running out. Please reconsider.')], 
-		'reject2': [('Monte', 'Remember, the Retros are not asleep.')], 
-		'reminder': [('Monte', 'This is not New Detroit. Please take me there.')], 
-		'accept': [('Monte', "Excellent. I'm ready to go.")]}
+		'reconsider': [('Monte', "I hope you've reconsidered. I would like safe transport to New Detroit. Take me there, and our discussions can proceed.", "barspeech/campaign/rf/monte1reconsider.ogg")], 
+		'reject1': [('Monte', "Time is running out. Please reconsider.", "barspeech/campaign/rf/monte1reject1.ogg")], 
+		'reject2': [('Monte', "Remember, the Retros are not asleep.", "barspeech/campaign/rf/monte1reject2.ogg")], 
+		'reminder': [('Monte', "This is not New Detroit. Please take me there.", "barspeech/campaign/rf/monte1reminder.ogg")], 
+		'accept': [('Monte', "Excellent. I'm ready to go.", "barspeech/campaign/rf/monte1accept1.ogg")]}
 	monte2 = {
 		'failure': montefailure, 
 		'intro': [
-			('Monte', 'Thank you for the transportation.'), 
+			('Monte', "Thank you for the transportation.", "barspeech/campaign/rf/monte2.ogg"), 
 			('Burrows', 'No problem. Tell me what you know.'), 
 			('Monte', 'Patience. I receive my information slowly. Besides, it would be unwise to divulge all my knowledge immediately.'), 
 			('Burrows', "I'm starting to wonder just how much you do know, pal."), 
@@ -2153,15 +2155,15 @@ def LoadRFCampaign():
 			('Monte', 'Patience. First, you must fly another mission.'), 
 			('Burrows', "I guess I'm at your mercy."), 
 			('Monte', 'I want you to go to Drake in the Capella system. You will meet a man there. Follow his instructions. That is all.')], 
-		'reconsider': [('Monte', 'You have returned. Will you accept my mission... I want you to fly to Drake in the Capella system, and carry out the instructions of the person you will meet there.')], 
-		'reject1': [('Monte', 'I see. Then I can give you no further information.')], 
-		'reject2': [('Burrows', 'I tire of your ramblings. Farewell.')], 
-		'reminder': [('Monte', 'I have not heard from my associate. Apparently you have not completed his task.'), ('Burrows', 'Yeah, I guess not. Who was that again?'), ('Monte', 'He is on the Drake base in Capella. He will give you further instructions.')], 
-		'accept': [('Monte', 'Good luck.')]}
+		'reconsider': [('Monte', "You have returned. Will you accept my mission... I want you to fly to Drake in the Capella system, and carry out the instructions of the person you will meet there.", "barspeech/campaign/rf/monte2reconsider.ogg")], 
+		'reject1': [('Monte', "I see. Then I can give you no further information.", "barspeech/campaign/rf/monte2reject1.ogg")], 
+		'reject2': [('Burrows', "I'm tired of these games Monte. See you around.", "barspeech/campaign/rf/monte2reject2.ogg")], 
+		'reminder': [('Monte', "I have not heard from my associate. Apparently you have not completed his task.", "barspeech/campaign/rf/monte2reminder.ogg"), ('Burrows', 'Yeah, I guess not. Who was that again?'), ('Monte', 'He is on the Drake base in Capella. He will give you further instructions.')], 
+		'accept': [('Monte', "Good luck.", "barspeech/campaign/rf/monte2accept1.ogg")]}
 	monte3 = {
 		'failure': montefailure, 
 		'intro': [
-			('Monte', 'Excellent. You have made the delivery as requested. Now I will give you what little additional information I have. I was hoping to find out where Mordecai Jones resides. Unfortunately, I have not been given that information. I do know, however, that he has a secret base in Gemini. Inevitably, it is well guarded by the Retros.'), 
+			('Monte', "Excellent. You have made the delivery as requested. Now I will give you what little additional information I have. I was hoping to find out where Mordecai Jones resides. Unfortunately, I have not been given that information. I do know, however, that he has a secret base in Gemini. Inevitably, it is well guarded by the Retros.", "barspeech/campaign/rf/monte3.ogg"), 
 			('Burrows', "That's not much to go on, Monte."), 
 			('Monte', "No, it isn't. I apologise. If I knew more, I would tell you."), 
 			('Burrows', "If that's it, I guess I'll be going."), 
@@ -2171,21 +2173,21 @@ def LoadRFCampaign():
 			('Burrows', '5000 is not much money.'), 
 			('Monte', 'There is more. I am about to receive additional information that will interest you. If you return here after completing the mission, I will give it to you. That is surely worth something.')], 
 		'reconsider': [
-			('Burrows', "I've reconsidered."), 
+			('Burrows', "I've reconsidered.", "barspeech/campaign/rf/monte3reconsider.ogg"), 
 			('Monte', 'I see. Let me describe the mission again. Fly to Nav 4 in the Nexus system. Destroy the Retros you will find there. Return here afterwards for 5000 and additional information.')], 
-		'reject1': [('Burrows', 'Your track record is too poor. Forget it.')], 
-		'reject2': [('Burrows', "Sorry, Monte, I'm not interested.")], 
+		'reject1': [('Monte', "Then I suppose our dealings end here.", "barspeech/campaign/rf/monte3reject1.ogg")], 
+		'reject2': [('Burrows', "Sorry, Monte, I'm not interested.", "barspeech/campaign/rf/monte3reject2.ogg")], 
 		'reminder': [
-			('Monte', 'You have not completed my mission. I cannot help you until you help me.'), 
+			('Monte', "You have not completed my mission. I cannot help you until you help me.", "barspeech/campaign/rf/monte3reminder.ogg"), 
 			('Burrows', 'Right. Where were the Retros again?'), 
 			('Monte', 'They await me at Nav 4 in the Nexus system. I will give you 5000 and some useful information.')], 
 		'accept': [
-			('Burrows', "All right. I'll do it."), 
+			('Burrows', "All right. I'll do it.", "barspeech/campaign/rf/monte3accept1.ogg"), 
 			('Monte', 'Wonderful. I await your safe return.')]}
 	monte4 = {
 		'failure': montefailure, 
 		'intro': [
-			('Monte', 'Fine work. I will be able to return to Nexus soon.'), 
+			('Monte', "Fine work. I will be able to return to Nexus soon.", "barspeech/campaign/rf/monte4.ogg"), 
 			('Burrows', "Let's hear the information. What else do you know about Jones?"), 
 			('Monte', "Nothing, I'm afraid. The knowledge I referred to earlier is not about Jones. It is about someone else you may have heard of, Governor Menesch."), 
 			('Burrows', 'That name sounds familiar.'), 
@@ -2196,11 +2198,11 @@ def LoadRFCampaign():
 			('Monte', "The best I can do is steer you in the right direction, if you're interested."), 
 			('Burrows', 'Are you offering a bounty?'), 
 			('Monte', 'No. If you complete the mission, I will return to Nexus and go into hiding. I understand, however, that there may be others in Gemini offering to pay a bounty. If I was a fighting man I would try to collect the bounties myself, but, do what you will with the information. The choice and risk are yours.')], 
-		'reconsider': [('Monte', "Have you thought it over... Do you wish to accept... The mission is to kill Governor Menesch. I know he is currently in operation somewhere near the Troy system. If you don't find him in Troy, he's bound to be hiding out in one of the neighbouring systems. Of course, I can offer no reward, but others in Gemini are offering bounties. What do you say?")], 
-		'reject1': [('Monte', 'I see. I will await your reconsideration.')], 
-		'reject2': [('Burrows', "Not a chance, Monte. Ship maintenance isn't free, you know.")], 
-		'reminder': [('Monte', "Menesch lives. Did you forget his location... I will repeat it. He is currently in operation somewhere near the Troy system. If you don't find him in Troy, he's bound to be hiding out in one of the neighbouring systems. Your mission is to destroy him.")], 
-		'accept': [('Monte', "Unfortunately, I don't know his exact location, but I can tell you he is currently in operation somewhere near the Troy system. If you don't find him in Troy, he's bound to be hiding out in one of the neighbouring systems. I believe that if you patrol all those systems, you will be able to find him. I do not know how well he defends himself. Good luck, this may be our last meeting.")]}
+		'reconsider': [('Monte', "Have you thought it over... Do you wish to accept... The mission is to kill Governor Menesch. I know he is currently in operation somewhere near the Troy system. If you don't find him in Troy, he's bound to be hiding out in one of the neighbouring systems. Of course, I can offer no reward, but others in Gemini are offering bounties. What do you say?", "barspeech/campaign/rf/monte4reconsider.ogg")], 
+		'reject1': [('Monte', "I see. I will await your reconsideration.", "barspeech/campaign/rf/monte4reject1.ogg")], 
+		'reject2': [('Burrows', "Not a chance, Monte. Ship maintenance isn't free, you know.", "barspeech/campaign/rf/monte4reject2.ogg")], 
+		'reminder': [('Monte', "Menesch lives. Did you forget his location... I will repeat it. He is currently in operation somewhere near the Troy system. If you don't find him in Troy, he's bound to be hiding out in one of the neighbouring systems. Your mission is to destroy him.", "barspeech/campaign/rf/monte4reminder.ogg")], 
+		'accept': [('Monte', "Unfortunately, I don't know his exact location, but I can tell you he is currently in operation somewhere near the Troy system. If you don't find him in Troy, he's bound to be hiding out in one of the neighbouring systems. I believe that if you patrol all those systems, you will be able to find him. I do not know how well he defends himself. Good luck, this may be our last meeting.", "barspeech/campaign/rf/monte4accept1.ogg")]}
 	
 	Monte=CampaignClickNode()
 	masterson1 = {
@@ -2301,15 +2303,15 @@ def LoadRFCampaign():
 
 	informant1={
 		'intro':[
-			('Burrows',"I represent Monte."),
+			('Burrows',"I represent Monte.", "barspeech/campaign/rf/informant1.ogg"),
 			('Informant',"Ah, good. My instructions are simple. Take these encrypted documents and deliver them to Monte. Simple enough?")],
 		'accept':[
-			('Burrows',"Yes."),
+			('Burrows',"Yes.", "barspeech/campaign/rf/informant1accept1.ogg"),
 			('Informant',"Good. Make haste.")],
-		'reject1':[('Burrows',"No")],
-		'reject2':[('Burrows',"No I will not.")],
-		'reconsider':[('Informant',"We cannot delay. Either take these encrypted documents and deliver them to Monte or get out of here. Simple enough?")],
-		'reminder':[('Informant',"You have not delievered the documents to Monte on New Detroit. Make haste!")],
+		'reject1':[('Burrows',"No dice.", "barspeech/campaign/rf/informant1reject1.ogg")],
+		'reject2':[('Burrows',"Shove off, pal.", "barspeech/campaign/rf/informant1reject2.ogg")],
+		'reconsider':[('Informant',"My instructions are simple. Take these encrypted documents and deliver them to Monte. Simple enough?", "barspeech/campaign/rf/informant1reconsider.ogg")],
+		'reminder':[('Informant',"Take these encrypted documents and deliver them to Monte. Make haste!", "barspeech/campaign/rf/informant1reminder.ogg")],
 		'failure':[('Informant',"You are unworthy of my trust!")]}
 	rf.Init(Theft)
 	Theft.Init(rf,
@@ -2520,7 +2522,7 @@ def LoadRFCampaign():
 		CampaignEndNode(rf),
 		CampaignClickNode().Init(rf,
 			[InSystemCondition("Gemini/New_Detroit")],
-			[("Monte","Well done. Menesch is dead. I'm afraid I have to go now, but I wanted to thank you. You have done the Gemini sector an invaluable service. Goodbye.")],
+			[("Monte","Well done. Menesch is dead. I'm afraid I have to go now, but I wanted to thank you. You have done the Gemini sector an invaluable service. Goodbye.", "barspeech/campaign/rf/montethankyou.ogg")],
 			MONTE_NEWDET_SPRITE,
 			GoToSubnode(0),
 			None,					
