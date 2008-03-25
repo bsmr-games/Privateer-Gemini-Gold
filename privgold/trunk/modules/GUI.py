@@ -3,7 +3,7 @@ import VS
 from XGUIDebug import *
 
 GUIRootSingleton = None
-_doWhiteHack = 0
+_doWhiteHack = 1
 _GUITraceLevel = TRACE_VERBOSE
 
 """----------------------------------------------------------------"""
