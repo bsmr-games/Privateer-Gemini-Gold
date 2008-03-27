@@ -36,7 +36,7 @@
 	
 <VDU TextRows="15" TextCols="25" file="vdu.spr" xcent="-.5253" ycent=".543" type="Target Weapon View Nav Damage Manifest COMM TargetManifest Objectives"/>
 	
-<!-- <VDU TextRows="10" TextCols="100" type="Message" file="mvdu.spr" xcent="0.25001" ycent=".14" width=".65" height=".426"/> -->
+<VDU TextRows="10" TextCols="100" type="Message" file="mvdu.spr" xcent="0.25001" ycent=".14" width=".65" height=".426" network="true"/>
 
 <!-- <VDU TextRows="10" TextCols="50" type="Objectives" file="mvdu.spr" xcent="-0.6025" ycent="-.02" width=".7676" height=".33"/> -->
 
