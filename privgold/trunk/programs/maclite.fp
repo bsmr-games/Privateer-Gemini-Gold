@@ -24,9 +24,13 @@ vec3 expand(vec3 expandme) {
   return expandme*vec3(2.0)-vec3(1.0);
 }
 vec2 EnvMapGen(vec3 f) {
+   /* //Old manual sqrt version
    float fzp1=f.z+1.0;
    float m=2.0*sqrt(f.x*f.x+f.y*f.y+(fzp1)*(fzp1));
    return vec2(f.x/m+.5,f.y/m+.5);
+   */
+   vec3 fzp1=vec3(f.x,f.y,f.z+1.0);
+   return 0.5*(normalize(fzp1).xy)+vec2(0.5,0.5);
 }
 
 void main() {
@@ -37,7 +41,7 @@ void main() {
 //download matrix and dont recompute (as below you might... slightly higher precision, no visual diff)
   iBinormal=vec3(gl_ModelViewMatrix[2][0],gl_ModelViewMatrix[2][1],gl_ModelViewMatrix[2][2]);
   iTangent=normalize(cross(iBinormal,iNormal));
-  iBinormal=normalize(cross(iNormal,iTangent));
+  iBinormal=cross(iNormal,iTangent);
   
 
   vec3 iLightVec=tc5.xyz;
@@ -46,13 +50,13 @@ void main() {
   vec3 lightDir=normalize(gl_LightSource[0].position.xyz-pos*gl_LightSource[0].position.w);//iLightVec;//lightDir=normalize(matmul(iTangent,iBinormal,iNormal,iLightVec));
   vec3 eyeDir=normalize(pos);//eyeDir=normalize(matmul(iTangent,iBinormal,iNormal,iEyeDir));
 //keep everything in world space
-  vec3 halfAngle=normalize(eyeDir+lightDir);
+  //vec3 halfAngle=normalize(eyeDir+lightDir);
   vec3 normal;//=normalize(expand(texture2D(normalMap,tc0.xy).wyz));
 //transform normal from normalMap to world space
-  normal=normalize(imatmul(iTangent,iBinormal,iNormal,normalize(expand(texture2D(normalMap,tc0.xy).wyz))));
+  normal=normalize(imatmul(iTangent,iBinormal,iNormal,expand(texture2D(normalMap,tc0.xy).wyz)));
   //begin shading
 //compute half angle dot with light (not used)
-  float nDotH=dot(normal,halfAngle);
+  //float nDotH=dot(normal,halfAngle);
 //compute normal dot with light
   float nDotL=dot(normal,lightDir);
 //compute eye direction reflected across normal
