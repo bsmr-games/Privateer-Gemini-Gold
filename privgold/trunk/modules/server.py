@@ -168,7 +168,7 @@ class player (Director.Mission):
 			traceback.print_exc(file=sys.stderr)
 	
 	
-def processMessage(cp, localhost, command, arglist=None, id=''):
+def processMessage(cp, localhost, command, arglist=None, id='', writer=None):
 	try:
 		cmd = command
 		args = arglist
@@ -187,7 +187,7 @@ def processMessage(cp, localhost, command, arglist=None, id=''):
 		else:
 			return
 		pl = _server_inst.getPlayer(cp)
-		if cmd=='reload1':
+		if cmd=='reload1' or cmd=='reload':
 			if authlevel<1:
 				return
 			mod=server_lib
@@ -202,10 +202,11 @@ def processMessage(cp, localhost, command, arglist=None, id=''):
 		else:
 			server_lib.processMessage(pl, authlevel, cmd, args, id)
 	except:
-		if cp<0:
-			writer = sys.stderr
-		else:
-			writer = custom.IOmessageWriter(cp)
+		if not writer:
+			if cp<0:
+				writer = sys.stderr
+			else:
+				writer = custom.IOmessageWriter(cp)
 		argstr=''
 		if type(arglist)=='list':
 			argstr = ' ' + (' '.join(arglist))

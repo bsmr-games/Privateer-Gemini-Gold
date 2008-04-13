@@ -74,11 +74,13 @@ def server_execute(self):
 
 
 commandinfo = {
+	"save": (1, "/save", "Saves your game."),
 	"help": (0, "/help [command]", "Gives a list of commands or describes one."),
 	"write": (1, "/write callsign text...", "Gives a personal message to callsign."),
 	"userlist": (0, "/userlist", "Lists users in this starsystem"),
 }
 authcommandinfo = {
+	"saveserver": (1, "/saveserver", "Saves server status"),
 	"shiplist": (1, "/shiplist pagenum", "Lists all the ships available"),
 	"launchme": (1, "/launchme ship [faction] [quantity]", "Launches a ship around yourself"),
 	"launchtarg": (1, "/launchtarg ship [faction] [quantity]", "Launches a ship around your computer target"),
@@ -170,6 +172,10 @@ def processMessage(player, auth, command, args, id=''):
 		shiplist = faction_ships.stattableexp.keys()
 		for x in shiplist:
 			processMessage(player,1,"launchme",[x])
+	elif command=='save':
+		VS.saveGame(str(player.player_num))
+	elif command=='saveserver' and auth>=1:
+		VS.saveGame('0')
 	elif command=='setadmin':
 		if len(args)<2:
 			return

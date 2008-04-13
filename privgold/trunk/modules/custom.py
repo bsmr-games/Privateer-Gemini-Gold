@@ -110,7 +110,7 @@ class LineBufferWriter:
 		for l in lines:
 			self.println(l)
 
-class IOmessageWriter:
+class IOmessageWriter(LineBufferWriter):
 	def __init__(self,cpnum):
 		LineBufferWriter.__init__(self)
 		if cpnum<0:
@@ -169,7 +169,7 @@ def processMessage(local, cmd, argstr, id, writer=None):
 
 		elif VS.isserver():
 			import server
-			server.processMessage(cp, local, cmd, args, id)
+			server.processMessage(cp, local, cmd, args, id, writer)
 		else:
 			writer.write("Command "+repr(cmd)+" does not exist. Available functions:\n")
 			writer.write(procedures.keys())
