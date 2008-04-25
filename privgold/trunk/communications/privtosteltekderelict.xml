@@ -6,12 +6,12 @@
 	</node>
 
 <!-- Starting Points -->
-	<node text="I recycle" relationship="0.2"><sound file="interface_computer.wav" sex="0"/> <sound file="interface_computer.wav" sex="1"/> <!-- node 1-->
+	<node text="Uh... anyone at home" relationship="0.2"><sound file="interface_computer.wav" sex="0"/> <sound file="interface_computer.wav" sex="1"/> <!-- node 1-->
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
-	<node text="Smoke means progress" relationship="0.2"><sound file="interface_computer.wav" sex="0"/> <sound file="interface_computer.wav" sex="1"/> <!-- node 2-->
+	<node text="Okay you filthy bugs, fork over the goodies." relationship="0.2"><sound file="interface_computer.wav" sex="0"/> <sound file="interface_computer.wav" sex="1"/> <!-- node 2-->
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
