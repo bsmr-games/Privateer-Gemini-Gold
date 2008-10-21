@@ -688,12 +688,13 @@ class GUILineEdit(GUIGroup):
 		self.action=action
 		self.draw()
 		self.canceled = False
+		self.cursor = '_'
 
 	def getText(self):
 		return self.text.getText()[1:-1]
 
 	def setText(self,text):
-		self.text.setText(' ' + text + '-')
+		self.text.setText(' ' + text + self.cursor)
 
 	def undraw(self):
 		Base.EraseObj(self.room.getIndex(),str(self.index)+"line1")
