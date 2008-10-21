@@ -86,7 +86,7 @@ quadrants = {
 	"Gemini/Varnus": 'Humboldt',
 }
 
-savefilters = set(["test2_main_menu","New_Game"])
+savefilters = set(["Autosave","New_Game"])
 
 class NewSaveGame: pass
 
@@ -237,28 +237,27 @@ class QuineComputer:
 						       sprites[2], hot_loc[2]), scroll_click )
 			self.add_button( GUI.GUIButton(guiroom,'XXXRight','btn_right', 
 						       sprites[3], hot_loc[3]), scroll_click )
-	
-		current_base = universe.getDockedBase()
-		player = VS.getPlayer()
-		
+
 		# this doesn't change while docked, so only call it once
+		current_base = universe.getDockedBase()
 		self.str_start = get_location_text(current_base)
-		
+
 		screen_loc = GUI.GUIRect(80,90,350,380,"pixel",(800,600))
-		screen_color = GUI.GUIColor(20/255.0, 22/255.0 ,10/255.0)
+		screen_color = GUI.GUIColor(20/255.0, 22/255.0, 10/255.0)
 		self.screen_color = screen_color;
 		self.screen_loc = screen_loc;
 
 		# first I tried rgb(56 60 24) and rgb(40 44 20); both were too light
-		screen_bgcolor = GUI.GUIColor.clear()
-		screen_bgcolor_nc = GUI.GUIColor(0.44,0.47,0.17)
+		# screen_bgcolor = GUI.GUIColor.clear()
+		screen_bgcolor_nc = GUI.GUIColor(0.44,0.47,0.17)	# roughly equal to rgb(111, 119, 43)
+		screen_bgcolor = screen_bgcolor_nc
 		self.screen_bgcolor = screen_bgcolor;
 	
 		# text screen
 		self.txt_screen = GUI.GUIStaticText(guiroom, 'txt_screen', self.str_start, screen_loc, 
 			color=screen_color,
 			bgcolor=screen_bgcolor)
-		self.txt_screen.hide()
+		self.txt_screen.show()			# display start text
 
 		# picker screen
 		self.picker_screen = GUI.GUISimpleListPicker(guiroom,'XXXSelect item','picker_screen', screen_loc,
@@ -323,71 +322,106 @@ class QuineComputer:
 				button.enable()
 				button.redraw()
 		self.txt_screen.setText( self.str_start )
+		self.txt_screen.show()
+		self.picker_screen.hide()
+		self.mode = None
 
 	def change_text(self, button_index):
+		# this method performs the necessary action of a button click
  		text_screens = {
 			'btn_finances' : lambda:get_relations_text(VS.getPlayer()),
 			'btn_manifest' : lambda:get_manifest_text(VS.getPlayer()),
 			'btn_missions' : lambda:get_missions_text()
 			}
 		if button_index in text_screens:
+			# show new text screen (finances, manifext, missions)
 			self.txt_screen.setText( text_screens[button_index]() )
 			self.txt_screen.show()
 			self.picker_screen.hide()
 		elif button_index == "btn_load":
+			# "load" button clicked
 			if self.mode != button_index:
+				# load list of saved games
 				self.picker_screen.items = savelist()
 				self.picker_screen.show()
 				self.txt_screen.hide()
 			elif self.picker_screen.selection is not None:
+				# load selected saved game
 				ShowProgress.activateProgressScreen('loading',3)
 				VS.loadGame(self.picker_screen.items[self.picker_screen.selection].data)
 		elif button_index == "btn_save":
+			# "save" button clicked
 			if self.mode != button_index:
+				# load list of saved games (to overwrite), or "New Game"
 				self.picker_screen.items = [
 					GUI.GUISimpleListPicker.listitem("New Game",NewSaveGame)
 					]+savelist()
 				self.picker_screen.show()
 				self.txt_screen.hide()
-			elif self.picker_screen.visible and self.picker_screen.items[self.picker_screen.selection].data is not NewSaveGame:
-				self.picker_screen.hide()
-				self.txt_screen.setText( 
-					"\n"*7+
-					"Are you sure you want to overwrite the savegame?\n(%s)"%
-						self.picker_screen.items[self.picker_screen.selection]
-					+"\n"*3
-					+"Press SAVE again to do it." )
-				self.txt_screen.show()
-			elif self.picker_screen.selection is not None:		
-				savename = ''
-				if self.picker_screen.items[self.picker_screen.selection].data is NewSaveGame:
-					savename = makeNewSaveName()
-					self.oldSaveName = None
+			elif self.picker_screen.selection is not None:
+				# a list item has been selected
+				listItem = self.picker_screen.items[self.picker_screen.selection]
+
+				if listItem.data is NewSaveGame:
+					# new game
+					# show save text box
+				
+					savename = ''
+					#savename = makeNewSaveName()
+					self.oldSaveName = None				# why?
+	
+					#enter a modal line editor
+					boxloc = GUI.GUIRect(120,130,200,20,"pixel",(800,600))
+					self.saveGameNameEntryBox = GUI.GUILineEdit(self.saveNameEntryEntered,
+										    self.guiroom,"box_save",
+										    savename, boxloc, 
+										    self.screen_bgcolor,
+										    bgcolor=self.screen_color)		#  use inverted fore/background colors; even better would be a box around input field
+					# disable all the buttons
+					for id in self.buttons.keys():
+						button = self.buttons[id]
+						button.disable()
+						button.redraw()
+					#self.setExitLinkState(False)
+					self.txt_screen.setText( 'Type name and press ENTER:' )
+					self.txt_screen.show()
+					self.saveGameNameEntryBox.focus(True)
+					self.saveGameNameEntryBox.show()
+					self.picker_screen.hide()
+					self.lastEnteredSavegameName = None
+					self.guiroom.redraw()
+
+				elif self.picker_screen.visible:
+					# not new game, and pick screen visible
+					# so, show confirm screen
+					trace(0, "::: picker_screen.visible")
+	
+					self.picker_screen.hide()
+					self.txt_screen.setText( 
+						"\n"*7
+						+ "Are you sure you want to overwrite the savegame?\n"		# (%s)"% listItem.data
+						+ "\n"*3
+						+ "Press SAVE again to do it." )
+					self.txt_screen.show()
+
 				else:
+					# not new game, and pick screen not visible
+					# that means confirm screen IS visible, so do save
+					trace(0, "::: picker_screen NOT visible")
+
 					savename = self.picker_screen.items[self.picker_screen.selection].data
+					VS.saveGame(savename)
 					self.oldSaveName = savename
 
-				#enter a modal line editor
-				boxloc = GUI.GUIRect(120,130,200,20,"pixel",(800,600))
-				self.saveGameNameEntryBox = GUI.GUILineEdit(self.saveNameEntryEntered,
-									    self.guiroom,"box_save",
-									    savename, boxloc, 
-									    self.screen_color,
-									    bgcolor=self.screen_bgcolor)
-				for id in self.buttons.keys():
-					button = self.buttons[id]
-					button.disable()
-					button.redraw()
-				self.saveGameNameEntryBox.focus(True)
-#				self.setExitLinkState(False)
-				self.txt_screen.setText( 'Save Game:' )
-				self.txt_screen.show()
-				self.saveGameNameEntryBox.show()
-				self.picker_screen.hide()
-				self.lastEnteredSavegameName = None
-				self.guiroom.redraw()
-				
+					# redisplay saved list
+					self.picker_screen.items = [GUI.GUISimpleListPicker.listitem("New Game",NewSaveGame)]+savelist()
+					self.picker_screen.show()
+					self.txt_screen.hide()
+					
+					# or should this call reset? or show "game saved" text?
+
 		else:
+			# some other button was pressed
 			self.picker_screen.hide()
 			self.txt_screen.hide()
 		self.mode = button_index
@@ -399,8 +433,11 @@ class QuineComputer:
 			savename = textbox.getText()
 			if savename in savelist() and savename is not self.oldSaveName:
 				if savename is not self.lastEnteredSavegameName:
-					self.txt_screen.setText( 'warning: overwriting another game with the same name\n' + 
-						  'press Enter again to really do it')
+					self.txt_screen.setText( 
+						"\n"*7
+						+ "Are you sure you want to overwrite the savegame?" + 
+						+ "\n"*3
+						+ "Press ENTER again to do it")
 					return
 				else:
 					self.lastEnteredSavegameName = savename
@@ -417,14 +454,20 @@ class QuineComputer:
 		self.txt_screen.hide()
 		textbox.hide()
 		textbox.focus(False)
+
+		# re-enable buttons
 		for id in self.buttons.keys():
 			button = self.buttons[id]
 			button.enable()
 			button.redraw()
+		#self.setExitLinkState(True)
+
 		self.saveGameNameEntryBox = None
+
+		# redisplay saved list
 		self.picker_screen.show()
-#		self.setExitLinkState(True)
 		self.guiroom.redraw()
+
 
 	def scroll(self,direction):
 		list_screens = set(['btn_load','btn_save'])
