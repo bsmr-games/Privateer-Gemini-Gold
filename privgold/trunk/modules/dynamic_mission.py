@@ -23,6 +23,16 @@ mission_lib.AddMissionHooks(temp)
 temp=0
 '''
 
+# load the company names & briefing text from files only once
+company_names = []
+cargo_briefs  = []
+attack_briefs = []
+patrol_briefs = []
+defend_briefs = []
+escort_briefs = []
+rescue_briefs = []
+bounty_briefs = []
+
 def formatShip(ship):
     where=ship.find(".blank")
     if (where!=-1):
@@ -75,57 +85,49 @@ def getSystemsNAway (start,k,preferredfaction):
 
 syscreds=750
 
+def LoadList(filename):
+	bnl = []
+	print 'Importing list from: ' + filename
+	try:
+		f = open (filename,'r')
+		bnl = f.readlines()
+		f.close()
+	except:
+		return []
+	# strip newlines
+	for i in range(len(bnl)):
+		bnl[i]=bnl[i].rstrip()
+	return bnl
+
+def GetRandomFromList(list):
+	import vsrandom
+	idx = vsrandom.randint(0,len(list)-1)
+	return list[idx]
+
 def GetRandomCompanyName():
-    bnl=[]
-    print 'reading company names '
-    filename = 'universe/companies.txt'
-    try:
-        f = open (filename,'r')
-        bnl = f.readlines()
-        f.close()
-    except:
-        return ''
-    for i in range(len(bnl)):
-        bnl[i]=bnl[i].rstrip()
-    import vsrandom
-    idx = vsrandom.randint(0,len(bnl)-1)
-    return bnl[idx]
+	#print 'reading company names '
+	global company_names
+	if (len(company_names) == 0):
+		filename = 'universe/companies.txt'
+		company_names = LoadList(filename)
+	return GetRandomFromList(company_names)
 
 def GetRandomCargoBrief():
-    bnl=[]
-    brief=''
-    print 'generating cargo briefing'
-    filename = 'universe/cargo_brief.txt'
-    try:
-        f = open (filename,'r')
-        bnl = f.readlines()
-        f.close()
-    except:
-        return ''
-    for i in range(len(bnl)):
-        bnl[i]=bnl[i].rstrip()
-    import vsrandom
-    idx = vsrandom.randint(0,len(bnl)-1)
-    brief = bnl[idx]
-    return brief
+	#print 'generating cargo briefing'
+	global cargo_briefs
+	if (len(cargo_briefs) == 0):
+		filename = 'universe/cargo_brief.txt'
+		cargo_briefs = LoadList(filename)
+	return GetRandomFromList(cargo_briefs)
 
 def GetRandomAttackBrief():
-    bnl=[]
-    attackb=''
-    print 'generating attack briefing'
-    filename = 'universe/attack_brief.txt'
-    try:
-        f = open (filename,'r')
-        bnl = f.readlines()
-        f.close()
-    except:
-        return ''
-    for i in range(len(bnl)):
-        bnl[i]=bnl[i].rstrip()
-    import vsrandom
-    idx = vsrandom.randint(0,len(bnl)-1)
-    attackb = bnl[idx]
-    return attackb
+	#print 'generating attack briefing'
+	global attack_briefs
+	if (len(attack_briefs) == 0):
+		filename = 'universe/attack_brief.txt'
+		attack_briefs = LoadList(filename)
+	return GetRandomFromList(attack_briefs)
+
 def numPatrolPoints(sysname):
     try:
         import faction_ships
@@ -136,95 +138,45 @@ def numPatrolPoints(sysname):
         return vsrandom.randrange(4,10)
 
 def GetRandomPatrolBrief():
-    bnl=[]
-    patrolb=''
-    print 'generating patrol briefing'
-    filename = 'universe/patrol_brief.txt'
-    try:
-        f = open (filename,'r')
-        bnl = f.readlines()
-        f.close()
-    except:
-        return ''
-    for i in range(len(bnl)):
-        bnl[i]=bnl[i].rstrip()
-    import vsrandom
-    idx = vsrandom.randint(0,len(bnl)-1)
-    patrolb = bnl[idx]
-    return patrolb
+	#print 'generating patrol briefing'
+	global patrol_briefs
+	if (len(patrol_briefs) == 0):
+		filename = 'universe/patrol_brief.txt'
+		patrol_briefs = LoadList(filename)
+	return GetRandomFromList(patrol_briefs)
 
 def GetRandomDefendBrief():
-    bnl=[]
-    defendb=''
-    print 'generating defend briefing'
-    filename = 'universe/defend_brief.txt'
-    try:
-        f = open (filename,'r')
-        bnl = f.readlines()
-        f.close()
-    except:
-        return ''
-    for i in range(len(bnl)):
-        bnl[i]=bnl[i].rstrip()
-    import vsrandom
-    idx = vsrandom.randint(0,len(bnl)-1)
-    defendb = bnl[idx]
-    return defendb
+	#print 'generating defend briefing'
+	global defend_briefs
+	if (len(defend_briefs) == 0):
+		filename = 'universe/defend_brief.txt'
+		defend_briefs = LoadList(filename)
+	return GetRandomFromList(defend_briefs)
 
 def GetRandomEscortBrief():
-    bnl=[]
-    escortb=''
-    print 'generating escort briefing'
-    filename = 'universe/escort_brief.txt'
-    try:
-        f = open (filename,'r')
-        bnl = f.readlines()
-        f.close()
-    except:
-        return ''
-    for i in range(len(bnl)):
-        bnl[i]=bnl[i].rstrip()
-    import vsrandom
-    idx = vsrandom.randint(0,len(bnl)-1)
-    escortb = bnl[idx]
-    return escortb
+	#print 'generating escort briefing'
+	global escort_briefs
+	if (len(escort_briefs) == 0):
+		filename = 'universe/escort_brief.txt'
+		escort_briefs = LoadList(filename)
+	return GetRandomFromList(escort_briefs)
 
 def GetRandomRescueBrief():
-    bnl=[]
-    rescueb=''
-    print 'generating rescue briefing'
-    filename = 'universe/rescue_brief.txt'
-    try:
-        f = open (filename,'r')
-        bnl = f.readlines()
-        f.close()
-    except:
-        return ''
-    for i in range(len(bnl)):
-        bnl[i]=bnl[i].rstrip()
-    import vsrandom
-    idx = vsrandom.randint(0,len(bnl)-1)
-    rescueb = bnl[idx]
-    return rescueb
+	#print 'generating rescue briefing'
+	global rescue_briefs
+	if (len(rescue_briefs) == 0):
+		filename = 'universe/rescue_brief.txt'
+		rescue_briefs = LoadList(filename)
+	return GetRandomFromList(rescue_briefs)
 
 def GetRandomBountyBrief():
-    bnl=[]
-    bountyb=''
-    print 'generating bounty briefing'
-    filename = 'universe/bounty_brief.txt'
-    try:
-        f = open (filename,'r')
-        bnl = f.readlines()
-        f.close()
-    except:
-        return ''
-    for i in range(len(bnl)):
-        bnl[i]=bnl[i].rstrip()
-    import vsrandom
-    idx = vsrandom.randint(0,len(bnl)-1)
-    bountyb = bnl[idx]
-    return bountyb
-    
+	#print 'generating bounty briefing'
+	global bounty_briefs
+	if (len(bounty_briefs) == 0):
+		filename = 'universe/bounty_brief.txt'
+		bounty_briefs = LoadList(filename)
+	return GetRandomFromList(bounty_briefs)
+
 def getCargoName(category):
     l=category.split('/')
     if len(l)>1:
