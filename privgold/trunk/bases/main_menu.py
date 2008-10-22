@@ -62,20 +62,20 @@ rooms_quine = computer_lib.MakePersonalComputer(room_menu, room_menu,
 	1) # and return room map, rather than only root room
 rooms_quine['computer'].setMode('load')
 
-# Link 
+# Link to Quine "Load Game" screen
 sprite_loc = GUI.GUIRect(272,697,241,47,"pixel",(1024,768))
 sprite = {
 	'*':None,
 	'down' : ( 'interfaces/main_menu/load_button_pressed.spr', sprite_loc ) }
 GUI.GUIRoomButton(guiroom, rooms_quine['load'], 'XXXLoad Game','Load_Game',sprite,sprite_loc)
 
-# Link 
+# Link to Credits or Network Setup
 sprite_loc = GUI.GUIRect(513,697,241,47,"pixel",(1024,768))
 sprite = {
 	'*':None,
 	'down' : ( 'interfaces/main_menu/credits_button_pressed.spr', sprite_loc ) }
-GUI.GUICompButton(guiroom,'Network','XXXPlay Network','Network_Game',sprite,sprite_loc)
-#GUI.GUIRoomButton(guiroom, credits_guiroom, 'XXXShow Credits','Show_Credits',sprite,sprite_loc,clickHandler=enterCredits)
+#GUI.GUICompButton(guiroom,'Network','XXXPlay Network','Network_Game',sprite,sprite_loc)		# network game setup
+GUI.GUIRoomButton(guiroom, credits_guiroom, 'XXXShow Credits','Show_Credits',sprite,sprite_loc,clickHandler=enterCredits)	# credits screen
 
 # New game
 sprite_loc = GUI.GUIRect(31,697,241,47,"pixel",(1024,768))
