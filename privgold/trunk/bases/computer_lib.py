@@ -262,7 +262,8 @@ class QuineComputer:
 		# picker screen
 		self.picker_screen = GUI.GUISimpleListPicker(guiroom,'XXXSelect item','picker_screen', screen_loc,
 			textcolor    =screen_color     , textbgcolor    =screen_bgcolor,
-			selectedcolor=screen_bgcolor_nc, selectedbgcolor=screen_color   )
+			selectedcolor=screen_bgcolor_nc, selectedbgcolor=screen_color,
+			hotcolor     =screen_bgcolor_nc, hotbgcolor     =GUI.GUIColor(40/255.0, 44/255.0, 20/255.0)   )
 		self.picker_screen.hide()
 			
 		# 

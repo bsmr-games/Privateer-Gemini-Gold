@@ -782,6 +782,7 @@ class GUIButton(GUIStaticImage):
 		"""      with 'location' being a GUIRect                           """
 		"""      and  'text' being an optional overlaid text element       """
 
+		self.sprite = None
 		self.sprites=spritefiles
 		self.hotspot=hotspot
 		self.linkdesc=linkdesc
@@ -800,6 +801,8 @@ class GUIButton(GUIStaticImage):
 		self.textOverlay = GUIStaticText(self.room,self.index+"__text_overlay","",
 			self.hotspot,self.textcolor,self.textfontsize,self.textbgcolor)
 		self.textOverlay.hide()
+
+		self.setState(initialstate)
 
 		self.pythonstr = \
                   "# <-- this disables precompiled python objects\n" \
@@ -860,7 +863,7 @@ class GUIButton(GUIStaticImage):
 			Base.Python(self.room.getIndex(),self.index,x,y,w,h,self.linkdesc,self.pythonstr,True)
 			Base.SetLinkEventMask(self.room.getIndex(),self.index,'cduel')
 			self.linkstate=1
-		self.setState(self.state)
+		#self.setState(self.state)
 		GUIStaticImage.draw(self)
 		if self.textOverlay.visible:
 			self.textOverlay.draw()
@@ -1210,7 +1213,12 @@ class GUISimpleListPicker(GUIElement):
 			return self.string
 		
 		
-	def __init__(self,room,linkdesc,index,hotspot,textcolor=GUIColor.white(),textbgcolor=GUIColor.clear(),textfontsize=1.0,selectedcolor=GUIColor.white(),selectedbgcolor=GUIColor.black(),**kwargs):
+	def __init__(self,room,linkdesc,index,hotspot,
+			textcolor=GUIColor.white(), textbgcolor=GUIColor.clear(),
+			textfontsize=1.0,
+			selectedcolor=GUIColor.white(), selectedbgcolor=GUIColor.black(),
+			hotcolor=GUIColor(1.0, 0.0, 0.0), hotbgcolor=GUIColor.black(),
+			**kwargs):
 		GUIElement.__init__(self,room,**kwargs)
 		self.linkdesc = linkdesc
 		self.index = index
@@ -1223,15 +1231,19 @@ class GUISimpleListPicker(GUIElement):
 		self.textbgcolor = textbgcolor
 		self.selectedcolor = selectedcolor
 		self.selectedbgcolor = selectedbgcolor
+		self.hotcolor = hotcolor
+		self.hotbgcolor = hotbgcolor
 		self.textfontsize = textfontsize
 		self.selectedattrs = dict(color=selectedcolor,bgcolor=selectedbgcolor,fontsize=textfontsize)
 		self.unselectedattrs = dict(color=textcolor,bgcolor=textbgcolor,fontsize=textfontsize)
+		self.hotattrs = dict(color=hotcolor,bgcolor=hotbgcolor,fontsize=textfontsize)
 		self.createListItems()
 		
 	def __setattr__(self,name,value):
 		if name == 'items':
 			# Preserves type
 			self.items[:] = value
+			self._updateListItemText()
 		else:
 			if name in ['textcolor','textbgcolor','textfontsize']:
 				self.notifyNeedRedraw(0)
@@ -1265,8 +1277,8 @@ class GUISimpleListPicker(GUIElement):
 	def createListItems(self):
 		self.destroyListItems()
 		
-		theight = Base.GetTextHeight('|',tuple([self.textfontsize]*3))*1.05 # Need a small margin to avoid text clipping
-		spr = { 'checked':(None,None,''), 'unchecked':(None,None,'') }
+		theight = Base.GetTextHeight('|',tuple([self.textfontsize]*3))*1.2 # Need a small margin to avoid text clipping
+		spr = { 'checked':(None,None,''), 'unchecked':(None,None,''), 'hot':(None,None,'') }
 		if theight<=0:
 			return
 		nlines = int(self.hotspot.getTextRect()[3]/theight)
@@ -1292,12 +1304,20 @@ class GUISimpleListPicker(GUIElement):
 			self._listitems[i].sprites = { 
 				'checked':(None,None,txt,self.selectedattrs), 
 				'unchecked':(None,None,txt,self.unselectedattrs),
+				'hot':(None,None,txt,self.hotattrs),
 				'disabled':(None,None) }
 			self._listitems[i].setEnable((self.firstVisible + i) < len(self.items))
 			self._listitems[i].notifyNeedRedraw()
-	
+
+	"""
+		NOTE: every time the room is redrawn, the each list item is undrawn and redrawn multiple times. 
+		This is because a room broadcast undraws the list and the list items (made of a button and a caption),
+		but the list undraw calls undraw for all the list items, and the list item undraw calls undraw for the captions
+		
+		This happens each time on a mouseover event.
+	"""
 	def draw(self):
-		self._updateListItemText()
+		#self._updateListItemText()
 		for item in self._listitems:
 			item.draw()
 	def undraw(self):
