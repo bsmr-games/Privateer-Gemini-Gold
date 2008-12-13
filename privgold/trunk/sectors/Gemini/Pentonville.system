@@ -26,7 +26,12 @@
 <attenuated red="0" blue=".0000001"/>
 </Light>	
         <unit name=""  file="mining_base" faction="pirate" x="-12500" y="-10500"/>
-        <asteroid VarName="asteroid_detail" VarValue="1"  name=""  file="AFieldBasePriv" faction="neutral"   x="-12500" y="-10500" day="-14000" ></asteroid>         
-        <unit VarName="asteroid_detail" difficulty=".03" VarValue="0"  name=""  file="Asteroid_Field" faction="neutral"   x="-12500" y="-10500" day="-14000" ></unit>         
         <planet name="Jump_To_119CE" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="11000" y="9500" day="240" destination="Gemini/119ce"  />
+        
+        <Condition expression="asteroid_detal &lt; 1">
+            <asteroid name="" file="AFieldBasePriv" faction="neutral"   x="-12500" y="-10500" day="-14000" ></asteroid>         
+        </Condition>
+        <Condition expression="asteroid_detal &gt;= 1">
+            <unit difficulty=".03" name=""  file="Asteroid_Field" faction="neutral"   x="-12500" y="-10500" day="-14000" ></unit>         
+        </Condition>
 </system>

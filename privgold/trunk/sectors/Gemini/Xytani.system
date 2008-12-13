@@ -28,9 +28,15 @@
 
         <planet name="Jump_To_Rygannon" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="-11300" y="-14000" day="240" destination="Gemini/Rygannon"/>
         <planet name="Nav_2" file="invisible.png" alpha="ONE ONE" radius="256" gravity="0" x="-6000" y="16000" day="240" />
-        <asteroid VarName="-asteroid_detail" VarValue="-1"  name= "Nav_2"  file="AFieldBasePriv" faction="neutral"   x="-6000" y="16000" day="-14000"   ></asteroid>         
-        <unit VarName="asteroid_detail" difficulty=".03" VarValue="2"  name= "Nav_2"  file="Asteroid_Field" faction="neutral"   x="-6000" y="16000" day="-14000"   ></unit>         
+        
         <planet name="Jump_To_Palan" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="16000" y="0"  day="240" destination="Gemini/Palan"/>
-        <asteroid VarName="-asteroid_detail" VarValue="-1"  name=""  file="AFieldBasePriv" faction="neutral"   x="2700" y="-5300" day="-14000"   ></asteroid>         
-        <unit VarName="asteroid_detail" difficulty=".03" VarValue="2"  name=""  file="Asteroid_Field" faction="neutral"   x="2700" y="-5300" day="-14000"   ></unit>         
+        
+        <Condition expression="asteroid_detal &lt; 2">
+            <asteroid name= "Nav_2"  file="AFieldBasePriv" faction="neutral"   x="-6000" y="16000" day="-14000"   ></asteroid>         
+            <asteroid name=""  file="AFieldBasePriv" faction="neutral"   x="2700" y="-5300" day="-14000"   ></asteroid>         
+        </Condition>
+        <Condition expression="asteroid_detal &gt;= 2">
+            <unit difficulty=".03" name= "Nav_2"  file="Asteroid_Field" faction="neutral"   x="-6000" y="16000" day="-14000"   ></unit>  
+            <unit difficulty=".03" name=""  file="Asteroid_Field" faction="neutral"   x="2700" y="-5300" day="-14000"   ></unit>         
+        </Condition>
 </system>

@@ -29,8 +29,13 @@
         <planet name="Jump_To_Junction" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="-17200" y="12800" day="240" destination="Gemini/Junction"/>
         <planet name="Jump_To_Tingerhoff" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="0" y="7500" day="240" destination="Gemini/Tingerhoff"/>
         <unit name="Macabee"  file="mining_base" faction="mining" x="15200" y="0"/>
-        <asteroid VarName="asteroid_detail" VarValue="1"  name= "Macabee"  file="AFieldBasePriv" faction="neutral"   x="15200" y="0" day="-14000"   ></asteroid>         
-        <unit VarName="asteroid_detail" difficulty=".03" VarValue="0"  name= "Macabee"  file="Asteroid_Field" faction="neutral"   x="15200" y="0" day="-14000"   ></unit>         
         <planet name="Jump_To_Capella" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="8200" y="-10200" day="240" destination="Gemini/Capella"/>
         <planet name="Jump_To_KM-252" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="-7200" y="-3500" day="240" destination="Gemini/KM-252" />
+
+        <Condition expression="asteroid_detal &lt; 1">
+            <asteroid name= "Macabee" file="AFieldBasePriv" faction="neutral"   x="15200" y="0" day="-14000"   ></asteroid>         
+        </Condition>
+        <Condition expression="asteroid_detal &gt;= 1">
+            <unit difficulty=".03" name= "Macabee"  file="Asteroid_Field" faction="neutral"   x="15200" y="0" day="-14000"   ></unit>         
+        </Condition>
 </system>

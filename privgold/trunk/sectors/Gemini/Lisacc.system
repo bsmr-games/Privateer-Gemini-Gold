@@ -27,11 +27,17 @@
 </Light>	
         
         <unit name= "Lisacc"  file="mining_base" faction="confed" x="-8800" y="-2500"/>
-        <asteroid VarName="-asteroid_detail" VarValue="-1"  name= "Lisacc"  file="AFieldBasePriv" faction="neutral"   x="-8800" y="-2500" day="-14000"   ></asteroid>   
-        <unit VarName="asteroid_detail" difficulty=".03" VarValue="2"  name= "Lisacc"  file="Asteroid_Field" faction="neutral"   x="-8800" y="-2500" day="-14000"   ></unit>   
         <planet name="Jump_To_Blockade_Point_Tango" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="11000" y="7500" day="240" destination="Gemini/Blockade_Point_Tango" />
-        <asteroid VarName="-asteroid_detail" VarValue="-1"  name= "Jump_To_Blockade_Point_Tango"  file="AFieldBasePriv" faction="neutral"   x="11000" y="7500" day="-14000"   ></asteroid>    
-        <unit VarName="asteroid_detail" difficulty=".03" VarValue="2"  name= "Jump_To_Blockade_Point_Tango"  file="Asteroid_Field" faction="neutral"   x="11000" y="7500" day="-14000"   ></unit>    
+
+        <Condition expression="asteroid_detal &lt; 2">
+            <asteroid name= "Lisacc"  file="AFieldBasePriv" faction="neutral"   x="-8800" y="-2500" day="-14000"   ></asteroid>   
+            <asteroid name= "Jump_To_Blockade_Point_Tango"  file="AFieldBasePriv" faction="neutral"   x="11000" y="7500" day="-14000"   ></asteroid>    
+        </Condition>
+        <Condition expression="asteroid_detal &gt;= 2">
+            <unit difficulty=".03" name= "Lisacc"  file="Asteroid_Field" faction="neutral"   x="-8800" y="-2500" day="-14000"   ></unit>   
+            <unit difficulty=".03" name= "Jump_To_Blockade_Point_Tango"  file="Asteroid_Field" faction="neutral"   x="11000" y="7500" day="-14000"   ></unit>    
+        </Condition>
+
 <!--priv_009        <planet name="Jump_To_Tk'Tarak" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="1000" y="-1500" z="7400" day="240" destination="TrkPahn/TKTarak" /> priv_009-->
 <!--priv_009        <planet name="Jump_To_N'Der_Pak" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="-2000" y="-5500" z="9400" day="240" destination="TrkPahn/NDerPak" /> priv_009-->
 

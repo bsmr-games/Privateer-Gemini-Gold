@@ -27,10 +27,16 @@
 </Light>	
 
         <planet name="Jump_To_Pestilence" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="0" y="-17000" day="240" destination="Gemini/Pestilence"/>
-        <asteroid VarName="-asteroid_detail" VarValue="-1"  name= "Jump_To_Pestilence"  file="AFieldBasePriv" faction="neutral"   x="0" y="-17000" day="-14000"   ></asteroid>         
-        <unit VarName="asteroid_detail" difficulty=".03" VarValue="2"  name= "Jump_To_Pestilence"  file="Asteroid_Field" faction="neutral"   x="0" y="-17000" day="-14000"   ></unit>         
+        
         <planet name="Nav_2" file="invisible.png" alpha="ONE ONE" radius="256" gravity="0" x="0" y="0" day="240" />
         <planet name="Jump_To_Troy" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="0" y="17500"  day="240" destination="Gemini/Troy"/>
-        <asteroid VarName="-asteroid_detail" VarValue="-1"  name= "Jump_To_Troy"  file="AFieldBasePriv" faction="neutral"   x="0" y="17500" day="-14000"   ></asteroid>         
-        <unit VarName="asteroid_detail" difficulty=".03" VarValue="2"  name= "Jump_To_Troy"  file="Asteroid_Field" faction="neutral"   x="0" y="17500" day="-14000"   ></unit>         
+        
+        <Condition expression="asteroid_detal &lt; 2">
+            <asteroid name= "Jump_To_Pestilence"  file="AFieldBasePriv" faction="neutral"   x="0" y="-17000" day="-14000"   ></asteroid>         
+            <asteroid name= "Jump_To_Troy"  file="AFieldBasePriv" faction="neutral"   x="0" y="17500" day="-14000"   ></asteroid>         
+        </Condition>
+        <Condition expression="asteroid_detal &gt;= 2">
+            <unit difficulty=".03" name= "Jump_To_Pestilence"  file="Asteroid_Field" faction="neutral"   x="0" y="-17000" day="-14000"   ></unit>         
+            <unit difficulty=".03" name= "Jump_To_Troy"  file="Asteroid_Field" faction="neutral"   x="0" y="17500" day="-14000"   ></unit>         
+        </Condition>
 </system>

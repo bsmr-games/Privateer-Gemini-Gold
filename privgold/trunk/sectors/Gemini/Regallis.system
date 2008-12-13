@@ -31,6 +31,11 @@
         <planet name="Jump_To_Troy" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="14000" y="-6500" day="240" destination="Gemini/Troy"/>
         <planet name="Jump_To_Sherwood" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="10" y="-15000" day="240" destination="Gemini/Sherwood"/>
         <unit name= "Kronecker"  file="mining_base" faction="mining" x="-12000" y="-10500"/>
-        <asteroid VarName="-asteroid_detail" VarValue="1"  name= "Kronecker"  file="AFieldBasePriv" faction="neutral"   x="-12000" y="-10500" day="-14000"   ></asteroid>         
-        <unit VarName="asteroid_detail" difficulty=".03" VarValue="0"  name= "Kronecker"  file="Asteroid_Field" faction="neutral"   x="-12000" y="-10500" day="-14000"   ></unit>         
+        
+        <Condition expression="asteroid_detal &lt; 1">
+            <asteroid name= "Kronecker"  file="AFieldBasePriv" faction="neutral"   x="-12000" y="-10500" day="-14000"   ></asteroid>         
+        </Condition>
+        <Condition expression="asteroid_detal &gt;= 1">
+            <unit difficulty=".03" name= "Kronecker"  file="Asteroid_Field" faction="neutral"   x="-12000" y="-10500" day="-14000"   ></unit>         
+        </Condition>
 </system>
