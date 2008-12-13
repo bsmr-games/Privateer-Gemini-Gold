@@ -33,7 +33,7 @@
         </planet>
         <planet name="Jump_To_CM-N1054" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="3000" y="-11500" day="240" destination="Gemini/CM-N1054"/>
         <planet name="Nav_5" file="invisible.png" alpha="ONE ONE" radius="256" gravity="0" x="0" day="240" />
-        <unit name= "Basque"  file="mining_base" faction="militia" x="-12000" y="0"/>
+        <unit name= "Basque"  file="mining_base" faction="mining" x="-12000" y="0"/>
         <asteroid VarName="asteroid_detail" VarValue="1"  name= "Basque"  file="AFieldBasePriv" faction="neutral"   x="-12000" day="-14000"   ></asteroid>         
         <unit VarName="asteroid_detail" difficulty=".03" VarValue="0"  name= "Basque"  file="Asteroid_Field" faction="neutral"   x="-12000" day="-14000"   ></unit>         
 </system>

@@ -27,7 +27,7 @@
 </Light>	
 
         <planet name="Jump_To_17-AR" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="8500" y="-15500" day="240" destination="Gemini/17-ar"/>
-        <unit name=""  file="mining_base" faction="pirates" x="12500" y="16500"/>
+        <unit name=""  file="mining_base" faction="pirate" x="12500" y="16500"/>
         <asteroid VarName="asteroid_detail" VarValue="1"  name=""  file="AFieldBasePriv" faction="neutral"   x="12500" y="16500" day="-14000"  ></asteroid>         
         <unit VarName="asteroid_detail" difficulty=".03" VarValue="0"  name=""  file="Asteroid_Field" faction="neutral"   x="12500" y="16500" day="-14000"  ></unit>         
         <planet name="Jump_To_Valhalla" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="0" y="18000"  day="240" destination="Gemini/Valhalla" />

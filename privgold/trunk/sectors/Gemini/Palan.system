@@ -34,5 +34,5 @@
         <planet name="Palan" file="planets/agricultural.png" radius="1200" gravity="20" x="-14800" y="5900" day="300">
 		<Atmosphere file="clouds.png" alpha="SRCALPHA INVSRCALPHA" radius="1211"/>
         </planet>
-        <unit name= "Basra"  file="refinery" faction="merchant" x="13200" y="4200"/>
+        <unit name= "Basra"  file="refinery" faction="refinery" x="13200" y="4200"/>
 </system>

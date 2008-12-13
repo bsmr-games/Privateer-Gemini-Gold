@@ -27,7 +27,7 @@
 </Light>	
 
         <planet name="Jump_To_Crab-12" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="-11500" y="15000" day="240" destination="Gemini/Crab-12"/>
-        <unit name=""  file="mining_base" faction="pirates" x="0" y="0"/>
+        <unit name=""  file="mining_base" faction="pirate" x="0" y="0"/>
         <asteroid VarName="asteroid_detail" VarValue="1"  name=""  file="AFieldBasePriv" faction="neutral"   x="0" y="0" day="-14000" ></asteroid>         
         <unit VarName="asteroid_detail" difficulty=".03" VarValue="0"  name=""  file="Asteroid_Field" faction="neutral"   x="0" y="0" day="-14000" ></unit>         
         <planet name="Jump_To_Sherwood" file="jump.ani" alpha="ONE ONE" radius="256" gravity="0" x="17000" y="0"  day="240" destination="Gemini/Sherwood"/>
