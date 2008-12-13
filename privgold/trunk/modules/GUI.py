@@ -1277,7 +1277,7 @@ class GUISimpleListPicker(GUIElement):
 	def createListItems(self):
 		self.destroyListItems()
 		
-		theight = Base.GetTextHeight('|',tuple([self.textfontsize]*3))*1.2 # Need a small margin to avoid text clipping
+		theight = Base.GetTextHeight('|',tuple([self.textfontsize]*3))*1.3 # Need a small margin to avoid text clipping
 		spr = { 'checked':(None,None,''), 'unchecked':(None,None,''), 'hot':(None,None,'') }
 		if theight<=0:
 			return
