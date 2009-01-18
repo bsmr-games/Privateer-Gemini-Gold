@@ -31,7 +31,7 @@ Base.LaunchPython (room0, 'my_launch_id', 'bases/launch_hooks.py', 0.24, -0.1333
 room = Base.Room ('Perry_Concourse')
 room1 = room
 Base.Texture (room, 'stb', 'bases/perry/Perry_Concourse_sta'+time_of_day+'.spr', 0, 0)
-Base.Texture (room, 'sh0', 'bases/perry/Perry_Concourse_sh0'+time_of_day+'.spr', -0.157625, 0.4559)
+Base.Texture (room, 'sh0', 'bases/perry/Perry_Concourse_sh0'+time_of_day+'.spr', 0, 0)
 Base.Texture (room, 'background', 'bases/perry/Perry_Concourse'+time_of_day+'.spr', 0, 0)
 Base.Texture (room, 'car', 'bases/perry/Perry_Concourse_car'+time_of_day+'.spr', 0, 0)
 
