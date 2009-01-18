@@ -19,7 +19,7 @@ dynamic_mission.CreateMissions()
 room_landing_pad = Base.Room ('Landing_Pad')
 Base.Texture (room_landing_pad, 'background', 'bases/mining_base/MiningBase_LandingPad'+time_of_day+'.spr', 0, 0)
 Base.Texture (room_landing_pad, 'lgt', 'bases/mining_base/MiningBase_LandingPad_lgt'+time_of_day+'.spr', 0.75175, 0.3492)
-Base.Texture (room_landing_pad, 'shp', 'bases/mining_base/MiningBase_LandingPad_shp'+time_of_day+'.spr', 0.206125, 0.6596)
+Base.Texture (room_landing_pad, 'shp', 'bases/mining_base/MiningBase_LandingPad_shp'+time_of_day+'.spr', 0, 0)
 
 PlayerShip.InitPlayerShips()
 PlayerShip.AddPlayerShips('mining_base',room_landing_pad,'landship')
