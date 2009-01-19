@@ -26,7 +26,7 @@ def MakeIndustrial(sunny,time_of_day='',AWACS=False):
 	Base.Texture (room_landing_pad, 'sh2', 'bases/new_detroit/NewDet_LandingPad_sh2'+time_of_day+'.spr', 0.375875, -0.9603)
 	Base.Texture (room_landing_pad, 'sh3', 'bases/new_detroit/NewDet_LandingPad_sh3'+time_of_day+'.spr', -0.194, -0.485)
 	if not sunny:
-		Base.Texture (room_landing_pad, 'rlp', 'bases/new_detroit/NewDet_LandingPad_rlp'+time_of_day+'.spr', 0.582, -0.2716)
+		Base.Texture (room_landing_pad, 'rlp', 'bases/new_detroit/NewDet_LandingPad_rlp'+time_of_day+'.spr', 0, 0)
 
 	Base.LaunchPython (room_landing_pad, 'my_launch_id', 'bases/launch_hooks.py', -0.625, -0.193333, 0.595, 0.693333, 'Launch')
 	
