@@ -1,27 +1,29 @@
 <comm>
-	<node text="startingNode" relationship="0">
+	<node text="startingNode" relationship="0"><!-- node 0 (starting node: Don't link here)-->
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
 
 <!-- Starting Points -->
-	<node text="" relationship="0">
+	<node text="" relationship="0"><!-- node 1-->
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
-	<node text="" relationship="0">
+	<node text=""> <!-- node 2-->
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
-	<node text="" relationship="0"><!-- node 3-->
+	<node text="Never mind " relationship="0.2"><!-- node 3-->
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
 <!-- End of Starting Points -->
+
+<!-- Built-in Conversations --> 
 	<node text="Undock" relationship="0">
 		<edge index="1"/>
 		<edge index="2"/>
@@ -102,7 +104,5 @@
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
-
-<!-- End of Built-in Conversations -->
-
+<!-- End of Built-in Conversations --> 
 </comm>

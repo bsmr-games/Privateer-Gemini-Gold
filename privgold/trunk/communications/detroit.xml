@@ -11,7 +11,7 @@
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
-	<node text=""> <-- node 2-->
+	<node text=""> <!-- node 2-->
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
