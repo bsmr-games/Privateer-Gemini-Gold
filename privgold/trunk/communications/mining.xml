@@ -1,28 +1,28 @@
 <comm>
-	<node text="startingNode" relationship="0"><sound file="interface_computer.wav" sex="0"/> <sound file="interface_computer.wav" sex="1"/> <!-- node 0 (starting node: Don't link here)-->
+	<node text="startingNode" relationship="0">
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
 
 <!-- Starting Points -->
-	<node text="Hello." relationship="0"><sound file="interface_computer.wav" sex="0"/> <sound file="interface_computer.wav" sex="1"/> <!-- node 1-->
+	<node text="" relationship="0">
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
-	<node text="Keep up the good work." relationship="0"><sound file="interface_computer.wav" sex="0"/> <sound file="interface_computer.wav" sex="1"/> <!-- node 2-->
+	<node text="" relationship="0">
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
-	<node text="Never mind" relationship="0"><sound file="interface_computer.wav" sex="0"/> <sound file="interface_computer.wav" sex="1"/> <!-- node 3-->
+	<node text="" relationship="0"><!-- node 3-->
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
 	</node>
 <!-- End of Starting Points -->
-	<node text="Undocked" relationship="0">
+	<node text="Undock" relationship="0">
 		<edge index="1"/>
 		<edge index="2"/>
 		<edge index="3"/>
