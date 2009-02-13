@@ -69,6 +69,7 @@ weapons_lib.basename="mining_base"
 if (weapons_lib.CanRepair()):
 	weap = weapons_lib.MakeWeapon (room_concourse,time_of_day)
 	Base.Link (room_concourse, 'weapon_room', -0.0975, -0.0466667, 0.2225, 0.326667, 'Ship_Dealer/Upgrade', weap)
+	Base.Texture (room_concourse, 'wk0', 'bases/mining_base/MiningBase_Concourse_wk0'+time_of_day+'.spr', -0.352, -0.03)
 	Base.Texture (room_concourse, 'car', 'bases/mining_base/MiningBase_Concourse_car'+time_of_day+'.spr', 0, 0)
 else:
 	Base.Texture(room_concourse,'noshipdealer','bases/mining_base/noshipdealer.spr', 0.036375, 0.0291)
