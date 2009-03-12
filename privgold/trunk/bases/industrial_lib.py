@@ -18,15 +18,15 @@ def MakeIndustrial(sunny,time_of_day='',AWACS=False):
 	if (AWACS):
 		Base.Texture (room_landing_pad, 'background', 'bases/new_detroit/NewDet_LandingPad_AWACS.spr', 0.582, -0.2716)
 
-	PlayerShip.InitPlayerShips()
-	PlayerShip.AddPlayerShips('new_detroit',room_landing_pad,'landship')
-
 	Base.Texture (room_landing_pad, 'sh0', 'bases/new_detroit/NewDet_LandingPad_sh0'+time_of_day+'.spr', -0.194, 0.6596)
-	Base.Texture (room_landing_pad, 'sh1', 'bases/new_detroit/NewDet_LandingPad_sh1'+time_of_day+'.spr', 0.80025, 0.6596)
+	Base.Texture (room_landing_pad, 'sh1', 'bases/new_detroit/NewDet_LandingPad_sh1'+time_of_day+'.spr', 0.34, 0.55)
 	Base.Texture (room_landing_pad, 'sh2', 'bases/new_detroit/NewDet_LandingPad_sh2'+time_of_day+'.spr', 0.375875, -0.9603)
-	Base.Texture (room_landing_pad, 'sh3', 'bases/new_detroit/NewDet_LandingPad_sh3'+time_of_day+'.spr', -0.194, -0.485)
+	Base.Texture (room_landing_pad, 'sh3', 'bases/new_detroit/NewDet_LandingPad_sh3'+time_of_day+'.spr', 0, 0)
 	if not sunny:
 		Base.Texture (room_landing_pad, 'rlp', 'bases/new_detroit/NewDet_LandingPad_rlp'+time_of_day+'.spr', 0, 0)
+
+	PlayerShip.InitPlayerShips()
+	PlayerShip.AddPlayerShips('new_detroit',room_landing_pad,'landship')
 
 	Base.LaunchPython (room_landing_pad, 'my_launch_id', 'bases/launch_hooks.py', -0.625, -0.193333, 0.595, 0.693333, 'Launch')
 	
@@ -42,8 +42,8 @@ def MakeIndustrial(sunny,time_of_day='',AWACS=False):
 	if not sunny:
 		Base.Texture (room_concourse, 'wk0', 'bases/new_detroit/NewDet_Concourse_wk0'+time_of_day+'.spr', 0, 0)
 		Base.Texture (room_concourse, 'hvc', 'bases/new_detroit/NewDet_Concourse_hvc'+time_of_day+'.spr', 0.0788125, -0.2716)
-		Base.Texture (room_concourse, 'plc', 'bases/new_detroit/NewDet_Concourse_plc'+time_of_day+'.spr', 0, 0)
-		Base.Texture (room_concourse, 'anc', 'bases/new_detroit/NewDet_Concourse_anc'+time_of_day+'.spr', 0, 0)
+		#Base.Texture (room_concourse, 'plc', 'bases/new_detroit/NewDet_Concourse_plc'+time_of_day+'.spr', 0, 0)
+		#Base.Texture (room_concourse, 'anc', 'bases/new_detroit/NewDet_Concourse_anc'+time_of_day+'.spr', 0, 0)
 		Base.Texture (room_concourse, 'rnc', 'bases/new_detroit/NewDet_Concourse_rnc'+time_of_day+'.spr', 0, 0)
 	Base.Texture (room_concourse, 'ber', 'bases/new_detroit/NewDet_Concourse_ber'+time_of_day+'.spr', 0, 0)
 	

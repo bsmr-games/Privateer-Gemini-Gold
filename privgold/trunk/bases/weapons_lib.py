@@ -386,7 +386,7 @@ class SoftwareBoothComputerGeneric:
 				buy_price    = int( cargo.GetPrice() )
 				# in the original, the sell price wasn't a set ratio of the buy price, like we're doing here
 				sell_price   = int( buy_price * 0.75 )
-				repair_price = int( buy_price * 0.7 ) # if the item is 100% damaged, player only has to pay this percent of the purchase price
+				repair_price = int( buy_price * 0.45 ) # if the item is 100% damaged, player only has to pay this percent of the purchase price
 				self.buy_prices[name]    = buy_price
 				self.sell_prices[name]   = sell_price
 				self.repair_prices[name] = repair_price
@@ -1616,7 +1616,7 @@ class RepairBayComputerGeneric:
 			try:
 				buy_price    = int( cargo.GetPrice() )
 				sell_price   = int( buy_price * 0.5 )
-				repair_price = int( buy_price * 0.5 )
+				repair_price = int( buy_price * 0.35 )
 				self.buy_prices[name]    = buy_price
 				self.sell_prices[name]   = sell_price
 				self.repair_prices[name] = repair_price

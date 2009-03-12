@@ -5,13 +5,13 @@
 <Radar file="" xcent="-.2617" ycent="-.4427" width=".2031" height=".2917"/>
 	
 
-<ShieldF file="shieldf.spr" xcent=".209" ycent="-.3281" width=".0938" height=".0625"/>
+<ShieldF file="shieldf.spr" xcent=".209" ycent="-.3281" width=".0938" height=".0525"/>
 
-<ShieldB file="shieldf.spr" xcent=".209" ycent="-.5651" width=".0938" height=".0625"  GaugeDown="1"/>
+<ShieldB file="shieldf.spr" xcent=".209" ycent="-.5651" width=".0938" height=".0525"  GaugeDown="1"/>
 	
-<ShieldL file="shieldl.spr" xcent=".0986" ycent="-.4401" width=".0449" height=".1406"  GaugeRight="1"/>
+<ShieldL file="shieldl.spr" xcent=".1" ycent="-.4401" width=".0349" height=".1406"  GaugeRight="1"/>
 
-<ShieldR file="shieldl.spr" xcent=".3213" ycent="-.4401" width=".0449" height=".1406"  GaugeLeft="1"/>
+<ShieldR file="shieldl.spr" xcent=".3196" ycent="-.4401" width=".0349" height=".1406"  GaugeLeft="1"/>
 
 
 <ArmorF file="armorf.spr" xcent=".21" ycent="-.3906" width=".080" height=".052"/>
