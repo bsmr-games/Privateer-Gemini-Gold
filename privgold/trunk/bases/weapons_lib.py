@@ -1171,6 +1171,13 @@ def lookup_upgrade_damaged_sprite(item_name):
 		'isometal':		'bases/repair_upgrade/items/damaged/isometal.spr',
 		# add-ons
 		'afterburner':			'bases/repair_upgrade/items/damaged/afterburner.spr',
+		'shield_4_Level1':			'bases/repair_upgrade/items/damaged/shields.spr',
+		'shield_4_Level2':			'bases/repair_upgrade/items/damaged/shields.spr',
+		'shield_4_Level3':			'bases/repair_upgrade/items/damaged/shields.spr',
+		'shield_4_Level4':			'bases/repair_upgrade/items/damaged/shields.spr',
+		'shield_4_Level5':			'bases/repair_upgrade/items/damaged/shields.spr',
+		'shield_4_Level6':			'bases/repair_upgrade/items/damaged/shields.spr',
+		'shield_4_Level7':			'bases/repair_upgrade/items/damaged/shields.spr',
 	}
 	try:
 		sprite = sprites[item_name]
