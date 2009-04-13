@@ -449,7 +449,7 @@ class SoftwareBoothComputerGeneric:
 			self.setstatus(False, "ERROR: "+str(item_name_sent)+" CANNOT BE REPAIRED")
 		else:
 			# repair cost is the fraction of functionality * the repair_price
-			price = int( self.repair_prices[item_name] * (1.0 - damage) )
+			price = int( self.repair_prices[item_name] * (1.0 - undamaged) )
 			player = VS.getPlayer()
 			if player.getCredits() < price:
 				self.setstatus(False, "INSUFFICIENT CREDIT")
