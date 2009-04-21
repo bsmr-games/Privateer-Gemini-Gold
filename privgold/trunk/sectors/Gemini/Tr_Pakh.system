@@ -30,10 +30,10 @@
         
         <unit  name="Large_Asteroid"  file="large_asteroid" faction="kilrathi"   x="-3200" y="-1900" day="-14000"></unit>         
         
-        <Condition expression="asteroid_detal &lt; 1">
+        <Condition expression="asteroid_detail &lt; 1">
             <asteroid name=""  file="AFieldBasePriv" faction="neutral"   x="-3200" y="-1900" day="-14000"   ></asteroid>         
         </Condition>
-        <Condition expression="asteroid_detal &gt;= 1">
+        <Condition expression="asteroid_detail &gt;= 1">
             <unit difficulty=".03" name=""  file="Asteroid_Field" faction="neutral"   x="-3200" y="-1900" day="-14000"   ></unit>         
         </Condition>
         

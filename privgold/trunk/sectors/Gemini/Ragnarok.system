@@ -33,12 +33,12 @@
         <atmosphere alpha="SRCALPHA INVSRCALPHA" file="clouds.png"  radius="1009" />
         </planet>
         
-        <Condition expression="asteroid_detal &lt; 1">
+        <Condition expression="asteroid_detail &lt; 1">
             <asteroid VarName="-asteroid_detail" VarValue="-1"  name= "Jump_To_Blockade_Point_Alpha"  file="AFieldBasePriv" faction="neutral"   x="13200" day="-14000"   ></asteroid>         
             <asteroid VarName="-asteroid_detail" VarValue="-1"  name= "Asteroid Field"  file="AFieldBasePriv" faction="neutral"   x="-13000" y="12000" day="-14000"   ></asteroid>         
         </Condition>
         
-        <Condition expression="asteroid_detal &gt;= 1">
+        <Condition expression="asteroid_detail &gt;= 1">
             <unit VarName="asteroid_detail" difficulty=".03" VarValue="2"  name= "Asteroid Field"  file="Asteroid_Field" faction="neutral"   x="-13000" y="12000" day="-14000"   ></unit>         
             <unit VarName="asteroid_detail" difficulty=".03" VarValue="2"  name= "Jump_To_Blockade_Point_Alpha"  file="Asteroid_Field" faction="neutral"   x="13200" day="-14000"   ></unit>         
         </Condition>

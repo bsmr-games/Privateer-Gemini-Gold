@@ -36,10 +36,10 @@
         <unit name= "Basque"  file="mining_base" faction="mining" x="-12000" y="0"/>
         <unit VarName="asteroid_detail" difficulty=".03" VarValue="0"  name= "Basque"  file="Asteroid_Field" faction="neutral"   x="-12000" day="-14000"   ></unit>         
         
-        <Condition expression="asteroid_detal &lt; 1">
+        <Condition expression="asteroid_detail &lt; 1">
             <asteroid VarName="asteroid_detail" VarValue="1"  name= "Basque"  file="AFieldBasePriv" faction="neutral"   x="-12000" day="-14000"   ></asteroid>         
         </Condition>
-        <Condition expression="asteroid_detal &gt;= 1">
+        <Condition expression="asteroid_detail &gt;= 1">
             <asteroid VarName="asteroid_detail" VarValue="1"  name= "Basque"  file="AFieldBasePriv" faction="neutral"   x="-12000" day="-14000"   ></asteroid>         
         </Condition>
 </system>
