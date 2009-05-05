@@ -305,7 +305,8 @@ class CommodityComputer:
 		# this needs to be modified by cargo expansions & secret stash
 		player = VS.getPlayer()
 		self.player_hold_volume = int( VS.LookupUnitStat( player.getName(), player.getFactionName(), "Hold_Volume" ) )
-		# capacity increases by 50% if they have the cargo expansion
+		# capacity increases by 25 per cargo expansion
+		# NOTE: this is NOT like original game; that increased size by 50% if they have the cargo expansion
 		numaddcargo=player.hasCargo("add_cargo_volume")
 		if (numaddcargo):
 			self.player_hold_volume = self.player_hold_volume + 25*numaddcargo
@@ -332,30 +333,41 @@ class CommodityComputer:
 					quantity = self.exports[self.current_item][1]
 					price = self.prices[category]
 					if (self.import_count >= self.player_hold_volume):
+						# if hold is full, display "NO ROOM"
 						self.draw("NO ROOM ON SHIP")
-						
+
 					elif (price > VS.getPlayer().getCredits()):
+						# if player doesn't have enough credits, display "YOU'RE BROKE"
 						self.draw("INSUFFICIENT CREDITS")
 
 					else:
+						# otherwise, player has room and credits for at least 1 item
 						if (quantity > 0):
-							# commodity exchange has items to sell
-							# if select_all is True, then do loop here, incrementing count while hold has space and user has sufficient credits
+							# commodity exchange has items to sell - item shouldn't be displayed if quantity is 0 anyway
+							
+							# calculate maximum player is able to buy; that is limited by:
+							# 		quantity for sale
+							#		player's available storage
+							#		player's available credits
 							if price > 0:
-								count = max( 1, min(
+								count = min(
 									quantity,
 									(self.player_hold_volume - self.import_count),
-									int(player.getCredits() / price) ))
+									int(player.getCredits() / price) )
 							else:
-								count = max( 1, min(
+								# price should never be <= 0; just in case, avoid divide-by-zero or a negative count
+								trace(_trace_level, "::: commodity buy - price <= 0 : %s, %s" %(category, price))
+								count = min(
 									quantity,
-									(self.player_hold_volume - self.import_count) ))
+									(self.player_hold_volume - self.import_count) )
 
 							#
 							# transfer cargo from exchange to players ship
 							#
 							if not select_all:
-								count=1
+								# select_all == false means buying 1 at a time
+								if (count > 1):
+									count=1
 							elif count > PURCHASE_MAX:
 								count = PURCHASE_MAX
 							transfer_count = transfer_cargo(current_base, player, category, price, count, self.player_hold_volume, self.import_count)
@@ -384,6 +396,9 @@ class CommodityComputer:
 								self.exports.pop(self.current_item)
 								if self.current_item >= len(self.exports):
 									self.current_item = 0
+						else:
+							# quantity should never be <= 0
+							trace(_trace_level, "::: commodity buy - quantity <= 0 : %s, %s" %(category, quantity))
 						self.draw()
 				except:
 					pass
