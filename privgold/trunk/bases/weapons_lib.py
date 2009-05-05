@@ -84,10 +84,10 @@ def MakeWeapon(concourse,timeofdayignored='_day', dealername="bases/repair_upgra
 
 	# calculate the basic repair cost here, so that it only appears once
 	# RepairCost() always returns >= 1; a precentage would be more useful
-	global basic_repair_cost
-	basic_repair_cost = VS.getPlayer().RepairCost()
-	print "::: VS.getPlayer().RepairCost()"
-	print basic_repair_cost
+#	global basic_repair_cost
+#	basic_repair_cost = VS.getPlayer().RepairCost()
+#	print "::: VS.getPlayer().RepairCost()"
+#	print basic_repair_cost
 
 	# return room number, to allow bases to call Base.Link to this room
 	return room_ship_dealer
@@ -1081,7 +1081,7 @@ def lookup_upgrade_sprite(item_name):
 		'mult_thrust_enhancer':		'bases/repair_upgrade/items/thrustenhancer.spr',
 		'mult_shield_regenerator':		'bases/repair_upgrade/items/shield_regenerator.spr',		# ***
 		# basic repair
-		'basic_inspection':		'bases/repair_upgrade/items/maneuvering_jets.spr',
+#		'basic_inspection':		'bases/repair_upgrade/items/maneuvering_jets.spr',
 		}
 	try:
 		sprite = sprites[item_name]
@@ -1414,7 +1414,7 @@ def sort_missiles(a,b):
 # 
 # create lists showing what can be bought, sold, or repaired
 #
-def get_upgrade_repair_list(upgrades, basic_repair_cost):
+def get_upgrade_repair_list(upgrades): #, basic_repair_cost):
 	repair = []
 	for i in range(len(upgrades)):
 		# temporarily make the item damaged
@@ -1423,8 +1423,8 @@ def get_upgrade_repair_list(upgrades, basic_repair_cost):
 			# only store the index to item in the sell list
 			repair.append( i )
 
-	if basic_repair_cost > 0:
-		repair.append( -1 )
+#	if basic_repair_cost > 0:
+#		repair.append( -1 )
 
 	# temporary
 	print "::: get_upgrade_repair_list"
@@ -1630,11 +1630,11 @@ class RepairBayComputerGeneric:
 			except:
 				pass
 		
-		if VS.isserver():
-			self.basic_repair_cost = VS.getPlayer().RepairCost()
-		else:
-			global basic_repair_cost
-			self.basic_repair_cost = basic_repair_cost
+#		if VS.isserver():
+#			self.basic_repair_cost = VS.getPlayer().RepairCost()
+#		else:
+#			global basic_repair_cost
+#			self.basic_repair_cost = basic_repair_cost
 		self.reset()
 	def draw(self, text):
 		self.status = text
@@ -1643,7 +1643,7 @@ class RepairBayComputerGeneric:
 		self.disallowed = lookup_disallowed_upgrades()
 		self.buy    = get_upgrade_buy_list(self.buy_prices, self.disallowed)
 		self.sell   = get_upgrade_sell_list()
-		self.repair = get_upgrade_repair_list(self.sell, self.basic_repair_cost)
+		self.repair = get_upgrade_repair_list(self.sell) #, self.basic_repair_cost)
 		
 		self.upgrade_classes = {}
 		for i in range(len(self.sell)):
@@ -1703,7 +1703,7 @@ class RepairBayComputerGeneric:
 		elif cmd == "sell":
 			return self.sell_server(args[1], args[2])
 		elif cmd == "repair":
-			self.repair = get_upgrade_repair_list(self.sell, self.basic_repair_cost)
+			self.repair = get_upgrade_repair_list(self.sell) #, self.basic_repair_cost)
 			return self.repair_server(args[1])
 		elif cmd == "mount_select_buy":
 			return self.mount_select_buy_server(args[1], args[2])
@@ -1931,29 +1931,30 @@ class RepairBayComputerGeneric:
 				item_name, undamaged, type, mount_num, quantity = self.sell[repair_index]
 				# repair cost is the fraction of functionality * the repair_price
 				price = int( self.repair_prices[item_name] * (1.0 - undamaged) )
-			else:
+#			else:
 				# "Basic Repair"
-				item_name = "basic_inspection"
-				global basic_repair_price
-				price = basic_repair_price * self.basic_repair_cost
+#				item_name = "basic_inspection"
+#				global basic_repair_price
+#				price = basic_repair_price * self.basic_repair_cost
 
 			if player.getCredits() < price:
 				self.setstatus(False, "INSUFFICIENT CREDIT")
 			else:
-				if repair_index < 0:
+#				if repair_index < 0:
 					# do a "basic repair"
-					rc = player.RepairUpgrade()
-					self.repair.remove(repair_index) # Not pop -- this removes element whose value is arg
-					if (rc):
+#					rc = player.RepairUpgrade()
+#					self.repair.remove(repair_index) # Not pop -- this removes element whose value is arg
+#					if (rc):
 						# deduct cost, repair item, and set basic_repair_cost to 0
-						player.addCredits(-1 * price)
-						self.setstatus(True, "Thank You")
-					else:
-						self.setstatus(True, "NO DAMAGE FOUND: NO CHARGE")
+#						player.addCredits(-1 * price)
+#						self.setstatus(True, "Thank You")
+#					else:
+#						self.setstatus(True, "NO DAMAGE FOUND: NO CHARGE")
 					# don't show "basic repair" again while player is on this base
-					self.basic_repair_cost = 0
+#					self.basic_repair_cost = 0
 
-				elif type == "cargo":
+#				elif type == "cargo":
+				if type == "cargo":
 					if repair_item(player,item_name):
 						# deduct cost, repair item, and update repair list
 						player.addCredits(-1 * price)
@@ -2259,21 +2260,21 @@ class RepairBayComputer(RepairBayComputerGeneric):
 					item_name, undamaged, type, mount_num, quantity = self.sell[repair_index]
 					# repair cost is the fraction of functionality * the repair_price
 					price = int( self.repair_prices[item_name] * (1.0 - undamaged) )
-				else:
+#				else:
 					# "Basic Repair"
-					item_name = "basic_inspection"
-					global basic_repair_price
-					global basic_repair_cost
-					price = basic_repair_price * basic_repair_cost
+#					item_name = "basic_inspection"
+#					global basic_repair_price
+#					global basic_repair_cost
+#					price = basic_repair_price * basic_repair_cost
 				
 				def handleRepairResponse(args):
 					if args[0]!='success':
 						self.draw(args[1])
 						return
-					if repair_index < 0:
+#					if repair_index < 0:
 						# Quirking around the fact that server-side can't use globals.
-						global basic_repair_cost
-						basic_repair_cost = 0
+#						global basic_repair_cost
+#						basic_repair_cost = 0
 					if VS.networked():
 						# The class isn't shared in this case...
 						if repair_index < 0:
@@ -2415,9 +2416,14 @@ class RepairBayComputer(RepairBayComputerGeneric):
 				self.draw()
 		elif button_index == "btn_repair":
 			if self.state != "repair":
-				global basic_repair_cost
+				# if a "basic repair" is needed, just do it
+#				global basic_repair_cost
+				player = VS.getPlayer()
+				rc = player.RepairUpgrade()
+				print "::: calling player.RepairUpgrade()"
+				print rc
 				# update the repair list, if user sold any damaged items since reset()
-				self.repair = get_upgrade_repair_list(self.sell, basic_repair_cost)
+				self.repair = get_upgrade_repair_list(self.sell) #, basic_repair_cost)
 				self.state = "repair"
 				self.current_item = 0
 				self.draw()
@@ -2466,14 +2472,14 @@ class RepairBayComputer(RepairBayComputerGeneric):
 							price = int( self.buy_prices[item_name] * (1.0 - damage) )
 						except:
 							price = 99999 # just some arbitrary large number
-				else:
-					item_name    = "basic_inspection"
-					display_name = item_name.title()
-					sprite       = lookup_upgrade_damaged_sprite(item_name)
-					global basic_repair_price
-					global basic_repair_cost
-					price = basic_repair_price * basic_repair_cost
-					mount_num = None
+#				else:
+#					item_name    = "basic_inspection"
+#					display_name = item_name.title()
+#					sprite       = lookup_upgrade_damaged_sprite(item_name)
+#					global basic_repair_price
+#					global basic_repair_cost
+#					price = basic_repair_price * basic_repair_cost
+#					mount_num = None
 
 				self.drawItem(sprite, display_name, price, player.getCredits(), item_name, message, None, mount_num)
 			else:
@@ -2899,8 +2905,8 @@ def CanBuyShip(shipname):
 	return creds+ShipValue(VS.getPlayer().getName(),True)+CargoValue(VS.getPlayer())>=ShipValue(shipname,False)
 def BuyShip(shipname):
 	# set the basic_repair_cost to 0
-	global basic_repair_cost
-	basic_repair_cost = 0
+#	global basic_repair_cost
+#	basic_repair_cost = 0
 	# sell off the old ship and buy a new one
 	import VS
 	import Base
@@ -2947,6 +2953,6 @@ def BuyShip(shipname):
 
 # global variables
 master_part_list   = MasterPartList()
-basic_repair_price = 100
-basic_repair_cost  = 0
+#basic_repair_price = 100
+#basic_repair_cost  = 0
 basename="perry"
