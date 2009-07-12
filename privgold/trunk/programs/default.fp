@@ -186,7 +186,7 @@ void main()
 
   result.a = diffusecolor.a * gl_FrontMaterial.diffuse.a;//fresnel_alpha;
   result.rgb  = lightingClose(diffuse, specular, diffusemap, final_specular_color)
-             // + glowcolor.rgb
+              + glowcolor.rgb
               + (envMapping(reflection,gloss,final_specular_color)*fresnel_alpha);
   result *= cloaking.rrrg;
   gl_FragColor = result;
