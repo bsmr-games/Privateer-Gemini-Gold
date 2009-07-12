@@ -111,7 +111,7 @@ void name( \
 lighting(lighting0, 0, 5)
 lighting(lighting1, 1, 6)
 
-vec3 lightingClose(in vec3 diffuse, in vec3 specular, in vec4 diffusemap, in vec3 spec_col)
+vec3 lightingClose(in vec3 diffuse, in vec3 specular, in vec4 diffusemap, in vec3 spec_col )
 {
    return (diffuse*diffusemap.rgb) + (specular*spec_col);
 }
@@ -119,8 +119,7 @@ vec3 lightingClose(in vec3 diffuse, in vec3 specular, in vec4 diffusemap, in vec
 vec3 envMapping(in vec3 reflection, in float gloss, in vec3 spec_col)
 {
    float envLod = shininess2Lod(gloss);//shininessMap(shininess,spec_col));
-   //return texture2DLod(envMap, EnvMapGen(reflection), envLod).rgb * spec_col * vec3(2.0);
-   return texture2D(envMap, EnvMapGen(reflection)).rgb * spec_col * vec3(2.0);
+   return texture2DLod(envMap, EnvMapGen(reflection), envLod).rgb * spec_col * vec3(2.0);
 }
 
 void main() 
@@ -184,9 +183,9 @@ void main()
   //specular *= fresnel_alpha;
   vec3 final_specular_color = lerp( alpha, vec3( fresnel_alpha ), spec_col );
 
-  result.a = diffusecolor.a * gl_FrontMaterial.diffuse.a;//fresnel_alpha;
+  result.a = fresnel_alpha;
   result.rgb  = lightingClose(diffuse, specular, diffusemap, final_specular_color)
-             // + glowcolor.rgb
+              + fresnel_alpha*glowcolor.rgb
               + (envMapping(reflection,gloss,final_specular_color)*fresnel_alpha);
   result *= cloaking.rrrg;
   gl_FragColor = result;

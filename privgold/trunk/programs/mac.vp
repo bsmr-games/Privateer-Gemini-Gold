@@ -1,7 +1,7 @@
 uniform int light_enabled[gl_MaxLights];
 uniform int max_light_enabled;
-varying vec4 tc0;
-varying vec4 tc1,tc2,tc3,tc4,tc5,tc6,tc7;
+varying vec4 tc0,tc1;
+
 #define lightPosAndAttenuation(name, lightno) \
 vec4 name(in vec4 vertex) \
 { \
@@ -64,8 +64,8 @@ void main() {
   vec3 forward=gl_NormalMatrix*vec3(0.01,.01,1);//cheat use forward of ship to compute tangent
   vec3 binormal=normalize(cross(forward,normal));//gramm schmitt orthonormalization process
   vec3 tangent=normalize(cross(binormal,normal));
-  tc2.xyz=tangent;
-  tc3.xyz=binormal;
+  //tc2.xyz=tangent;
+  //  tc3.xyz=binormal;
   tc0.zw=position.xy/position.w;
   tc1.w=position.z/position.w;
   //tc5.xyz=normalize(gl_LightSource[0].position.xyz*position.w-position.xyz*gl_LightSource[0].position.w);//find the direction of the vertex to the light...if not directional position.w==1
