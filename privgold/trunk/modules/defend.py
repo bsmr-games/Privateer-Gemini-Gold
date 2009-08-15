@@ -9,7 +9,9 @@ import universe
 import unit
 import Director
 import quest
+running_defend_missions={}
 class defend (Director.Mission):
+        
     def __init__ (self,factionname,numsystemsaway, enemyquantity, distance_from_base, escape_distance, creds, defendthis, defend_base,protectivefactionname='',jumps=(),var_to_set='',dynamic_flightgroup='',dynamic_type='', dynamic_defend_fg='',waves=0, greetingText=['We will defeat your assets in this battle, privateer...','Have no doubt!']):
         Director.Mission.__init__(self)
         self.dedicatedattack=vsrandom.randrange(0,2)
@@ -43,11 +45,17 @@ class defend (Director.Mission):
         self.defendee=VS.Unit()
         self.difficulty=1
         self.you=VS.getPlayer()
+        self.younum=VS.getCurrentPlayer()
         name = self.you.getName ()
         self.mplay=universe.getMessagePlayer(self.you)
         self.adjsys = go_to_adjacent_systems(self.you,numsystemsaway,jumps)  
         self.adjsys.Print("You are in the %s system,","Proceed swiftly to %s.","Your arrival point is %s.","defend",1)
         VS.IOmessage (2,"defend",self.mplay,"And there eliminate any %s starships."  % self.faction)
+        self.key=str(VS.getCurrentPlayer())+str(factionname)+str(numsystemsaway)+str(enemyquantity)+str(distance_from_base)+str(escape_distance)+str(creds)+str(defendthis)+str(defend_base)+str(protectivefactionname)+str(jumps)+str(var_to_set)+str(dynamic_flightgroup)+str(dynamic_type)+str(dynamic_defend_fg)+str(waves)+str(greetingText);
+        global running_defend_missions
+        running_defend_missions[self.key]=0
+        self.run_def_mis=0
+
     def SetVarValue (self,value):
         if (self.var_to_set!=''):
             quest.removeQuest (self.you.isPlayerStarship(),self.var_to_set,value)
@@ -75,6 +83,7 @@ class defend (Director.Mission):
             return 1
 
         un= self.attackers[self.ship_check_count]
+        VS.adjustFGRelationModifier(self.younum,un.getFlightgroupName(),-.01);
         self.ship_check_count+=1
         if (un.isNull() or (un.GetHullPercent()<.7 and self.defendee.getDistance(un)>7000)):
             return 0
@@ -130,6 +139,14 @@ class defend (Director.Mission):
             self.SetVarValue(-1)
             VS.terminateMission(0)
             return   
+
+        global running_defend_missions
+        if running_defend_missions[self.key]!=self.run_def_mis:
+            print "ABORTING DEFEND MISSION WITH PARAMS "+self.key+" because another is running "
+            VS.terminateMission(1)
+            return
+        running_defend_missions[self.key]+=1
+        self.run_def_mis+=1
         if (not self.adjsys.Execute()):
             return
         if (not self.arrived):
