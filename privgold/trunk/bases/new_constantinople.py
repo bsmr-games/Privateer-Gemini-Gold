@@ -32,11 +32,9 @@ Base.LaunchPython (room0, 'my_launch_id', 'bases/launch_hooks.py', -0.515, -0.93
 room1 = Base.Room ('Main_Concourse')
 Base.Texture (room1, 'stt', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_stt.spr', 0.582, 0.6596)		# stars
 Base.Texture (room1, 'stb', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_stb.spr', 0.5880625, 0.2231)
-Base.Texture (room1, 'sh3', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_sh3.spr', 0.0711, 0.591)		# ship (Galaxy)
 Base.Texture (room1, 'background', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'.spr', 0, 0)			# concourse
-
-# Base.Texture (room1, 'sh3', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_sh3.spr', 0.582, -0.4559)
-Base.Texture (room1, 'sh4', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_sh4.spr', 0.594125, 0.6596)
+Base.Texture (room1, 'sh4', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_sh4.spr', 0, 0.5)
+Base.Texture (room1, 'sh3', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_sh3.spr', 0, 0.5)		# ship (Galaxy)
 Base.Texture (room1, 'car', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_car.spr', 0, 0)
 Base.Texture (room1, 'win', 'bases/new_constantinople/win.spr', 0.86, 0.062)
 Base.Texture (room1, 'ldp00000', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_ldp00000.spr', 0.9154375, 0.3492)
