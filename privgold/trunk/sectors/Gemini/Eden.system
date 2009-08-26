@@ -30,9 +30,9 @@
         <planet name="Eden" file="planets/church_of_man.png" radius="1200" gravity="20" x="0" y="-7500" si="-3000" day="300">
 		<Atmosphere file="clouds.png" alpha="SRCALPHA INVSRCALPHA" radius="1211"/>
         </planet>
-        <planet name="Sanctuary_Moon" file="planets/rock.png" radius="1300" x="21500" y="-7500" si="-3000" day="300"/>
-        <planet name="Sanctuary_Moon" file="planets/rock.png" radius="1330" x="21500" y="-7500" si="-3000" day="300"/>
-        <planet name="Sanctuary_Moon" file="planets/rock.png" radius="1340" x="21500" y="-7500" si="-3000" day="300"/>
+        <unit name="Sanctuary_Moon" file="moon" radius="1300" x="21500" y="-7500" si="-3000" day="300"/>
+        <unit name="Sanctuary_Moon" file="moon" radius="1330" x="21500" y="-7500" si="-3000" day="300"/>
+        <unit name="Sanctuary_Moon" file="moon" radius="1340" x="21500" y="-7500" si="-3000" day="300"/>
         <jump name="Unknown" file="jump.ani" alpha="ONE ONE" radius="256"  x="21500" z="-1500" y="-7500" si="-3000" day="300" destination="Gemini/Rikel"/>
 
 </system>
