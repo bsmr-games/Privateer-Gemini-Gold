@@ -27,7 +27,7 @@
 	
 <Energy file="blasterpower.spr" xcent="-.4414" ycent=".9297" width=".2969" height=".0417" GaugeRight="1"/> 
 	
-<Lock file="locklight.spr" xcent="-.002" ycent=".789" width=".5313" height=".1667"/>
+<MissileLock file="locklight.spr" xcent="-.002" ycent=".789" width=".5313" height=".1667"/>
 	
 <Eject file="eject.spr"/>
 	
@@ -44,5 +44,5 @@
 <Auto file="auto.spr" xcent="-.2852" ycent="-.3776" width=".0469" height=".0833"/> 
 	
 
-<!-- <FPS file="radar.spr" xcent=".8" ycent=".7" width=".018" height=".036"/>
-</Cockpit> -->
+<!-- <FPS file="radar.spr" xcent=".8" ycent=".7" width=".018" height=".036"/> -->
+</Cockpit>

@@ -31,7 +31,7 @@
 	
 <Energy file="blasterpower.spr" xcent="0.037" ycent=".7435" width=".3" height=".09" GaugeLeft="1"/> 
 	
-<Lock file="locklight.spr" xcent="0.469" ycent="-.43" width=".03125" height=".1667"/>
+<MissileLock file="locklight.spr" xcent="0.469" ycent="-.43" width=".03125" height=".1667"/>
 	
 <Speed file="radar.spr" xcent=".4692" ycent="-.0260" width=".027" height=".047"/>
 	

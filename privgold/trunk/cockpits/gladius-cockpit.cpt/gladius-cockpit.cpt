@@ -28,7 +28,7 @@
 <Energy file="blasterpower.spr" xcent="0" ycent="-.5404" width=".1875" height=".039" GaugeLeft="1"/> 
 
 	
-<Lock file="locklight.spr" xcent="0" ycent=".0938" width=".125" height=".0417"/>
+<MissileLock file="locklight.spr" xcent="0" ycent=".0938" width=".125" height=".0417"/>
 
 <Auto file="auto.spr" xcent="0" ycent="-.4063" width=".125" height=".0417"/> 
 	
