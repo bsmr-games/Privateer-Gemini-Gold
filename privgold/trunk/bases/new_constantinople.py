@@ -18,7 +18,7 @@ dynamic_mission.CreateMissions()
 # add landing pad
 room0 = Base.Room ('Landing_Bay')
 Base.Texture (room0, 'lps', 'bases/new_constantinople/NewCon_LandingBay'+time_of_day+'_lps.spr', 0.0788125, 0.0)
-Base.Texture (room0, 'background', 'bases/new_constantinople/NewCon_LandingBay'+time_of_day+'.spr', 0.582, -0.2716)
+Base.Texture (room0, 'background', 'bases/new_constantinople/NewCon_LandingBay'+time_of_day+'.spr', 0, 0)
 Base.Texture (room0, 'lgt', 'bases/new_constantinople/NewCon_LandingBay'+time_of_day+'_lgt.spr', -0.5031875, 0.46)
 Base.Texture (room0, 'sh0', 'bases/new_constantinople/NewCon_LandingBay'+time_of_day+'_sh0.spr', -0.2954375, 0.4)
 Base.Texture (room0, 'sh1', 'bases/new_constantinople/NewCon_LandingBay'+time_of_day+'_sh1.spr', -0.365, 0.54)
@@ -30,7 +30,7 @@ Base.LaunchPython (room0, 'my_launch_id', 'bases/launch_hooks.py', -0.515, -0.93
 
 # add main concourse
 room1 = Base.Room ('Main_Concourse')
-Base.Texture (room1, 'stt', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_stt.spr', 0, 0.5)		# stars
+Base.Texture (room1, 'stt', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_stt.spr', 0, 0.485)		# stars
 Base.Texture (room1, 'background', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'.spr', 0, 0)		# concourse
 Base.Texture (room1, 'sh4', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_sh4.spr', 0, 0.5)
 Base.Texture (room1, 'sh3', 'bases/new_constantinople/NewCon_Concourse'+time_of_day+'_sh3.spr', 0, 0.5)		# ship (Galaxy)
