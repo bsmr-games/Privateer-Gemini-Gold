@@ -29,17 +29,19 @@ Privateer Gemini Gold versions.
 
 	D. Privateer like communication options and radar colors for bases
 
-	E. More detailed asteroid fields
+	E. More detailed and better visible asteroid fields
 
-	F. Bugfixes
+	F. Savegames can be named
+
+	G. Bugfixes
 
 		- Level of Detail (might cause performance issues during spaceflight)
 
-		- loading of a saved mission causes indefinite new waves of hostile ships
+		- loading of a saved mission causes infinite new waves of hostile ships
 
 		- missile lock light always on while in gun or missile lock
 
-		- landing on eden moon
+		- landing after destruction of your ship on eden moon
 
 		- scrolling hud down affects all other huds too
 
