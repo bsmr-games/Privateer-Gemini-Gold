@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
-           Privateer Gemini Gold v1.03 -- 10/10/2009 -- Changes
+           Privateer Gemini Gold v1.03 -- 09/30/2009 -- Changes
 -----------------------------------------------------------------------------
 
 This file contains information about the changes between the different
@@ -29,11 +29,15 @@ Privateer Gemini Gold versions.
 
 	D. Privateer like communication options and radar colors for bases
 
-	E. More detailed and better visible asteroid fields
+	E. Shields switch to a lower level when playership runs out of energy
 
-	F. Savegames can be named
+	F. More detailed and better visible asteroid fields
 
-	G. Bugfixes
+	G. Savegames can be named
+
+	H. Better readable Oxford Library computer screen
+
+	I. Bugfixes
 
 		- Level of Detail (might cause performance issues during spaceflight)
 
@@ -41,11 +45,11 @@ Privateer Gemini Gold versions.
 
 		- missile lock light always on while in gun or missile lock
 
-		- landing after destruction of your ship on eden moon
+		- scrolling hud down affects all other huds as well
 
-		- scrolling hud down affects all other huds too
+		- landing after collision with eden moon
 
-		- hitchhiker won't leave you alone
+		- hitchhiker won't leave playership
 
 
   4. CHANGES FROM 1.02 TO 1.02a
