@@ -42,6 +42,7 @@ class escort_local (Director.Mission):
 		self.distance_from_base=distance_from_base
 		self.defendee=VS.Unit()
 		self.difficulty=1
+		self.younum=VS.getCurrentPlayer()
 		self.you=VS.getPlayer()
 		self.respawn=0
 		name = self.you.getName ()
@@ -59,19 +60,19 @@ class escort_local (Director.Mission):
 		self.defendee.setFgDirective('b') 
 		self.defendee.setFlightgroupLeader(self.defendee)
 		if (self.incoming):
-                        import unit
+			import unit
 			un=unit.getSignificant(vsrandom.randrange(0,20),1,0)
-                        if (un.getName()==self.defendee.getName()):
-        			un=unit.getSignificant(vsrandom.randrange(0,30),1,0)
-                        if (un.getName()==self.defendee.getName()):
-        			un=unit.getSignificant(vsrandom.randrange(0,40),1,0)
-                        if (un.getName()==self.defendee.getName()):
-        			un=unit.getSignificant(vsrandom.randrange(0,30),1,0)
-                        if (un.getName()==self.defendee.getName()):
-        			un=unit.getSignificant(vsrandom.randrange(0,40),1,0)
-                        if (un.getName()!=self.defendee.getName()):
-	        		self.defendee.performDockingOperations(un,0)
-        			#print "docking with "+un.getName()
+			if (un.getName()==self.defendee.getName()):
+				un=unit.getSignificant(vsrandom.randrange(0,30),1,0)
+			if (un.getName()==self.defendee.getName()):
+				un=unit.getSignificant(vsrandom.randrange(0,40),1,0)
+			if (un.getName()==self.defendee.getName()):
+				un=unit.getSignificant(vsrandom.randrange(0,30),1,0)
+			if (un.getName()==self.defendee.getName()):
+				un=unit.getSignificant(vsrandom.randrange(0,40),1,0)
+			if (un.getName()!=self.defendee.getName()):
+				self.defendee.performDockingOperations(un,0)
+				#print "docking with "+un.getName()
 				self.todock=un
 				VS.setObjective (self.objectivezero,"Escort To %s" % unit.getUnitFullName(un))
 		else:
@@ -80,7 +81,7 @@ class escort_local (Director.Mission):
 		self.successdelay=VS.GetGameTime()+1
 
 	def PayMission(self):
-		VS.AdjustRelation(self.you.getFactionName(),self.faction,.03,1)
+		VS.AdjustRelation(self.you.getFactionName(),self.protectivefaction,.03,1)
 		self.SetVarValue(1)
 		if (self.cred>0):
 			self.you.addCredits (self.cred)
@@ -89,7 +90,7 @@ class escort_local (Director.Mission):
 		VS.terminateMission(1)
 	def FailMission (self):
 		self.you.addCredits (-self.cred)
-		VS.AdjustRelation(self.you.getFactionName(),self.faction,-.02,1)				
+		VS.AdjustRelation(self.you.getFactionName(),self.protectivefaction,-.02,1)				
 		self.SetVarValue(-1)
 		VS.IOmessage (0,"escort mission",self.mplay,"You Allowed the base you were to protect to be destroyed.")
 		VS.IOmessage (0,"escort mission",self.mplay,"You are a failure to your race!")
@@ -142,6 +143,7 @@ class escort_local (Director.Mission):
 				launched.setFgDirective('B')
 			self.attackers += [ launched ]
 			count+=1
+			VS.adjustFGRelationModifier(self.younum,launched.getFlightgroupName(),-2);
 		if (self.respawn==0 and len(self.attackers)>0):
 			self.respawn=1
 			import universe
@@ -218,6 +220,7 @@ class escort_local (Director.Mission):
 						un =  self.attackers[self.targetiter]
 						if (not un.isNull()):
 							un.SetTarget (self.defendee)
+							#VS.adjustFGRelationModifier(self.younum,un.getFlightgroupName(),-.01);
 						self.targetiter=self.targetiter+1
 				if (self.NoEnemiesInArea (self.defendee)):
 					if (self.waves>0):
