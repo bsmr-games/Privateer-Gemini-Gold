@@ -170,6 +170,31 @@ class QuineComputer:
 		self.mode = ''
 		self.saveGameNameEntryBox = None
 
+		# in the following, 
+		#   coordinates are given in a GUI.GUIRect(left,right,width,height, "pixel", (screen_W, screen_H)
+		#      where left/right/width/height are in pixels, assuming the screen is at resolution screen_W, screen_H
+		#      (if not, proper conversions will be applied)
+		#
+		#   hot_loc is the clickable area
+		#   spr_loc is where the sprite image goes
+		#   spr specifies (<sprite file>, spr_loc) - the second item is where the image in <sprite_file> goes
+		#   spr_disabled is as spr, but when the button is disabled
+		#   sprites is a mapping from state to a 'spr'-like tuple (image and location), that is
+		#      the state-appearance mapping.
+		#
+		#   Most buttons in the following screen have been already painted as part of the background, so
+		#   button classes that will be created next only specify an image for a "down" and "disabled"
+		#   state, and specifying None (no sprite) for "enabled" (not pressed) state so that only
+		#   the background is visible.
+		#
+		#   Buttons are ultimately created with the GUI.GUIButton class, which takes a room where
+		#   the button belongs, a label (the 'XXX' prefix makes the label invisible), a unique id
+		#   so that reactive code can identify it (ie: btn_finances), the 'sprites' state-appearance
+		#   mapping, and the clickable area.
+		#
+		#   Later the self.add_button function will provide the button with a custom click callback
+		#   that will be called when the button is clicked
+		
 		if enable_finances:
 			hot_loc = GUI.GUIRect(545, 287, 105, 60, "pixel", (800,600))
 			spr_loc = hot_loc
@@ -213,22 +238,22 @@ class QuineComputer:
 		
 		if enable_load or enable_save:
 			hot_loc = [ GUI.GUIRect(621, 349, 55, 69, "pixel", (800,600)),
-						GUI.GUIRect(621, 413, 55, 69, "pixel", (800,600)),
-						GUI.GUIRect(553, 389, 73, 56, "pixel", (800,600)),
-						GUI.GUIRect(675, 389, 73, 56, "pixel", (800,600)) ]
+			            GUI.GUIRect(621, 413, 55, 69, "pixel", (800,600)),
+			            GUI.GUIRect(553, 389, 73, 56, "pixel", (800,600)),
+			            GUI.GUIRect(675, 389, 73, 56, "pixel", (800,600)) ]
 			spr_loc = hot_loc
 			spr = [ ("interfaces/quine/up_pressed.spr"   ,spr_loc[0]),
-					("interfaces/quine/down_pressed.spr" ,spr_loc[1]),
-					("interfaces/quine/left_pressed.spr" ,spr_loc[2]),
-					("interfaces/quine/right_pressed.spr",spr_loc[3]) ]
+			        ("interfaces/quine/down_pressed.spr" ,spr_loc[1]),
+			        ("interfaces/quine/left_pressed.spr" ,spr_loc[2]),
+			        ("interfaces/quine/right_pressed.spr",spr_loc[3]) ]
 			spr_disabled = [ ("interfaces/quine/up_disabled.spr"   ,spr_loc[0]),
-					("interfaces/quine/down_disabled.spr" ,spr_loc[1]),
-					("interfaces/quine/left_disabled.spr" ,spr_loc[2]),
-					("interfaces/quine/right_disabled.spr",spr_loc[3]) ]
+			                 ("interfaces/quine/down_disabled.spr" ,spr_loc[1]),
+			                 ("interfaces/quine/left_disabled.spr" ,spr_loc[2]),
+			                 ("interfaces/quine/right_disabled.spr",spr_loc[3]) ]
 			sprites = [ { 'enabled':None, 'disabled':spr_disabled[0], 'down':spr[0] },
-						{ 'enabled':None, 'disabled':spr_disabled[1], 'down':spr[1] },
-						{ 'enabled':None, 'disabled':spr_disabled[2], 'down':spr[2] },
-						{ 'enabled':None, 'disabled':spr_disabled[3], 'down':spr[3] } ]
+			            { 'enabled':None, 'disabled':spr_disabled[1], 'down':spr[1] },
+			            { 'enabled':None, 'disabled':spr_disabled[2], 'down':spr[2] },
+			            { 'enabled':None, 'disabled':spr_disabled[3], 'down':spr[3] } ]
 			self.add_button( GUI.GUIButton(guiroom,'XXXUp'   ,'btn_up'   , 
 						       sprites[0], hot_loc[0]), scroll_click )
 			self.add_button( GUI.GUIButton(guiroom,'XXXDown' ,'btn_down' , 
@@ -248,10 +273,10 @@ class QuineComputer:
 		self.screen_loc = screen_loc;
 
 		# first I tried rgb(56 60 24) and rgb(40 44 20); both were too light
-		# screen_bgcolor = GUI.GUIColor.clear()
+		#screen_bgcolor = GUI.GUIColor.clear()
 		screen_bgcolor_nc = GUI.GUIColor(0.44,0.47,0.17)	# roughly equal to rgb(111, 119, 43)
 		screen_bgcolor = screen_bgcolor_nc
-		self.screen_bgcolor = screen_bgcolor;
+		self.screen_bgcolor = screen_bgcolor
 	
 		# text screen
 		self.txt_screen = GUI.GUIStaticText(guiroom, 'txt_screen', self.str_start, screen_loc, 
@@ -261,7 +286,7 @@ class QuineComputer:
 
 		# picker screen
 		self.picker_screen = GUI.GUISimpleListPicker(guiroom,'XXXSelect item','picker_screen', screen_loc,
-			textcolor    =screen_color     , textbgcolor    =screen_bgcolor,
+			textcolor    =screen_color     , textbgcolor    =GUI.GUIColor.clear(),
 			selectedcolor=screen_bgcolor_nc, selectedbgcolor=screen_color,
 			hotcolor     =screen_bgcolor_nc, hotbgcolor     =GUI.GUIColor(40/255.0, 44/255.0, 20/255.0)   )
 		self.picker_screen.hide()
