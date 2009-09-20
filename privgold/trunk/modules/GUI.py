@@ -290,7 +290,9 @@ class GUIColor:
 
 	@staticmethod
 	def clear():
-		return GUIColor(0.0,0.0,0.0,0.0)
+		# Nonzero alpha is a hack to work around a VS bug in text rendering,
+		# which behaves differently than we expect when given alpha=0
+		return GUIColor(0.0,0.0,0.0,0.00001)
 
 
 
@@ -1238,6 +1240,7 @@ class GUISimpleListPicker(GUIElement):
 		self.unselectedattrs = dict(color=textcolor,bgcolor=textbgcolor,fontsize=textfontsize)
 		self.hotattrs = dict(color=hotcolor,bgcolor=hotbgcolor,fontsize=textfontsize)
 		self.createListItems()
+		self._needTextUpdate = True
 		
 	def __setattr__(self,name,value):
 		if name == 'items':
@@ -1245,13 +1248,14 @@ class GUISimpleListPicker(GUIElement):
 			self.items[:] = value
 			self._updateListItemText()
 		else:
-			if name in ['textcolor','textbgcolor','textfontsize']:
+			if name in ('textcolor','textbgcolor','textfontsize'):
 				self.notifyNeedRedraw(0)
 			self.__dict__[name] = value
 
 	@staticmethod
 	def _notifyListChange(lst,kind,key):
 		lst.owner.notifyNeedRedraw(0)
+		lst._needTextUpdate = True
 		
 	@staticmethod
 	def _notifySelectionChange(group,newval,caller):
@@ -1308,6 +1312,7 @@ class GUISimpleListPicker(GUIElement):
 				'disabled':(None,None) }
 			self._listitems[i].setEnable((self.firstVisible + i) < len(self.items))
 			self._listitems[i].notifyNeedRedraw()
+		self._needTextUpdate = False
 
 	"""
 		NOTE: every time the room is redrawn, the each list item is undrawn and redrawn multiple times. 
@@ -1317,7 +1322,8 @@ class GUISimpleListPicker(GUIElement):
 		This happens each time on a mouseover event.
 	"""
 	def draw(self):
-		#self._updateListItemText()
+		if self._needTextUpdate:
+			self._updateListItemText()
 		for item in self._listitems:
 			item.draw()
 	def undraw(self):
@@ -1345,6 +1351,7 @@ class GUISimpleListPicker(GUIElement):
 	def viewMove(self,lines):
 		self.firstVisible = max(0,min(len(self.items)-1-len(self._listitems)/2,self.firstVisible + lines))
 		self.notifyNeedRedraw()
+		self._needTextUpdate = True
 		self._recheck()
 
 	def setSelection(self,sel):
