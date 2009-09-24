@@ -146,6 +146,18 @@ class cargo_mission (Director.Mission):
             VS.terminateMission(0)
             return
 
+    def knownBases(self):
+        if self.base.getName().find("mining_base")!=-1:
+            return True
+        if (self.base.isPlanet()):
+            return True
+        if self.base.getName().find("new_constantinople")!=-1:
+            return True
+        if self.base.getName().find("perry")!=-1:
+            return True
+        if self.base.getName().find("refinery")!=-1:
+            return True
+        return False
 
     def Execute (self):
 ##        if (VS.getGameTime()>mission_time):
@@ -163,7 +175,8 @@ class cargo_mission (Director.Mission):
             return
         if (self.arrived):
             self.adjsys.Execute=self.adjsys.HaveArrived
-            if (self.base.isDocked(self.you)):
+            self.knownBases()
+            if (self.base.isDocked(self.you) or (self.base.getDistance(self.you)<=1 and not self.knownBases())):
                 self.takeCargoAndTerminate(self.you,1)
                 return
         else:
