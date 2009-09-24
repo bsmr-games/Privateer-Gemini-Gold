@@ -175,7 +175,6 @@ class cargo_mission (Director.Mission):
             return
         if (self.arrived):
             self.adjsys.Execute=self.adjsys.HaveArrived
-            self.knownBases()
             if (self.base.isDocked(self.you) or (self.base.getDistance(self.you)<=1 and not self.knownBases())):
                 self.takeCargoAndTerminate(self.you,1)
                 return
