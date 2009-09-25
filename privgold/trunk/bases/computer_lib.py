@@ -281,7 +281,7 @@ class QuineComputer:
 		# text screen
 		self.txt_screen = GUI.GUIStaticText(guiroom, 'txt_screen', self.str_start, screen_loc, 
 			color=screen_color,
-			bgcolor=screen_bgcolor)
+			bgcolor=GUI.GUIColor.clear())
 		self.txt_screen.show()			# display start text
 
 		# picker screen
