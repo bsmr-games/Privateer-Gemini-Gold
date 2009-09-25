@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
-           Privateer Gemini Gold v1.03 -- 09/30/2009 -- Changes
+           Privateer Gemini Gold v1.03 -- 10/10/2009 -- Changes
 -----------------------------------------------------------------------------
 
 This file contains information about the changes between the different
@@ -19,6 +19,8 @@ Privateer Gemini Gold versions.
 
 		- Mining Base Landing Pad animated light beam
 
+		- Mining Base Concourse with dust nebular and walking man
+
 		- New Detroit Landing Pad and Concourse animations
 
 		- New Constantinople Landing Pad and Concourse animations
@@ -29,7 +31,7 @@ Privateer Gemini Gold versions.
 
 	D. Privateer like communication options and radar colors for bases
 
-	E. Shields switch to a lower level when playership runs out of energy
+	E. Shields power down when playership runs out of energy
 
 	F. More detailed and better visible asteroid fields
 
