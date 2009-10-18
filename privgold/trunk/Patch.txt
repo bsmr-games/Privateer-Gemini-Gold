@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
-           Privateer Gemini Gold v1.03 -- 10/10/2009 -- Changes
+           Privateer Gemini Gold v1.03 -- 12/12/2009 -- Changes
 -----------------------------------------------------------------------------
 
 This file contains information about the changes between the different
