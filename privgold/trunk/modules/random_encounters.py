@@ -119,11 +119,20 @@ class random_encounters:
             nam-=1
         debug.debug(1-ret)
         return 1-ret;
-
+    def fixupFactionRelations(self):
+        for fac in ["mining", "refinery","naval","commerce"]:
+            reldel=VS.GetRelation("privateer",fac)
+            VS.AdjustRelation("privateer",fac,-reldel,1);
+            print "adjusting by "+str(reldel)
+            reldel=VS.GetRelation(fac,"privateer")
+            VS.AdjustRelation(fac,"privateer",-reldel,1);
+            print "adjusting by "+str(reldel)
+            
     def launch_near(self,un, forceLaunch=False):
         if (VS.GetGameTime()<10 and not forceLaunch):
             debug.debug("hola!")
             return
+        self.fixupFactionRelations();
         cursys=VS.getSystemFile()
 #    numsigs=universe.GetNumSignificantsForSystem(cursys)
         for factionnum in range(faction_ships.getMaxFactions()-1):
