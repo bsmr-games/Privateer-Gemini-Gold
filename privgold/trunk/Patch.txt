@@ -53,6 +53,14 @@ Privateer Gemini Gold versions.
 
 		- hitchhiker won't leave playership
 
+		- mission MFD shows nothing.mission
+
+		- bases and planets are not neutral
+
+		- hit autopilot while communicating in a centurion changes MFDs position
+
+		- positive militia responses take longer than negative
+
 
   4. CHANGES FROM 1.02 TO 1.02a
 
