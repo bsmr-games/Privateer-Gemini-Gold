@@ -639,8 +639,8 @@ def get_manifest_text(player):
 
 	# get the hold volume
 	int_hold_volume = int( VS.LookupUnitStat( player.getName(), player.getFactionName(), "Hold_Volume" ) )
-	numcv=player.hasCargo("add_cargo_volume")
-	numcvt=player.hasCargo("add_cargo_volume_tarsus")
+	numcv=player.hasCargo("add_cargo_expansion")
+	numcvt=player.hasCargo("add_cargo_volume")
 	numcvg=player.hasCargo("add_cargo_volume_galaxy")
 	int_hold_volume = int( int_hold_volume + 25*numcv + 50*numcvt + 75*numcvg  )
 

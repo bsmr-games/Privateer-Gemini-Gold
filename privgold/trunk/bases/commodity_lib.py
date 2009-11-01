@@ -307,10 +307,10 @@ class CommodityComputer:
 		self.player_hold_volume = int( VS.LookupUnitStat( player.getName(), player.getFactionName(), "Hold_Volume" ) )
 		# capacity increases by 25 per cargo expansion
 		# NOTE: this is NOT like original game; that increased size by 50% if they have the cargo expansion
-		numaddcargo=player.hasCargo("add_cargo_volume")
+		numaddcargo=player.hasCargo("add_cargo_expansion")
 		if (numaddcargo):
 			self.player_hold_volume = self.player_hold_volume + 25*numaddcargo
-		numaddcargo=player.hasCargo("add_cargo_volume_tarsus")
+		numaddcargo=player.hasCargo("add_cargo_volume")
 		if (numaddcargo):
 			self.player_hold_volume = self.player_hold_volume + 50*numaddcargo
 		numaddcargo=player.hasCargo("add_cargo_volume_galaxy")
