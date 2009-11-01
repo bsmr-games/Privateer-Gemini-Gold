@@ -310,6 +310,12 @@ class CommodityComputer:
 		numaddcargo=player.hasCargo("add_cargo_volume")
 		if (numaddcargo):
 			self.player_hold_volume = self.player_hold_volume + 25*numaddcargo
+		numaddcargo=player.hasCargo("add_cargo_volume_tarsus")
+		if (numaddcargo):
+			self.player_hold_volume = self.player_hold_volume + 50*numaddcargo
+		numaddcargo=player.hasCargo("add_cargo_volume_galaxy")
+		if (numaddcargo):
+			self.player_hold_volume = self.player_hold_volume + 75*numaddcargo
 
 		self.import_count = self.import_not_for_sale
 		for i in (range(len(self.imports))):

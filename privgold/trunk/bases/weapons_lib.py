@@ -937,6 +937,8 @@ def lookup_upgrade_name(item_name):
 		'reactor_level_7':		'Engine - Level 7',
 		'ion':					'Ion Pulse Cannon',
 		'add_cargo_volume':		'Cargo Expansion',
+		'add_cargo_volume_tarsus':		'Tarsus Cargo Expansion',
+		'add_cargo_volume_galaxy':		'Galaxy Cargo Expansion',
 		'medium_turret_meson':			'Turret, Top',
 		'medium_turret_rear_meson':		'Turret, Tail',
 		'medium_turret_bottom_meson':	'Turret, Bottom',
@@ -1065,6 +1067,8 @@ def lookup_upgrade_sprite(item_name):
 		# add-ons
 		'afterburner':			'bases/repair_upgrade/items/afterburner.spr',
 		'add_cargo_volume':		'bases/repair_upgrade/items/cargo_expansion.spr',
+		'add_cargo_volume_tarsus':		'bases/repair_upgrade/items/cargo_expansion.spr',
+		'add_cargo_volume_galaxy':		'bases/repair_upgrade/items/cargo_expansion.spr',
 		'ecm_package_1':		'bases/repair_upgrade/items/ecm1.spr',
 		'ecm_package_2':		'bases/repair_upgrade/items/ecm2.spr',
 		'ecm_package_3':		'bases/repair_upgrade/items/ecm3.spr',
@@ -1221,6 +1225,9 @@ def lookup_disallowed_upgrades():
 		}
 
 	if ship_name == 'tarsus':
+		disallowed['add_cargo_volume']   = 1
+		disallowed['add_cargo_volume_galaxy']   = 1
+
 		# no turrets
 		disallowed['medium_turret_meson']        = 1
 		disallowed['medium_turret_rear_meson']   = 1
@@ -1246,6 +1253,8 @@ def lookup_disallowed_upgrades():
 		disallowed['medium_turret_meson']        = 1
 		disallowed['medium_turret_bottom_meson'] = 1
 		disallowed['add_cargo_volume']   = 1
+		disallowed['add_cargo_volume_tarsus']   = 1
+		disallowed['add_cargo_volume_galaxy']   = 1
 		# shields
 		disallowed['shield_4_Level5']        = 1
 		disallowed['shield_4_Level6']        = 1
@@ -1263,6 +1272,8 @@ def lookup_disallowed_upgrades():
 		# rear turret only
 		disallowed['medium_turret_meson']        = 1
 		disallowed['medium_turret_bottom_meson'] = 1
+		disallowed['add_cargo_volume_galaxy']   = 1
+		disallowed['add_cargo_volume_tarsus']   = 1
 
 		if (not rf):
 			disallowed['shield_4_Level6']        = 1
@@ -1273,6 +1284,9 @@ def lookup_disallowed_upgrades():
 	elif ship_name == 'galaxy':
 		# top/bottom turrets only
 		disallowed['medium_turret_rear_meson']   = 1
+		disallowed['add_cargo_volume']   = 1
+		disallowed['add_cargo_volume_tarsus']   = 1
+
 		# shields
 		disallowed['shield_4_Level5']        = 1
 		disallowed['shield_4_Level6']        = 1
@@ -1294,6 +1308,8 @@ def lookup_disallowed_upgrades():
 		disallowed['medium_turret_bottom_meson'] = 1
 		# no cargo
 		disallowed['add_cargo_volume']   = 1
+		disallowed['add_cargo_volume_tarsus']   = 1
+		disallowed['add_cargo_volume_galaxy']   = 1
 		# no jump drive
 		disallowed['jump_drive']   = 1
 		# shields
@@ -1363,23 +1379,25 @@ def lookup_upgrade_sort_order(item_name):
 		'repair_droid':			25,
 		'repair_droid_advanced':		26,
 		'ecm_package_1':		27,
-		'ecm_package_2':		27,
-		'ecm_package_3':		27,
-		'add_cargo_volume':		28,
-		'medium_turret_meson':			29,
-		'medium_turret_rear_meson':		30,
-		'medium_turret_bottom_meson':	31,
+		'ecm_package_2':		28,
+		'ecm_package_3':		29,
+		'add_cargo_volume':		30,
+		'add_cargo_volume_tarsus':		31,
+		'add_cargo_volume_galaxy':		32,
+		'medium_turret_meson':			33,
+		'medium_turret_rear_meson':		34,
+		'medium_turret_bottom_meson':	35,
 		# rf add-ons
-		'gun_cooler':				32,
-		'mult_speed_enhancer':		33,
-		'mult_thrust_enhancer':		34,
-		'mult_shield_regenerator':	35,
+		'gun_cooler':				36,
+		'mult_speed_enhancer':		37,
+		'mult_thrust_enhancer':		38,
+		'mult_shield_regenerator':	39,
 		}
 	try:
 		n = sort_order[item_name]
 	except:
 		# not in list
-		n = 36
+		n = 40
 	return n
 
 def sort_upgrades(a,b):

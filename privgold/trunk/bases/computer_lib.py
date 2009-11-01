@@ -639,9 +639,10 @@ def get_manifest_text(player):
 
 	# get the hold volume
 	int_hold_volume = int( VS.LookupUnitStat( player.getName(), player.getFactionName(), "Hold_Volume" ) )
-	if (player.hasCargo("add_cargo_volume")):
-		# capacity increases by 50% if they have the cargo expansion
-		int_hold_volume = int( int_hold_volume * 1.5 )
+	numcv=player.hasCargo("add_cargo_volume")
+	numcvt=player.hasCargo("add_cargo_volume_tarsus")
+	numcvg=player.hasCargo("add_cargo_volume_galaxy")
+	int_hold_volume = int( int_hold_volume + 25*numcv + 50*numcvt + 75*numcvg  )
 
 	int_total_quantity = 0
 	for i in range(player.numCargo()):
