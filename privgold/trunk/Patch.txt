@@ -57,9 +57,11 @@ Privateer Gemini Gold versions.
 
 		- bases and planets are not neutral
 
-		- hit autopilot while communicating in a centurion changes MFDs position
-
 		- positive militia responses take longer than negative
+
+		- cargo space calculation is wrong when using cargo expansion  
+
+		- hit autopilot while communicating in a centurion changes MFDs position
 
 
   4. CHANGES FROM 1.02 TO 1.02a
