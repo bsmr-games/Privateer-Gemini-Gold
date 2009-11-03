@@ -100,6 +100,15 @@ def AddMissionHooks(director):
 def SetLastMission(which):
 	players[getMissionPlayer()].lastMission=str(which)
 	print 'set last mission to "'+str(which)+'"'
+def NotEnoughCargoRoom(plr):
+	player=VS.getPlayerX(plr)
+
+	cargo_obj = VS.Cargo("SpaceSalvage","SpaceSalvage", 185.5, 10 , 0.01, 1.0)
+	ret=player.addCargo(cargo_obj)
+	print "XYXenough cargo room for "+str(ret)+" cargo"
+	if ret:
+		player.removeCargo("SpaceSalvage",ret,True);
+	return ret!=10
 
 def LoadLastMission(which=None):
 	plr = getMissionPlayer()
@@ -113,8 +122,11 @@ def LoadLastMission(which=None):
 	last_args = players[plr].last_args
 	last_briefing_vars = players[plr].last_briefing_vars
 	last_briefing = players[plr].last_briefing
+
 	ret = True
-	if which in last_constructor and which in last_args:
+	if len(last_briefing_vars) and which in last_briefing_vars[0] and 'MISSION_TYPE' in last_briefing_vars[0][which] and last_briefing_vars[0][which]['MISSION_TYPE']=='CARGO' and NotEnoughCargoRoom(plr):
+		ret= False
+	elif which in last_constructor and which in last_args:
 		if last_constructor[which]==None:
 			if type(last_args[which])==str:
 				script = "%(args)s"

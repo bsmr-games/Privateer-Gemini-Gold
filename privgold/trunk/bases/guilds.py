@@ -245,6 +245,7 @@ class MissionButton(Button):
 				Button.drawobjs(self)
 	
 	def accept(self):
+		print "MISSION XNAME "+self.missionname
 		if not self.guild.CanTakeMoreMissions():
 			self.guild.TooManyMissions()
 		else:
@@ -258,6 +259,8 @@ class MissionButton(Button):
 						mission_lib.RemoveLastMission(self.missionname)
 				if args[0]=="toomany":
 					self.guild.TooManyMissions()
+				if args[0]=="notavailable":
+					self.guild.CargoFull()
 			if not VS.networked():
 				mission_lib.BriefLastMission(self.missionname,1,self.guild.textbox)
 			custom.run("guilds",[self.guild.guild.name,"accept",self.missionname],completeAccept)
@@ -298,6 +301,8 @@ class GuildRoom:
 			self.buttons['next'].removeobjs()
 		if 'last' in self.buttons:
 			self.buttons['last'].removeobjs()
+	def CargoFull(self):
+		Base.SetTextBoxText(Base.GetCurRoom(),self.textbox,"Insufficient Cargo Space")
 
 	def CanTakeMoreMissions(self):
 		return self.guild.CanTakeMoreMissions()
