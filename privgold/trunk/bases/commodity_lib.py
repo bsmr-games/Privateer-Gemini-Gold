@@ -324,6 +324,7 @@ class CommodityComputer:
 		trace(_trace_level, "::: update_player_manifest - hold contents = %s" %(self.import_count))
 
 	def select(self,select_all=False): 
+		self.update_player_manifest()
 		if self.state == "buy":
 			# if player has sufficient cargo space and credits:
 			# remove x items from exports
