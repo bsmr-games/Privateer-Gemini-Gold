@@ -14,10 +14,13 @@ def MakeIndustrial(sunny,time_of_day='',AWACS=False):
 	if sunny:
 		Base.Texture (room_landing_pad, 'background', 'bases/new_detroit/NewDet_LandingPad_Sunny.spr', 0.582, -0.2716)
 	else:
+		Base.Texture (room_landing_pad, 'background', 'bases/new_detroit/NewDet_LandingPad_BG'+time_of_day+'.spr', 0, 0)
+		Base.Texture (room_landing_pad, 'ads', 'bases/new_detroit/NewDet_LandingPad_ads'+time_of_day+'.spr', 0, 0)
 		Base.Texture (room_landing_pad, 'background', 'bases/new_detroit/NewDet_LandingPad'+time_of_day+'.spr', 0, 0)
 	if (AWACS):
 		Base.Texture (room_landing_pad, 'background', 'bases/new_detroit/NewDet_LandingPad_AWACS.spr', 0.582, -0.2716)
 
+	Base.Texture (room_landing_pad, 'rlt', 'bases/new_detroit/NewDet_LandingPad_rlt'+time_of_day+'.spr', 0, 0)
 	Base.Texture (room_landing_pad, 'sh0', 'bases/new_detroit/NewDet_LandingPad_sh0'+time_of_day+'.spr', 0, 0.485)
 	Base.Texture (room_landing_pad, 'sh1', 'bases/new_detroit/NewDet_LandingPad_sh1'+time_of_day+'.spr', 0.34, 0.55)
 	Base.Texture (room_landing_pad, 'sh3', 'bases/new_detroit/NewDet_LandingPad_sh3'+time_of_day+'.spr', 0, 0)
