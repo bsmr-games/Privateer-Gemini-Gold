@@ -1,45 +1,30 @@
 <?xml version="1.0"?>
-<technique fallback="default">
-    <!-- Full-blown shader technique, with Z-write prepass to avoid
-         shading overhead for occluded fragments.
+<technique fallback="fixed5">
+    <!-- Pseudo fixed-function shader pass. Does in one pass what
+         the fixed function does in many. Higher performance on
+         capable systems. Only caveat is that light attenuation
+         is a bit odd... 
          
-         This technique implements normal-mapping, specmaps with intensity-derived
-         shininess modulation, variable-kernel filtered environmental reflections
-         (based on shininess), specularity normalization, fading damage maps with
-         specmap perturbation, and supports up to 8 lights.
+         All lighting is per-vertex.
          
-         This is a one-pass technique, so only the first 2 lights are done 
-         per-pixel, the remaining ones use per-vertex lighting.
+         This version handles up to 8 lights. Fallbacks exist for
+         systems with lesser vertex shaders.
     -->
 
-    <!-- Z-write prepasses go at sequence 10 -->
-    <pass type="shader" sequence="10" cwrite="false">
-        <vertex_program src="zwrite"/>
-        <fragment_program src="zwrite"/>
-        <texture_unit src="decal:0" default="file:white.bmp" name="diffuseMap"/>
-    </pass>
-    
-    <!-- first and only lighting pass -->
+    <!-- sequence 15 to go after Z-write prepasses (that's 10) -->
     <pass type="shader" sequence="15">
-        <vertex_program src="highend"/>
-        <fragment_program src="highend"/>
+        <vertex_program src="fixed8"/>
+        <fragment_program src="fixed"/>
         
         <texture_unit src="decal:0" default="file:white.bmp" name="diffuseMap"/>
         <texture_unit src="environment" name="envMap"/>
         <texture_unit src="decal:1" default="file:white.bmp" name="specMap"/>
-        <texture_unit src="decal:3" default="file:black.png" name="glowMap"/>
-        <texture_unit src="decal:4" default="file:blue.png" name="normalMap"/>
         <texture_unit src="decal:2" default="decal:0" name="damageMap"/>
-        <texture_unit src="file:grey_metal.png" name="detail0Map"/>
-        <texture_unit src="file:grey_metal.png" name="detail1Map"/>
+        <texture_unit src="decal:3" default="file:black.png" name="glowMap"/>
         
-        <auto_param name="envColor" semantic="EnvColor" optional="true"/>
         <auto_param name="light_enabled" semantic="ActiveLightsArray" optional="true"/>
         <auto_param name="max_light_enabled" semantic="NumLights" optional="true"/>
-        <auto_param name="detail0plane" semantic="DetailPlane0" optional="true"/>
-        <auto_param name="detail1plane" semantic="DetailPlane1" optional="true"/>
         <auto_param name="cloaking" semantic="CloakingPhase" optional="true"/>
         <auto_param name="damage" semantic="Damage" optional="true"/>
-        <auto_param name="gameTime" semantic="GameTime" optional="true"/>
     </pass>
 </technique>
