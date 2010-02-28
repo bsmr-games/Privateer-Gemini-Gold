@@ -108,6 +108,7 @@ struct OpenGLLights {
 void light_rekey_frame();
 ///picks doubtless changed position
 void unpicklights();
+void removelightfromnewpick(int whichlight);
 ///The curren tlight context
 extern int _currentContext;
 ///The light data _llights points to one of these

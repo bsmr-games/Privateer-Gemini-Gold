@@ -285,6 +285,7 @@ void /*GFXDRVAPI*/ GFXDeleteLightContext(int con_number) {
 }
 
 void /*GFXDRVAPI*/ GFXSetLightContext (const int con_number) {
+  unpicklights();
   int GLLindex=0;
   unsigned int i;
   lighttable.Clear();
