@@ -90,7 +90,7 @@ class difficulty:
             if (un):
                 newcreds=un.getCredits()
                 if (self.creds[self.i]!=newcreds):
-                    if (self.creds[self.i]<newcreds):
+                    if (VS.getSystemFile()!="Gemini/Troy" and self.creds[self.i]<newcreds):
                         delta=((newcreds-self.creds[self.i])/self.credsToMax)
                         newdiff=self.getPlayerDifficulty(self.i)+delta
                         if (newdiff>.5999):
