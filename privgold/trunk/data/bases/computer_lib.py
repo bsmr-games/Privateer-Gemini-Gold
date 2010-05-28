@@ -7,6 +7,7 @@ import VS
 import ShowProgress
 import methodtype
 import mission_lib
+import weapons_lib
 import os
 
 pirate_bases = {
@@ -224,7 +225,10 @@ class QuineComputer:
 			spr_loc = hot_loc
 			spr = ("interfaces/quine/save_pressed.spr",spr_loc)
 			spr_disabled = ("interfaces/quine/save_disabled.spr",spr_loc)
-			sprites = { 'enabled':None, 'disabled':spr_disabled, 'down':spr }
+			spr_warning=None
+			if (not VS.getPlayer()) or ( VS.getPlayer().hasCargo("jump_drive" )==0 and not weapons_lib.CanRepair()):
+				spr_warning = ("interfaces/quine/save_warning.spr",spr_loc)
+			sprites = { 'enabled':spr_warning, 'disabled':spr_disabled, 'down':spr }
 			self.add_button( GUI.GUIButton(guiroom,'XXXSave'    ,'btn_save'    , 
 						       sprites, hot_loc), change_text_click )
 		if enable_missions:
@@ -732,3 +736,4 @@ def get_relations_text(player):
 			str_relations = str_relations + "%s%s  %s\t(%s: %s)\n" %(str_pad, kills, faction.capitalize(), str_relation, relation)
 
 	return str_relations
+
