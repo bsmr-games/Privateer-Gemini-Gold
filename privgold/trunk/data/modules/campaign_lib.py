@@ -297,9 +297,9 @@ class Script:
 	def __init__(self,nextscript=None):
 		self.nextscript=nextscript
 	def __call__(self,room,subnodes):
-		debug.debug('**************** CALL SCRIPT')
+		debug.debug('**************** CALL SCRIPT '+str(self))
 		if self.nextscript:
-			debug.debug('***************** CALL NEXT SCRIPT'+str(self.nextscript))
+			debug.debug('***************** CALL NEXT SCRIPT '+str(self.nextscript))
 			self.nextscript(room,subnodes)
 		return True
 class EnqueueMoreText(Script):
@@ -710,6 +710,53 @@ class LoadMission(Script):
 		return True
 
 
+class MovieCutscene(Script):
+    def __init__(self,name,movie,aspect=None,nextscript=None):
+        Script.__init__(self,nextscript)
+        self.name=name
+        self.movie=movie
+        self.aspect=aspect
+    def __call__(self,room,subnodes):
+        Script.__call__(self,room,subnodes)
+        if VS.isserver():
+            return True
+
+        debug.debug('*** Playing '+self.name)
+
+        import Base
+        import GUI
+        
+        class CutsceneRoom(GUI.GUIMovieRoom):
+            def onSkip(self, button, params):
+                GUI.GUIMovieRoom.onSkip(self, button, params)
+                Base.SetDJEnabled(1)
+
+        guiroom = None
+        if not GUI.GUIRootSingleton:
+            debug.debug('*** +--- Initializing GUI subsys')
+            GUI.GUIInit()
+        if GUI.GUIRootSingleton:
+            guiroom = GUI.GUIRootSingleton.getRoomById(room)
+        if not guiroom:
+            guiroom = GUI.GUIRoom(room)
+        
+        # Set up cutscene room
+        cutscene_room = Base.Room('XXX'+self.name.replace(' ','_'))
+        cutscene_guiroom = CutsceneRoom(cutscene_room, 
+            ( self.movie,
+              GUI.GUIRect(0, 0, 1, 1, "normalized")), 
+            guiroom )
+        if self.aspect is not None:
+            debug.debug('*** +--- Setting aspect ratio to '+str(self.aspect))
+            cutscene_guiroom.setAspectRatio(self.aspect)
+        cutscene_guiroom.draw()
+        cutscene_guiroom.video.startPlaying()
+
+        Base.SetDJEnabled(0)
+        Base.SetCurRoom(cutscene_room)
+        
+        return True
+    
 class AddSprite(Script):
 	def __init__(self,name,sprite,pos,nextscript=None):
 		Script.__init__(self,nextscript)

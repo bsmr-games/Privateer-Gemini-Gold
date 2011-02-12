@@ -342,7 +342,8 @@ class GUIRoot:
 				VS.vsConfig("graphics","x_resolution","0")))
 			screenY = int(VS.vsConfig("graphics","base_max_height",
 				VS.vsConfig("graphics","y_resolution","0")))
-			aspect = float(VS.vsConfig("graphics","aspect","0"))
+		if not aspect:
+			aspect = float(VS.vsConfig("graphics","aspect","0")) or None
 		self.setScreenDimensions(screenX,screenY)
 		self.aspect = aspect or (screenX * 1.0 / screenY)
 		if (marginX == None):
@@ -671,6 +672,9 @@ class GUIRoom:
 			GUIRootSingleton.broadcastRoomMessage(self.getIndex(),'redraw',None)
 		self.needRedraw = 0
 		self.needPreserveZ = 0
+	
+	def draw(self):
+		GUIRootSingleton.broadcastRoomMessage(self.getIndex(),'draw',None)
 
 	def notifyNeedRedraw(self,preserveZ=1):
 		self.needRedraw = 1
