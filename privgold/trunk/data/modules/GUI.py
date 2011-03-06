@@ -1687,7 +1687,19 @@ class GUISimpleListPicker(GUIElement):
 		self.viewMove(nPages*len(self._listitems))
 		self._recheck()
 	
+	def viewMove(self,lines):
+		self.firstVisible = max(0,min(len(self.items)-1-len(self._listitems)/2,self.firstVisible + lines))
+		self.notifyNeedRedraw()
+		self._needTextUpdate = True
+		self._recheck()
 
+	def setSelection(self,sel):
+		if sel is False or sel is None or sel<0:
+			self.selection = None
+		else:
+			self.selection = sel
+		self._recheck()
+	
 
 """----------------------------------------------------------------"""
 """                                                                """
@@ -1761,10 +1773,16 @@ class GUIVideoStream(GUIStaticImage):
                  +"GUIRootSingleton.redrawIfNeeded()\n"
             
             (x,y,w,h) = self.sprite[1].getSpriteRect()
-            Base.VideoStream(self.room.getIndex(),self.index,self.sprite[0],x,y,w,h)
-            Base.SetVideoCallback(self.room.getIndex(),self.index,pythoncallback)
-            self.spritestate=1
-            self.setAspectRatio(self.aspect)
+            self.spritestate = Base.VideoStream(self.room.getIndex(),self.index,self.sprite[0],x,y,w,h)
+            if self.spritestate is None:
+                self.spritestate = 1
+            if self.spritestate:
+                Base.SetVideoCallback(self.room.getIndex(),self.index,pythoncallback)
+                self.setAspectRatio(self.aspect)
+            else:
+                # Movies are optional, so don't break - skip (immediate EOS) instead
+                # Enqueue it to happen as soon as the movie screen is shown 
+                Base.RunScript(self.room.getIndex(),self.index+"EOS",pythoncallback,0.0)
     
     def undraw(self):
         """ Hides the element """
@@ -1790,7 +1808,7 @@ class GUIVideoStream(GUIStaticImage):
 
     def setAspectRatio(self, aspect):
         self.aspect = aspect
-        if self.spritestate==1:
+        if self.spritestate:
             (x,y,w,h) = self.sprite[1].getSpriteRect()
             screenAspect = GUIRootSingleton.getScreenAspectRatio()
             
@@ -1867,16 +1885,4 @@ class GUIMovieRoom(GUIRoom):
     def setAspectRatio(self, ratio):
         self.aspect = ratio
         self.video.setAspectRatio(self.aspect)
-	def viewMove(self,lines):
-		self.firstVisible = max(0,min(len(self.items)-1-len(self._listitems)/2,self.firstVisible + lines))
-		self.notifyNeedRedraw()
-		self._needTextUpdate = True
-		self._recheck()
 
-	def setSelection(self,sel):
-		if sel is False or sel is None or sel<0:
-			self.selection = None
-		else:
-			self.selection = sel
-		self._recheck()
-	
