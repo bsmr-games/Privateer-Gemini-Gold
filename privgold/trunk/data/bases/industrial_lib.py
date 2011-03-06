@@ -2,8 +2,9 @@ import Base
 import dynamic_mission
 import VS
 import PlayerShip
+import land_hooks
 
-def MakeIndustrial(sunny,time_of_day='',AWACS=False):
+def MakeIndustrial(sunny,time_of_day='',AWACS=False,hooks=land_hooks.setup):
 
 	# this uses the original coordinate system of Privateer
 	import GUI
@@ -11,6 +12,7 @@ def MakeIndustrial(sunny,time_of_day='',AWACS=False):
 
 	# add the landing pad
 	room_landing_pad = Base.Room ('Landing_Platform')
+	hooks(room_landing_pad)
 	if sunny:
 		Base.Texture (room_landing_pad, 'background', 'bases/new_detroit/NewDet_LandingPad_Sunny.spr', 0.582, -0.2716)
 	else:

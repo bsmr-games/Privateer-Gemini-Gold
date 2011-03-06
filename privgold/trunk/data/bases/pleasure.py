@@ -11,12 +11,11 @@ import land_hooks
 land_hooks.run()
 
 time_of_day=''
-plist=VS.musicAddList('land.m3u')
-VS.musicPlayList(plist)
 dynamic_mission.CreateMissions()
 
 # add landing pad
 room_landing_pad = Base.Room ('Landing_Pad')
+land_hooks.setup(room_landing_pad)
 Base.Texture (room_landing_pad, 'background', 'bases/pleasure/Jolson_LandingBay'+time_of_day+'.spr', 0, 0)
 Base.Texture (room_landing_pad, 'background', 'bases/pleasure/Jolson_LandingBay_wtr'+time_of_day+'.spr', 0, 0)
 Base.Texture (room_landing_pad, 'background', 'bases/pleasure/Jolson_LandingBay_blt'+time_of_day+'.spr', 0.3576875, -0.0582)

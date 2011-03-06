@@ -4,15 +4,14 @@ import VS
 import quest
 
 import land_hooks
-land_hooks.run()
+land_hooks.run('derelict.m3u', outro=False)
 
 time_of_day=''
 bar=-1
 weap=-1
 room0=-1
-plist=VS.musicAddList('derelict.m3u')
-VS.musicPlayList(plist)
 room = Base.Room ('Kilrathi_Weapon_Dump')
+land_hooks.setup(room)
 room0 = room
 Base.Texture (room, 'background', 'bases/generic/airlock_yes.spr', 0, 0)
 Base.Comp (room0, 'Inventory', -0.453125, -0.291667, 0.767578, 0.770833, 'Inventory','Upgrade ShipDealer')

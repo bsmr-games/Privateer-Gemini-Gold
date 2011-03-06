@@ -8,15 +8,14 @@ import GUI
 GUI.GUIInit(320,200,0.03,0.03)
 
 import land_hooks
-land_hooks.run()
+land_hooks.run('mining_base_pirates.m3u')
 
 time_of_day=''
-plist=VS.musicAddList('mining_base_pirates.m3u')
-VS.musicPlayList(plist)
 dynamic_mission.CreateMissions()
 
 # add landing pad
 room_landing_pad = Base.Room ('Landing_Pad')
+land_hooks.setup(room_landing_pad)
 Base.Texture (room_landing_pad, 'background', 'bases/mining_base/MiningBase_LandingPad'+time_of_day+'.spr', 0, 0)
 Base.Texture (room_landing_pad, 'lgt', 'bases/mining_base/MiningBase_LandingPad_lgt'+time_of_day+'.spr', 0.6698, 0.564733333)
 Base.Texture (room_landing_pad, 'shp', 'bases/mining_base/MiningBase_LandingPad_shp'+time_of_day+'.spr', 0.206125, 0.6596)

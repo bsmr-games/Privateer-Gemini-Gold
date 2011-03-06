@@ -9,16 +9,14 @@ import GUI
 GUI.GUIInit(320,200,0.03,0.03)
 
 import land_hooks
-land_hooks.run()
+land_hooks.run('derelict.m3u', outro=False)
 
 time_of_day=''
-
-plist=VS.musicAddList('derelict.m3u')
-VS.musicPlayList(plist)
 dynamic_mission.CreateMissions()
 
 # add landing pad
 room_landing_pad = Base.Room ('')
+land_hooks.setup(room_landing_pad)
 Base.Texture (room_landing_pad, 'sta00', 'bases/derelict/derelict'+time_of_day+'_sta00.spr', 0, 0)
 Base.Texture (room_landing_pad, 'background', 'bases/derelict/derelict'+time_of_day+'.spr', 0, 0)
 

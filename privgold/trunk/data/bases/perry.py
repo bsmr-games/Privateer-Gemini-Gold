@@ -12,12 +12,11 @@ import land_hooks
 land_hooks.run()
 
 time_of_day=''
-plist=VS.musicAddList('land.m3u')
-VS.musicPlayList(plist)
 dynamic_mission.CreateMissions()
 
 # add Landing Pad
 room0 = Base.Room ('Landing_Pad')
+land_hooks.setup(room0)
 Base.Texture (room0, 'background', 'bases/perry/Perry_LandingBay'+time_of_day+'.spr', 0, 0)
 
 PlayerShip.InitPlayerShips()

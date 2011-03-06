@@ -4,9 +4,10 @@ import vsrandom
 import industrial_lib
 sunny=vsrandom.uniform(0,1)<.9
 
+import land_hooks
+land_hooks.run('AWACS_peace.m3u')
+
 time_of_day=''
-plist=VS.musicAddList('AWACS_peace.m3u')
-VS.musicPlayList(plist)
 dynamic_mission.CreateMissions()
 
 industrial_lib.MakeIndustrial(sunny,time_of_day,True)

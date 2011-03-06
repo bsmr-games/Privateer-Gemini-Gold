@@ -13,15 +13,14 @@ def MakeUniversity (time_of_day='_day'):
 
 	campaign_lib.masterson_extraspeech=""
 
-	plist=VS.musicAddList('land.m3u')
-	VS.musicPlayList(plist)
+	import land_hooks
+	land_hooks.run('oxford.m3u')
+    
 	dynamic_mission.CreateMissions()
-
-	plist=VS.musicAddList('oxford.m3u')
-	VS.musicPlayList(plist)	
 
 	# add main landing pad
 	room0 = Base.Room ('Landing_Pad')
+	land_hooks.setup(room0)
 	Base.Texture (room0, 'background', 'bases/university/Landing_Pad.spr', 0, 0)
 	Base.Texture (room0, 'tnl00000', 'bases/university/Landing_Pad_tnl00000.spr', 0, 0)
 

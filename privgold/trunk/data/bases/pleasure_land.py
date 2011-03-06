@@ -1,8 +1,10 @@
 import Base
 import PlayerShip
+import land_hooks
 
-def MakePleasureAgriculturalLanding(time_of_day=''):
+def MakePleasureAgriculturalLanding(time_of_day='', hook=land_hooks.setup):
 	room0 = Base.Room ('Landing_Pad')
+	hook(room0)
 	Base.Texture (room0, 'background', 'bases/pleasure/Jolson_LandingBay'+time_of_day+'.spr', 0, 0)
 	Base.Texture (room0, 'background', 'bases/pleasure/Jolson_LandingBay_wtr'+time_of_day+'.spr', 0, 0)
 	Base.Texture (room0, 'background', 'bases/pleasure/Jolson_LandingBay_blt'+time_of_day+'.spr', 0.3576875, -0.0582)

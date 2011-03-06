@@ -1,9 +1,16 @@
 import Base
 import dynamic_mission
 import VS
+import GUI
+import land_hooks
+import quest
+
+if quest.checkSaveValue(VS.getCurrentPlayer(),"jones_dead",1.0):
+    land_hooks.run('church_of_man_dead.m3u')
+else:
+    land_hooks.run('church_of_man.m3u')
 
 # this uses the original coordinate system of Privateer
-import GUI
 GUI.GUIInit(320,200,0.03,0.03)
 
 time_of_day=''
@@ -16,12 +23,10 @@ room0 = pleasure_land.MakePleasureAgriculturalLanding(time_of_day)
 # add temple
 room = Base.Room ('Temple')
 room1 = room
-import quest
 done_comp=False
 if quest.checkSaveValue(VS.getCurrentPlayer(),"jones_dead",1.0):
 	Base.Texture (room, 'background', 'bases/church_of_man/GaeaDead.spr', .582, -.2716)
 	Base.Texture (room, 'smk', 'bases/church_of_man/smk.spr', .582, -.2716)
-	plist=VS.musicAddList('church_of_man_dead.m3u')
 	done_comp=True
 else:
 	Base.Texture (room, 'background', 'bases/church_of_man/Gaea.spr', .582, -.2716)
@@ -31,10 +36,6 @@ else:
 	Base.Texture (room, 'lgo', 'bases/church_of_man/lgo.spr', -0.07275, -0.3783)
 	Base.Texture (room, 'sn0', 'bases/church_of_man/sn0.spr', -0.582, -0.5238)
 	Base.Texture (room, 'sn1', 'bases/church_of_man/sn1.spr', 0.7699375, -0.2619)
-	plist=VS.musicAddList('church_of_man.m3u')
-
-# play the appropriate music
-VS.musicPlayList(plist)
 
 # add links between pad and temple
 Base.Link (room0, 'my_link_id', 0.6025, -0.463333, 0.29, 0.633333, 'Pay_Homage_at_Temple_Gaea', room1)
