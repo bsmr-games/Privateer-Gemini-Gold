@@ -1,7 +1,11 @@
+#include "config.h"
+#include "stdlib.h"
+#include "fplod.h"
+
 uniform int light_enabled[gl_MaxLights];
 uniform int max_light_enabled;
 uniform sampler2D diffuseMap;
-uniform sampler2D envMap;
+uniform samplerCube envMap;
 uniform sampler2D specMap;
 uniform sampler2D glowMap;
 uniform sampler2D normalMap;
@@ -18,27 +22,6 @@ vec3 matmul(vec3 tangent, vec3 binormal, vec3 normal,vec3 lightVec) {
 vec3 imatmul(vec3 tangent, vec3 binormal, vec3 normal,vec3 lightVec) {
   return lightVec.xxx*tangent+lightVec.yyy*binormal+lightVec.zzz*normal;
 }
-
-vec2 EnvMapGen(vec3 f) {
-   float fzp1=f.z+1.0;
-   float m=2.0*sqrt(f.x*f.x+f.y*f.y+(fzp1)*(fzp1));
-   return vec2(f.x/m+.5,f.y/m+.5);
-}
-
-float bias(float f){ return f*0.5+0.5; }
-vec2  bias(vec2 f) { return f*0.5+vec2(0.5); }
-vec3  bias(vec3 f) { return f*0.5+vec3(0.5); }
-vec4  bias(vec4 f) { return f*0.5+vec4(0.5); }
-
-float expand(float f){ return f*2.0-1.0; }
-vec2  expand(vec2 f) { return f*2.0-vec2(1.0); }
-vec3  expand(vec3 f) { return f*2.0-vec3(1.0); }
-vec4  expand(vec4 f) { return f*2.0-vec4(1.0); }
-
-float lerp(float f, float a, float b){return (1.0-f)*a+f*b; }
-vec2  lerp(float f, vec2 a, vec2 b) { return (1.0-f)*a+f*b; }
-vec3  lerp(float f, vec3 a, vec3 b) { return (1.0-f)*a+f*b; }
-vec4  lerp(float f, vec4 a, vec4 b) { return (1.0-f)*a+f*b; }
 
 /*
 float shininessMap(float shininess, vec4 spec_col) // alpha-based shininess modulation
@@ -91,6 +74,7 @@ void lightingLight(
    float temp = clamp( NdotL - (0.94 * s * s * s * s * NdotL) + 0.005, 0.0, 1.01 ); //soft penumbra
    specular += ( pow( RdotL, lightspot_brightness(shininess,spec_col)) * lightDiffuse.rgb ); //* lightAtt );
    diffuse  += ( temp * lightDiffuse.rgb ); //* lightAtt );
+   diffuse  += ambientProduct.rgb;
 }
 
 #define lighting(name, lightno_gl, lightno_tex) \
@@ -119,7 +103,7 @@ vec3 lightingClose(in vec3 diffuse, in vec3 specular, in vec4 diffusemap, in vec
 vec3 envMapping(in vec3 reflection, in float gloss, in vec3 spec_col)
 {
    float envLod = shininess2Lod(gloss);//shininessMap(shininess,spec_col));
-   return texture2DLod(envMap, EnvMapGen(reflection), envLod).rgb * spec_col * vec3(2.0);
+   return textureCubeLod(envMap, reflection, envLod).rgb * spec_col * vec3(2.0);
 }
 
 void main() 
@@ -130,14 +114,14 @@ void main()
   vec3 iBinormal=gl_TexCoord[3].xyz;
   vec3 vnormal=iNormal;
   //vec3 normal=normalize(imatmul(iTangent,iBinormal,iNormal,expand(texture2D(normalMap,gl_TexCoord[0].xy).yxz)*vec3(-1.0,1.0,1.0)));
-  vec3 normal=normalize(imatmul(iTangent,iBinormal,iNormal,expand(texture2D(normalMap,gl_TexCoord[0].xy).wyz)));
+  vec3 normal=normalize(vnormal);//normalize(imatmul(iTangent,iBinormal,iNormal,expand(texture2D(normalMap,gl_TexCoord[0].xy).wyz)));
   
   // Other vectors
   vec3 eye = gl_TexCoord[4].xyz;
   vec3 reflection = -reflect(eye,normal);
   
   // Init lighting accumulators
-  vec3 diffuse = vec3(0.0);
+  vec3 diffuse = gl_TexCoord[7].rgb;
   vec3 specular= vec3(0.0);
   
   // Sample textures
@@ -160,7 +144,7 @@ void main()
   alpha *= alpha;
   //fresnel_alpha *= fresnel_alpha;
 
-  vec4 diffusemap  = lerp(damage.x, diffusecolor, damagecolor);
+  vec4 diffusemap  = lerp(diffusecolor, damagecolor, damage.x);
   vec3 spec_col     = speccolor.rgb;
   //float specdamage = clamp(1.0 - dot(damagecolor.xyz,vec3(1.0/3.0)) * damage.x * 2.0, 0.0, 1.0);
   //spec_col.rgb     *= specdamage;
@@ -181,7 +165,7 @@ void main()
 
   vec4 result;
   //specular *= fresnel_alpha;
-  vec3 final_specular_color = lerp( alpha, vec3( fresnel_alpha ), spec_col );
+  vec3 final_specular_color = lerp( vec3( fresnel_alpha ), spec_col, alpha );
 
   result.a = fresnel_alpha;
   result.rgb  = lightingClose(diffuse, specular, diffusemap, final_specular_color)

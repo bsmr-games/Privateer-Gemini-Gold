@@ -1,22 +1,26 @@
+#include "fplod.h"
+
 uniform sampler2D diffuseMap;
-uniform sampler2D envMap;
+uniform samplerCube envMap;
 uniform vec4 cloaking;
 uniform vec4 damage;
 uniform vec4 envColor;
 
-vec3 ambientMapping(in vec3 normal)
+vec3 ambientMapping()
 {
-   return texture2DLod(envMap, gl_TexCoord[1].zw, 8.0).rgb * 2.0;
+   return textureCubeLod(envMap, gl_TexCoord[2].xyz, 8.0).rgb;
 }
 
 void main() 
 {
   // Sample textures
   vec4 diffusemap  = texture2D(diffuseMap, gl_TexCoord[0].xy);
-  vec4 diffuse = gl_Color;
-  diffuse.rgb += ambientMapping(gl_TexCoord[2].xyz);
-  
-  gl_FragColor = diffusemap * diffuse;
-  gl_FragColor.rgb += gl_SecondaryColor.rgb;
-  gl_FragColor *= cloaking.rrrg;
+  vec3 diffusecol = gl_Color.rgb;
+  diffusecol += ambientMapping();
+  vec4 result;
+  result.rgb = diffusemap.rgb * diffusecol;
+  result.rgb += gl_SecondaryColor.rgb;
+  result.a = diffusemap.a;
+  result *= cloaking.rrrg;
+  gl_FragColor = result;
 }

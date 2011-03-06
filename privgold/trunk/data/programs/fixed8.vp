@@ -60,24 +60,21 @@ lighting(lighting5, lightPosAndAttenuation5, 5)
 lighting(lighting6, lightPosAndAttenuation6, 6)
 lighting(lighting7, lightPosAndAttenuation7, 7)
 
-vec2 EnvMapGen(vec3 f) {
-   float fzp1=f.z+1.0;
-   float m=2.0*sqrt(f.x*f.x+f.y*f.y+(fzp1)*(fzp1));
-   return vec2(f.x/m+.5,f.y/m+.5);
-}
-
 void main() 
 {
   // Compute position, eye-to-object direction and normalized world-space normal
   vec4 position = gl_ModelViewMatrix * gl_Vertex;
   vec3 eyetopos = normalize(position.xyz);
   vec3 normal   = normalize(gl_NormalMatrix * gl_Normal);
+  vec3 tangent  = normalize(gl_NormalMatrix * gl_MultiTexCoord2.xyz);
+  vec3 binormal = cross(tangent, normal) * sign(gl_MultiTexCoord2.w);
 
   // Load varyings
   gl_TexCoord[0] = gl_MultiTexCoord0;
-  gl_TexCoord[1].xy = EnvMapGen(reflect(eyetopos, normal));
-  gl_TexCoord[1].zw = EnvMapGen(normal);
+  gl_TexCoord[1].xyz = reflect(eyetopos, normal);
   gl_TexCoord[2].xyz = normal;
+  //gl_TexCoord[3].xyz = tangent;
+  //gl_TexCoord[4].xyz = binormal;
 
   // init accumulators
 

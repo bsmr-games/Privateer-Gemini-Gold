@@ -88,7 +88,7 @@ void main()
   
   // set texcoord 7 to the front light[0] ambient and light model ambient, for simple GI modulation.
   gl_TexCoord[7] = 
-            gl_FrontLightProduct[0].ambient 
+            gl_LightModel.ambient 
           + gl_FrontLightModelProduct.sceneColor
           + float(light_enabled[1]) * gl_FrontLightProduct[1].ambient;
 
