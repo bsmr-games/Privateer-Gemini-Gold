@@ -18,6 +18,12 @@ fortress_systems={"Gemini/Perry":1-.0625, "Gemini/New_Constantinople":1-.0625, "
 max_flightgroups={"Gemini/Troy":25,"Gemini/Penders_Star":15,"Gemini/Junction":12}
 min_flightgroups={"Gemini/Troy":22,"Gemini/Penders_Star":10,"Gemini/Junction":4}
 
+populationDensity={
+        "Gemini/Troy":1.0,
+        "Gemini/New_Constantinople":2.0,
+        "Gemini":0.7,
+}
+
 numPatrolPoints={"Gemini/Troy":8,
 	"Gemini/Xytani":3,
 	"Gemini/XXN-1927":7,
@@ -505,6 +511,12 @@ def GetStats ( name):
     except:
         print 'cannot find '+name
         return (.5,.5,1,1,1)
+
+def GetPopulationDensity(system):
+    sector = system.split('/',1)[0]
+    return populationDensity.get(system,
+        populationDensity.get(sector,
+            populationDensity.get('*',1.0) ) )
 
 
 capitols=capitals

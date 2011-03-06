@@ -264,9 +264,16 @@ class random_encounters:
             self.cur.lastmode=self.cur.curmode
             print "curmodechange %d" % (self.cur.curmode)#?
             if un:
-#      if ((vsrandom.random()<(self.fighterprob*self.cur.UpdatePhaseAndAmplitude())) and un):
-                if (not self.atLeastNInsignificantUnitsNear (un,self.min_num_ships)):
-                    #determine whether to launch more ships next to significant thing based on ships in that range
+                cursys = VS.getSystemFile()
+                pop_dens = faction_ships.GetPopulationDensity(cursys)
+                fighterprob = self.fighterprob*self.cur.UpdatePhaseAndAmplitude()
+                print "fighter probability: %.2f" % fighterprob
+                    
+                numships = int(fighterprob * self.min_num_ships + 0.5)
+                print "num ships to launch: %.2f" % numships
+            
+                #determine whether to launch more ships next to significant thing based on ships in that range
+                if (numships > 0 and not self.atLeastNInsignificantUnitsNear (un,numships)):
                     debug.debug("launch near")
                     self.launch_near (VS.getPlayerX(self.cur_player))
         self.cur_player+=1
