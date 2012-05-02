@@ -1816,7 +1816,7 @@ class RepairBayComputerGeneric:
 					# draw the screen
 					self.setstatus(True, "Thank You")
 				else:
-					self.setstatus(False, "ERROR: Can't add %s" %(item_name) )
+					self.setstatus(False, "ERROR: Can't add %s" %(item_name,) )
 			else:
 				self.setstatus(False, "NO ROOM ON SHIP")
 		elif type == "subunit":
@@ -1832,7 +1832,7 @@ class RepairBayComputerGeneric:
 					self.cargo_bought(item_name, type, upgrade_class)
 					self.setstatus(True, "Thank You")
 				else:
-					self.setstatus(False, "ERROR: Can't add %s to %s" %(item_name, mount_num) )
+					self.setstatus(False, "ERROR: Can't add %s" %(item_name,) )
 			else:
 				self.setstatus(False, "NO ROOM ON SHIP")
 		else:
