@@ -8,6 +8,29 @@ import quest
 
 import custom
 
+# Size constants - keep in sync with VS defined ones (weapon_xml.h)
+
+NOWEAP			=0x0
+LIGHT			=0x1 
+MEDIUM			=0x2 
+HEAVY			=0x4 
+CAPSHIPLIGHT		=0x8
+CAPSHIPHEAVY		=0x10 
+SPECIAL			=0x20
+LIGHTMISSILE		=0x40
+MEDIUMMISSILE		=0x80
+HEAVYMISSILE		=0x100 
+CAPSHIPLIGHTMISSILE	=0x200
+CAPSHIPHEAVYMISSILE	=0x400
+SPECIALMISSILE		=0x800
+AUTOTRACKING		=0x1000
+
+GUNS = LIGHT|MEDIUM|HEAVY|CAPSHIPLIGHT|CAPSHIPHEAVY
+SPECIALS = SPECIAL|SPECIALMISSILE
+MISSILES = LIGHTMISSILE|MEDIUMMISSILE|CAPSHIPLIGHTMISSILE|SPECIALMISSILE
+TORPEDOES = HEAVYMISSILE|CAPSHIPHEAVYMISSILE
+
+
 #
 # This first section contains the two functions used by individual bases
 #	CanRepair
@@ -1507,10 +1530,10 @@ def get_upgrade_sell_list():
 				remove_upgrade(player, display_name, i)
 
 		# check whether this is a missile launcher
-		if (mount['size'] & 64) or (mount['size'] & 128):
+		if (mount['size'] & MISSILES):
 			# light-missile or medium-missile launcher
 			sell.append( ['missile_launcher', 1.0, 'launcher', i, None] )
-		elif (mount['size'] & 256):
+		elif (mount['size'] & TORPEDOES):
 			# heavy-missile (torpedo) launcher
 			sell.append( ['torpedo_launcher', 1.0, 'launcher', i, None] )
 
@@ -1674,7 +1697,6 @@ class RepairBayComputerGeneric:
 				upgrade_class = lookup_upgrade_class(item_name)
 				self.upgrade_classes[upgrade_class] = item_name
 
-		#   enum MOUNT_SIZE {NOWEAP=0x0,LIGHT=0x1,MEDIUM=0x2,HEAVY=0x4,CAPSHIPLIGHT=0x8,CAPSHIPHEAVY=0x10,SPECIAL=0x20, LIGHTMISSILE=0x40,MEDIUMMISSILE=0x80,HEAVYMISSILE=0x100,CAPSHIPLIGHTMISSILE=0x200, CAPSHIPHEAVYMISSILE=0x400,SPECIALMISSILE=0x800, AUTOTRACKING=0x1000} size;
 		self.mounts = {
 			'missile': [],
 			'torpedo': [],
@@ -1689,16 +1711,16 @@ class RepairBayComputerGeneric:
 			self.mounts['empty'][i] = mount['empty']
 			
 			# check what type of mount this is
-			if (mount['size'] & 1) or (mount['size'] & 2) or (mount['size'] & 4):
+			if (mount['size'] & GUNS):
 				self.mounts['gun'].append(i)
-			if (mount['size'] & 32):
+			if (mount['size'] & SPECIALS):
 				self.mounts['special'].append(i)
-			if (mount['size'] & 64) or (mount['size'] & 128):
+			if (mount['size'] & MISSILES):
 				self.mounts['missile'].append(i)
 				# missile mounts aren't empty
 
 				self.mounts['empty'][i] = False
-			if (mount['size'] & 256):
+			if (mount['size'] & TORPEDOES):
 				self.mounts['torpedo'].append(i)
 				# torpedo mounts aren't empty
 				self.mounts['empty'][i] = False
@@ -1807,14 +1829,14 @@ class RepairBayComputerGeneric:
 			upgrade_class = lookup_upgrade_class(item_name)
 			has_item = self.upgrade_classes.get(upgrade_class, '')
 			if has_item == '':
-				# deduct cost
-				player.addCredits(-1 * price)
 				# add item to ship
 				if add_item(player, item_name, price, 1):
-				# add item to buy/sell computer datastructures
+					# add item to buy/sell computer datastructures
 					self.cargo_bought( item_name, type, upgrade_class)
 					# draw the screen
 					self.setstatus(True, "Thank You")
+					# deduct cost
+					player.addCredits(-1 * price)
 				else:
 					self.setstatus(False, "ERROR: Can't add %s" %(item_name,) )
 			else:
@@ -2400,6 +2422,7 @@ class RepairBayComputer(RepairBayComputerGeneric):
 					if (player.getCredits() < price):
 						self.draw("INSUFFICIENT CREDIT")
 					else:
+						print(self.mounts)
 						slots = available_missile_mounts(self.mounts, type, item_name)
 						if len(slots) == 0:
 							self.draw("NO ROOM ON SHIP")
@@ -2607,7 +2630,7 @@ def add_item_cargo(player, item_name, price, count=1):
 	if rc: return True
 	return False
 
-def add_item(player, item_name, price, count=1, force=0):
+def add_item(player, item_name, price, count=1, force=0, mounts=None):
 	mount_num = 0 # player.GetNumMounts()
 	subunit_num = 0
 	# calling Unit.upgrade with jump_drive, aftreburner etc returns 0.0, so add_upgrade returns False.
@@ -2726,12 +2749,12 @@ def available_missile_mounts(mounts, which, item_name):
 		count = mount['ammo']
 		max   = mount['volume']
 		empty = mount['empty']
-		if empty or (count == 0):
-			# empty
-			new_list.append(mount_num)
-		elif (count == max):
+		if (count == max):
 			# full
 			pass
+		elif empty or (count == 0):
+			# empty
+			new_list.append(mount_num)
 		else:
 			# partially full
 			try:
